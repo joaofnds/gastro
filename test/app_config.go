@@ -1,8 +1,8 @@
 package test
 
 import (
+	"astro/config"
 	"math/rand"
-	"web/config"
 )
 
 func RandomAppConfigPort(config config.AppConfig) config.AppConfig {

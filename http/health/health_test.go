@@ -1,11 +1,11 @@
 package health_test
 
 import (
+	"astro/config"
+	"astro/http/fiber"
+	"astro/http/health"
 	"net/http"
 	"testing"
-	"web/config"
-	"web/http/fiber"
-	"web/http/health"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

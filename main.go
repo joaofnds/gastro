@@ -1,12 +1,11 @@
 package main
 
 import (
-	"web/config"
-	"web/http"
-	"web/kv"
-	"web/logger"
-	"web/mongo"
-	"web/user"
+	"astro/config"
+	"astro/habit"
+	"astro/http"
+	"astro/logger"
+	"astro/postgres"
 
 	"go.uber.org/fx"
 )
@@ -16,8 +15,5 @@ func main() {
 		logger.Module,
 		config.Module,
 		http.Module,
-		user.Module,
-		mongo.Module,
-		kv.Module,
 	).Run()
 }

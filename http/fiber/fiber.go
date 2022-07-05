@@ -1,9 +1,9 @@
 package fiber
 
 import (
+	"astro/config"
 	"context"
 	"fmt"
-	"web/config"
 
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/fx"

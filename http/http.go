@@ -1,10 +1,8 @@
 package http
 
 import (
-	"web/http/fiber"
-	"web/http/health"
-	"web/http/kv"
-	"web/http/user"
+	"astro/http/fiber"
+	"astro/http/health"
 
 	"go.uber.org/fx"
 )
@@ -12,8 +10,6 @@ import (
 var (
 	Module = fx.Options(
 		fiber.Module,
-		user.Providers,
 		health.Providers,
-		kv.Providers,
 	)
 )

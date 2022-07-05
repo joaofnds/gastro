@@ -15,9 +15,8 @@ var (
 )
 
 type AppConfig struct {
-	Env      string `mapstructure:"env"`
-	Port     int    `mapstructure:"port"`
-	MongoURI string `mapstructure:"mongo_uri"`
+	Env  string `mapstructure:"env"`
+	Port int    `mapstructure:"port"`
 }
 
 func LoadConfig() error {
