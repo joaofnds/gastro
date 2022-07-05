@@ -1,0 +1,41 @@
+name: commit
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "CHANGELOG.md"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:5.0.6
+        ports:
+          - 27017:27017
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: "^1.17"
+
+      - name: tests
+        run: go test -v ./...
+        env:
+          CONFIG_PATH: "/home/runner/work/go-template/go-template/config/config.yaml"
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: joaofnds/semantic-release-action@v1.0.0
+        with:
+          plugins: "@semantic-release/changelog @semantic-release/git"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    command: mongod --setParameter notablescan=1
+    volumes:
+      - ./data/mongo:/data/db
+    ports:
+      - 27017:27017
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
