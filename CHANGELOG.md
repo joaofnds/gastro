@@ -1,3 +1,17 @@
+# 1.0.0 (2022-07-08)
+
+
+### Bug Fixes
+
+* **activity:** truncate time to second ([325f89c](https://github.com/joaofnds/gastro/commit/325f89c54368234841988099998cdb4a8af17f1d))
+
+
+### Features
+
+* add postgres ([b5e1396](https://github.com/joaofnds/gastro/commit/b5e1396ee36e87389b8bd5d0717cfc7a04a87bfc))
+* **habit:** add activity ([6a34410](https://github.com/joaofnds/gastro/commit/6a34410436131ac820c095e69eba424cab05ce1c))
+* **habit:** add service ([6179c4e](https://github.com/joaofnds/gastro/commit/6179c4e7fe08a08134f03d2b9e8471226cba5db9))
+
 # [1.4.0](https://github.com/joaofnds/go-template/compare/v1.3.0...v1.4.0) (2022-03-19)
 
 
