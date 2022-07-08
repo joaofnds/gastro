@@ -14,10 +14,10 @@ jobs:
         image: postgres:alpine
         ports:
           - 5432:5432
-        environment:
-          - POSTGRES_DB=astro
-          - POSTGRES_USER=postgres
-          - POSTGRES_PASSWORD=postgres
+        env:
+          POSTGRES_DB: astro
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
 
     steps:
       - uses: actions/checkout@v2
