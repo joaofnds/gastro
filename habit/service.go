@@ -2,6 +2,7 @@ package habit
 
 import (
 	"context"
+	"time"
 
 	"go.uber.org/zap"
 )
@@ -19,12 +20,16 @@ func (service *HabitService) Create(ctx context.Context, name string) (Habit, er
 	return service.repo.Create(ctx, name)
 }
 
-func (service *HabitService) List(ctx context.Context) ([]Habit, error) {
-	return service.repo.List(ctx)
+func (service *HabitService) AddActivity(ctx context.Context, habit Habit, date time.Time) (Activity, error) {
+	return service.repo.AddActivity(ctx, habit, date)
 }
 
 func (service *HabitService) FindByName(ctx context.Context, name string) (Habit, error) {
 	return service.repo.FindByName(ctx, name)
+}
+
+func (service *HabitService) List(ctx context.Context) ([]Habit, error) {
+	return service.repo.List(ctx)
 }
 
 func (service *HabitService) DeleteByName(ctx context.Context, name string) error {

@@ -39,6 +39,10 @@ func HookConnection(lifecycle fx.Lifecycle, db *sql.DB, logger *zap.Logger) {
 				logger.Error("failed to create habits table", zap.Error(err))
 				return err
 			}
+
+			err = createActivitiesTable(ctx, db)
+			if err != nil {
+				logger.Error("failed to create activities table", zap.Error(err))
 				return err
 			}
 
@@ -64,6 +68,18 @@ func createHabitsTable(ctx context.Context, db *sql.DB) error {
 			name VARCHAR NOT NULL
 		);
 		CREATE UNIQUE INDEX IF NOT EXISTS idx_habit_name ON habits(name);
+	`)
+	return err
+}
+
+func createActivitiesTable(ctx context.Context, db *sql.DB) error {
+	_, err := db.ExecContext(ctx, `
+		CREATE TABLE IF NOT EXISTS activities (
+			id         SERIAL PRIMARY KEY,
+			habit_id   INTEGER NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
+			created_at TIMESTAMP NOT NULL DEFAULT NOW()
+		);
+		CREATE INDEX IF NOT EXISTS idx_activity_habit ON activities(habit_id);
 	`)
 	return err
 }

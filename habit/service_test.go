@@ -7,6 +7,7 @@ import (
 	"astro/postgres"
 	"astro/test"
 	. "astro/test/matchers"
+	"time"
 
 	"context"
 	"testing"
@@ -38,7 +39,7 @@ var _ = Describe("habit service", func() {
 			fx.Populate(&habitService),
 		)
 		app.RequireStart()
-		habitService.DeleteAll(context.Background())
+		Must(habitService.DeleteAll(context.Background()))
 	})
 
 	AfterEach(func() {
@@ -84,13 +85,39 @@ var _ = Describe("habit service", func() {
 		})
 	})
 
+	Describe("add activity", func() {
+		It("persists the activity to the habit", func() {
+			ctx := context.Background()
+			Must2(habitService.Create(ctx, "read"))
+
+			habit := Must2(habitService.FindByName(ctx, "read"))
+			Expect(habit.Activities).To(HaveLen(0))
+
+			Must2(habitService.AddActivity(ctx, habit, time.Now()))
+
+			habit = Must2(habitService.FindByName(ctx, habit.Name))
+			Expect(habit.Activities).To(HaveLen(1))
+		})
+
+		It("sets the provided timestamp", func() {
+			ctx := context.Background()
+			habit := Must2(habitService.Create(ctx, "read"))
+
+			date := time.Now().UTC()
+			Must2(habitService.AddActivity(ctx, habit, date))
+
+			habit = Must2(habitService.FindByName(ctx, habit.Name))
+			Expect(habit.Activities[0].CreatedAt.UTC()).To(Equal(date))
+		})
+	})
+
 	It("removed habits do not appear on habits listing", func() {
 		ctx := context.Background()
 		habit := Must2(habitService.Create(ctx, "read"))
 
 		Expect(Must2(habitService.List(ctx))).To(HaveLen(1))
 
-		habitService.DeleteByName(ctx, habit.Name)
+		Must(habitService.DeleteByName(ctx, habit.Name))
 
 		Expect(Must2(habitService.List(ctx))).To(HaveLen(0))
 	})

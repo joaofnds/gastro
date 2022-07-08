@@ -3,7 +3,7 @@ package habit
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"time"
 )
 
 type SQLHabitRepository struct {
@@ -26,48 +26,71 @@ func (repo *SQLHabitRepository) Create(ctx context.Context, name string) (Habit,
 		return Habit{}, err
 	}
 
-	return Habit{id, name}, row.Err()
+	return Habit{id, name, []Activity{}}, row.Err()
 }
 
 func (repo *SQLHabitRepository) FindByName(ctx context.Context, queryName string) (Habit, error) {
-	row := repo.db.QueryRowContext(ctx, "SELECT id, name FROM habits WHERE name = $1", queryName)
+	rows, err := repo.db.QueryContext(ctx, `
+		SELECT
+			habits.id,
+			habits.name,
+			activities.id,
+			activities.created_at
+		FROM habits
+			LEFT JOIN activities ON activities.habit_id = habits.id
+		WHERE habits.name = $1`,
+		queryName,
+	)
+	if err != nil {
+		return Habit{}, err
+	}
+
+	defer rows.Close()
+	habits, err := scanRows(rows)
+	if err != nil {
+		return Habit{}, err
+	}
+
+	if len(habits) == 0 {
+		return Habit{}, nil
+	}
+
+	return habits[0], err
+}
+
+func (repo *SQLHabitRepository) AddActivity(ctx context.Context, habit Habit, time time.Time) (Activity, error) {
+	row := repo.db.QueryRowContext(ctx, "INSERT INTO activities(habit_id, created_at) VALUES ($1, $2) RETURNING id", habit.ID, time)
 	if row.Err() != nil {
-		return Habit{}, row.Err()
+		return Activity{}, row.Err()
 	}
 
 	var id int
-	var name string
-	err := row.Scan(&id, &name)
+	err := row.Scan(&id)
 	if err != nil {
-		return Habit{}, fmt.Errorf("failed to parse habit: %w", err)
+		return Activity{}, err
 	}
 
-	return Habit{id, name}, nil
+	return Activity{id, time}, row.Err()
 }
 
 func (repo *SQLHabitRepository) List(ctx context.Context) ([]Habit, error) {
-	rows, err := repo.db.QueryContext(ctx, "SELECT id, name FROM habits")
+	rows, err := repo.db.QueryContext(ctx, `
+		SELECT
+			habits.id,
+			habits.name,
+			activities.id,
+			activities.created_at
+		FROM habits
+			LEFT JOIN activities ON activities.habit_id = habits.id
+	`)
+
 	if err != nil {
 		return []Habit{}, err
 	}
 
 	defer rows.Close()
 
-	habits := []Habit{}
-
-	for rows.Next() {
-		var id int
-		var name string
-
-		err = rows.Scan(&id, &name)
-		if err != nil {
-			return []Habit{}, err
-		}
-
-		habits = append(habits, Habit{id, name})
-	}
-
-	return habits, nil
+	return scanRows(rows)
 }
 
 func (repo *SQLHabitRepository) DeleteByName(ctx context.Context, name string) error {
@@ -78,4 +101,39 @@ func (repo *SQLHabitRepository) DeleteByName(ctx context.Context, name string) e
 func (repo *SQLHabitRepository) DeleteAll(ctx context.Context) error {
 	_, err := repo.db.ExecContext(ctx, "DELETE FROM habits")
 	return err
+}
+
+func scanRows(rows *sql.Rows) ([]Habit, error) {
+	m := map[int]*Habit{}
+
+	for rows.Next() {
+		var habitID int
+		var habitName string
+		var activityID sql.NullInt32
+		var activityCreatedAt sql.NullTime
+
+		err := rows.Scan(&habitID, &habitName, &activityID, &activityCreatedAt)
+		if err != nil {
+			return []Habit{}, err
+		}
+
+		habit, ok := m[habitID]
+		if !ok {
+			habit = &Habit{habitID, habitName, []Activity{}}
+			m[habitID] = habit
+		}
+
+		if activityID.Valid {
+			activity := Activity{int(activityID.Int32), activityCreatedAt.Time}
+			habit.Activities = append(habit.Activities, activity)
+		}
+	}
+
+	habits := make([]Habit, len(m))
+	var i int
+	for _, h := range m {
+		habits[i] = *h
+		i++
+	}
+	return habits, nil
 }
