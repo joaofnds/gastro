@@ -28,7 +28,7 @@ jobs:
       - name: tests
         run: go test -v ./...
         env:
-          CONFIG_PATH: "/home/runner/work/go-template/go-template/config/config.yaml"
+          CONFIG_PATH: "/home/runner/work/gastro/gastro/config/config.yaml"
 
   release:
     needs: test
