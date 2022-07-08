@@ -99,7 +99,7 @@ var _ = Describe("habit service", func() {
 			Expect(habit.Activities).To(HaveLen(1))
 		})
 
-		It("sets the provided timestamp", func() {
+		It("sets the provided timestamp truncated to the second", func() {
 			ctx := context.Background()
 			habit := Must2(habitService.Create(ctx, "read"))
 
@@ -107,7 +107,7 @@ var _ = Describe("habit service", func() {
 			Must2(habitService.AddActivity(ctx, habit, date))
 
 			habit = Must2(habitService.FindByName(ctx, habit.Name))
-			Expect(habit.Activities[0].CreatedAt.UTC()).To(Equal(date))
+			Expect(habit.Activities[0].CreatedAt.UTC()).To(Equal(date.Truncate(time.Second)))
 		})
 	})
 

@@ -21,7 +21,7 @@ func (service *HabitService) Create(ctx context.Context, name string) (Habit, er
 }
 
 func (service *HabitService) AddActivity(ctx context.Context, habit Habit, date time.Time) (Activity, error) {
-	return service.repo.AddActivity(ctx, habit, date)
+	return service.repo.AddActivity(ctx, habit, date.Truncate(time.Second))
 }
 
 func (service *HabitService) FindByName(ctx context.Context, name string) (Habit, error) {
