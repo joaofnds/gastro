@@ -10,14 +10,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
     services:
-      mongodb:
-        image: mongo:5.0.6
+      postgres:
+        image: postgres:alpine
         ports:
-          - 27017:27017
-      redis:
-        image: redis
-        ports:
-          - 6379:6379
+          - 5432:5432
+        environment:
+          - POSTGRES_DB=astro
+          - POSTGRES_USER=postgres
+          - POSTGRES_PASSWORD=postgres
 
     steps:
       - uses: actions/checkout@v2
