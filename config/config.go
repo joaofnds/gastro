@@ -15,8 +15,9 @@ var (
 )
 
 type AppConfig struct {
-	Env  string `mapstructure:"env"`
-	Port int    `mapstructure:"port"`
+	Env      string         `mapstructure:"env"`
+	Port     int            `mapstructure:"port"`
+	Postgres PostgresConfig `mapstructure:"postgres"`
 }
 
 func LoadConfig() error {

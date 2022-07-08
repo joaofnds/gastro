@@ -15,5 +15,6 @@ func main() {
 		logger.Module,
 		config.Module,
 		http.Module,
+		postgres.Module,
 	).Run()
 }
