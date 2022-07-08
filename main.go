@@ -16,5 +16,6 @@ func main() {
 		config.Module,
 		http.Module,
 		postgres.Module,
+		habit.Module,
 	).Run()
 }

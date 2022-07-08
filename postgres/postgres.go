@@ -34,15 +34,11 @@ func HookConnection(lifecycle fx.Lifecycle, db *sql.DB, logger *zap.Logger) {
 
 			logger.Info("successfully pinged db")
 
-			_, err = db.ExecContext(ctx, `
-				CREATE TABLE IF NOT EXISTS habits (
-					id   SERIAL PRIMARY KEY,
-					name VARCHAR NOT NULL
-				)
-			`)
-
+			err = createHabitsTable(ctx, db)
 			if err != nil {
-				logger.Error("failed to create astro table", zap.Error(err))
+				logger.Error("failed to create habits table", zap.Error(err))
+				return err
+			}
 				return err
 			}
 
@@ -59,4 +55,15 @@ func HookConnection(lifecycle fx.Lifecycle, db *sql.DB, logger *zap.Logger) {
 			return nil
 		},
 	})
+}
+
+func createHabitsTable(ctx context.Context, db *sql.DB) error {
+	_, err := db.ExecContext(ctx, `
+		CREATE TABLE IF NOT EXISTS habits (
+			id   SERIAL PRIMARY KEY,
+			name VARCHAR NOT NULL
+		);
+		CREATE UNIQUE INDEX IF NOT EXISTS idx_habit_name ON habits(name);
+	`)
+	return err
 }
