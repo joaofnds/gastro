@@ -13,9 +13,9 @@ var (
 	Providers = fx.Invoke(HealthHandler)
 )
 
-func HealthHandler(app *fiber.App, svc *habit.HabitService, logger *zap.Logger) {
+func HealthHandler(app *fiber.App, habitService *habit.HabitService, logger *zap.Logger) {
 	app.Get("/habits", func(c *fiber.Ctx) error {
-		habits, err := svc.List(c.Context())
+		habits, err := habitService.List(c.Context())
 
 		if err != nil {
       logger.Error("failed to list habits", zap.Error(err))
@@ -30,7 +30,7 @@ func HealthHandler(app *fiber.App, svc *habit.HabitService, logger *zap.Logger) 
 		if name == "" {
 			return c.SendStatus(http.StatusBadRequest)
 		}
-		_, err := svc.Create(c.Context(), name)
+		_, err := habitService.Create(c.Context(), name)
 
 		if err != nil {
       logger.Error("failed to create habit", zap.Error(err))
