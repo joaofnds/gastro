@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/joaofnds/gastro/compare/v1.0.0...v1.1.0) (2022-07-10)
+
+
+### Features
+
+* expose list and create through http ([e680ac3](https://github.com/joaofnds/gastro/commit/e680ac3d60da4b734f3249bfea37931a42b21884))
+
 # 1.0.0 (2022-07-08)
 
 
