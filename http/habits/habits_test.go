@@ -73,7 +73,7 @@ var _ = Describe("/habits", func() {
 
 	Describe("/:name", func() {
 		Describe("when habit is found", func() {
-			It("returns 200", func() {
+			It("has status 200", func() {
 				api := driver.NewAPI()
 				Must2(api.Create("read"))
 
@@ -86,12 +86,14 @@ var _ = Describe("/habits", func() {
 				Must(app.Create("read"))
 
 				habit := Must2(app.Get("read"))
+				Expect(habit.ID > 0).To(BeTrue())
 				Expect(habit.Name).To(Equal("read"))
+				Expect(habit.Activities).To(HaveLen(0))
 			})
 		})
 
 		Describe("when habit is not found", func() {
-			It("returns 404", func() {
+			It("has status 404", func() {
 				api := driver.NewAPI()
 				Must2(api.Create("read"))
 
@@ -100,9 +102,19 @@ var _ = Describe("/habits", func() {
 			})
 		})
 
-		It("returns the activity", func() {
-			app := driver.NewDriver()
-			Must(app.Create("read"))
+		Describe("activities", func() {
+			It("POST to add acitity", func() {
+				app := driver.NewDriver()
+				api := driver.NewAPI()
+				Must2(api.Create("read"))
+
+				Must2(api.AddActivity("read"))
+				Must2(api.AddActivity("read"))
+				Must2(api.AddActivity("read"))
+
+				habit := Must2(app.Get("read"))
+				Expect(habit.Activities).To(HaveLen(3))
+			})
 		})
 	})
 })
