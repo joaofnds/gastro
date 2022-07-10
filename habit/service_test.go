@@ -3,7 +3,6 @@ package habit_test
 import (
 	"astro/config"
 	"astro/habit"
-	"astro/logger"
 	"astro/postgres"
 	"astro/test"
 	. "astro/test/matchers"
@@ -31,8 +30,7 @@ var _ = Describe("habit service", func() {
 	BeforeEach(func() {
 		app = fxtest.New(
 			GinkgoT(),
-			fx.NopLogger,
-			logger.Module,
+			test.NopLogger,
 			config.Module,
 			fx.Decorate(test.RandomAppConfigPort),
 			postgres.Module,

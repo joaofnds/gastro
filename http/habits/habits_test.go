@@ -5,8 +5,8 @@ import (
 	"astro/habit"
 	"astro/http/fiber"
 	"astro/http/habits"
-	"astro/logger"
 	"astro/postgres"
+	"astro/test"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -19,7 +19,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )
 
@@ -34,9 +33,8 @@ var _ = Describe("/habits", func() {
 	BeforeEach(func() {
 		app = fxtest.New(
 			GinkgoT(),
-			fx.NopLogger,
+			test.NopLogger,
 			config.Module,
-			logger.Module,
 			fiber.Module,
 			postgres.Module,
 			habit.Module,
