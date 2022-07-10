@@ -52,13 +52,14 @@ func (repo *SQLHabitRepository) FindByName(ctx context.Context, queryName string
 	}
 
 	defer rows.Close()
+
 	habits, err := scanRows(rows)
 	if err != nil {
 		return Habit{}, err
 	}
 
 	if len(habits) == 0 {
-		return Habit{}, nil
+		return Habit{}, HabitNotFoundErr
 	}
 
 	return habits[0], err

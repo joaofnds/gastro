@@ -2,6 +2,7 @@ package habit
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"go.uber.org/zap"
@@ -25,7 +26,16 @@ func (service *HabitService) AddActivity(ctx context.Context, habit Habit, date 
 }
 
 func (service *HabitService) FindByName(ctx context.Context, name string) (Habit, error) {
-	return service.repo.FindByName(ctx, name)
+	habit, err := service.repo.FindByName(ctx, name)
+	if err != nil {
+		if errors.Is(err, HabitNotFoundErr) {
+			return habit, err
+		} else {
+			return habit, RepositoryErr
+		}
+	}
+
+  return habit, nil
 }
 
 func (service *HabitService) List(ctx context.Context) ([]Habit, error) {

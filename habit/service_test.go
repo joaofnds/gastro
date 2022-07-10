@@ -7,6 +7,7 @@ import (
 	"astro/test"
 	. "astro/test/matchers"
 	"astro/test/transaction"
+	"errors"
 	"time"
 
 	"context"
@@ -74,6 +75,13 @@ var _ = Describe("habit service", func() {
 			Expect(habitFound).To(Equal(habit))
 		})
 
+		It("has no activities", func() {
+			ctx := context.Background()
+			habit := Must2(habitService.Create(ctx, "read"))
+
+			Expect(habit.Activities).To(HaveLen(0))
+		})
+
 		It("appear on habits listing", func() {
 			ctx := context.Background()
 			habit := Must2(habitService.Create(ctx, "read"))
@@ -81,6 +89,22 @@ var _ = Describe("habit service", func() {
 			habits := Must2(habitService.List(ctx))
 			Expect(habits).To(HaveLen(1))
 			Expect(habits[0]).To(Equal(habit))
+		})
+	})
+
+	Describe("FindByName", func() {
+		It("finds the habit", func() {
+			ctx := context.Background()
+			habit := Must2(habitService.Create(ctx, "read"))
+
+			habitFound := Must2(habitService.FindByName(ctx, habit.Name))
+			Expect(habitFound).To(Equal(habit))
+		})
+
+		It("returns HabitNotFoundErr when not found", func() {
+			ctx := context.Background()
+			_, err := habitService.FindByName(ctx, "read")
+			Expect(errors.Is(err, habit.HabitNotFoundErr)).To(BeTrue())
 		})
 	})
 

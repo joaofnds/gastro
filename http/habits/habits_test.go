@@ -7,13 +7,10 @@ import (
 	"astro/http/habits"
 	"astro/postgres"
 	"astro/test"
-	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
-	"strings"
 	"testing"
 
+	"astro/test/driver"
 	. "astro/test/matchers"
 	"astro/test/transaction"
 
@@ -50,74 +47,62 @@ var _ = Describe("/habits", func() {
 
 	Describe("GET", func() {
 		It("returns a list of habits", func() {
-			Must(NewDriver().Create("read"))
+			app := driver.NewDriver()
+			Must(app.Create("read"))
 
-			data := Must2(NewDriver().List())
+			data := Must2(app.List())
 
 			Expect(data).To(HaveLen(1))
 			Expect(data[0].Name).To(Equal("read"))
-			Expect(data[0].Activities).To(HaveLen(0))
 		})
 	})
 
 	Describe("POST", func() {
 		It("returns status created", func() {
-			res, _ := NewAPI().Create("read")
+			res, _ := driver.NewAPI().Create("read")
 			Expect(res.StatusCode).To(Equal(http.StatusCreated))
 		})
 
 		Describe("without name", func() {
 			It("return bad request", func() {
-				res, _ := NewAPI().Create("")
+				res, _ := driver.NewAPI().Create("")
 				Expect(res.StatusCode).To(Equal(http.StatusBadRequest))
 			})
 		})
 	})
+
+	Describe("/:name", func() {
+		Describe("when habit is found", func() {
+			It("returns 200", func() {
+				api := driver.NewAPI()
+				Must2(api.Create("read"))
+
+				res := Must2(api.Get("read"))
+				Expect(res.StatusCode).To(Equal(http.StatusOK))
+			})
+
+			It("returns the habit", func() {
+				app := driver.NewDriver()
+				Must(app.Create("read"))
+
+				habit := Must2(app.Get("read"))
+				Expect(habit.Name).To(Equal("read"))
+			})
+		})
+
+		Describe("when habit is not found", func() {
+			It("returns 404", func() {
+				api := driver.NewAPI()
+				Must2(api.Create("read"))
+
+				res := Must2(api.Get("not read"))
+				Expect(res.StatusCode).To(Equal(http.StatusNotFound))
+			})
+		})
+
+		It("returns the activity", func() {
+			app := driver.NewDriver()
+			Must(app.Create("read"))
+		})
+	})
 })
-
-type API struct{}
-
-func NewAPI() *API {
-	return &API{}
-}
-
-func (a API) List() (*http.Response, error) {
-	return http.Get("http://localhost:3000/habits")
-}
-
-func (a API) Create(name string) (*http.Response, error) {
-	url := fmt.Sprintf("http://localhost:3000/habits?name=%s", name)
-	return http.Post(url, "application/text", strings.NewReader(""))
-}
-
-type Driver struct {
-	api *API
-}
-
-func NewDriver() *Driver {
-	return &Driver{NewAPI()}
-}
-
-func (d *Driver) List() ([]habit.Habit, error) {
-	data := []habit.Habit{}
-
-	res, err := d.api.List()
-	if err != nil {
-		return data, err
-	}
-	defer res.Body.Close()
-
-	str, err := io.ReadAll(res.Body)
-	if err != nil {
-		return data, err
-	}
-
-	err = json.Unmarshal(str, &data)
-
-	return data, err
-}
-
-func (d *Driver) Create(name string) error {
-	_, err := d.api.Create(name)
-	return err
-}
