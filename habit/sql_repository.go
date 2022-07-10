@@ -7,7 +7,13 @@ import (
 )
 
 type SQLHabitRepository struct {
-	db *sql.DB
+	DB Querier
+}
+
+type Querier interface {
+	QueryRowContext(context.Context, string, ...any) *sql.Row
+	QueryContext(context.Context, string, ...any) (*sql.Rows, error)
+	ExecContext(context.Context, string, ...any) (sql.Result, error)
 }
 
 func NewHabitRepository(db *sql.DB) *SQLHabitRepository {
@@ -15,7 +21,7 @@ func NewHabitRepository(db *sql.DB) *SQLHabitRepository {
 }
 
 func (repo *SQLHabitRepository) Create(ctx context.Context, name string) (Habit, error) {
-	row := repo.db.QueryRowContext(ctx, "INSERT INTO habits(name) VALUES ($1) RETURNING id", name)
+	row := repo.DB.QueryRowContext(ctx, "INSERT INTO habits(name) VALUES ($1) RETURNING id", name)
 	if row.Err() != nil {
 		return Habit{}, row.Err()
 	}
@@ -30,7 +36,7 @@ func (repo *SQLHabitRepository) Create(ctx context.Context, name string) (Habit,
 }
 
 func (repo *SQLHabitRepository) FindByName(ctx context.Context, queryName string) (Habit, error) {
-	rows, err := repo.db.QueryContext(ctx, `
+	rows, err := repo.DB.QueryContext(ctx, `
 		SELECT
 			habits.id,
 			habits.name,
@@ -59,7 +65,7 @@ func (repo *SQLHabitRepository) FindByName(ctx context.Context, queryName string
 }
 
 func (repo *SQLHabitRepository) AddActivity(ctx context.Context, habit Habit, time time.Time) (Activity, error) {
-	row := repo.db.QueryRowContext(ctx, "INSERT INTO activities(habit_id, created_at) VALUES ($1, $2) RETURNING id", habit.ID, time)
+	row := repo.DB.QueryRowContext(ctx, "INSERT INTO activities(habit_id, created_at) VALUES ($1, $2) RETURNING id", habit.ID, time)
 	if row.Err() != nil {
 		return Activity{}, row.Err()
 	}
@@ -74,7 +80,7 @@ func (repo *SQLHabitRepository) AddActivity(ctx context.Context, habit Habit, ti
 }
 
 func (repo *SQLHabitRepository) List(ctx context.Context) ([]Habit, error) {
-	rows, err := repo.db.QueryContext(ctx, `
+	rows, err := repo.DB.QueryContext(ctx, `
 		SELECT
 			habits.id,
 			habits.name,
@@ -94,12 +100,12 @@ func (repo *SQLHabitRepository) List(ctx context.Context) ([]Habit, error) {
 }
 
 func (repo *SQLHabitRepository) DeleteByName(ctx context.Context, name string) error {
-	_, err := repo.db.ExecContext(ctx, "DELETE FROM habits WHERE name = $1", name)
+	_, err := repo.DB.ExecContext(ctx, "DELETE FROM habits WHERE name = $1", name)
 	return err
 }
 
 func (repo *SQLHabitRepository) DeleteAll(ctx context.Context) error {
-	_, err := repo.db.ExecContext(ctx, "DELETE FROM habits")
+	_, err := repo.DB.ExecContext(ctx, "DELETE FROM habits")
 	return err
 }
 
