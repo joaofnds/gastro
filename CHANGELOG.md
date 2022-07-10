@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/joaofnds/gastro/compare/v1.1.0...v1.2.0) (2022-07-10)
+
+
+### Features
+
+* expose endpoints to add activities and find by name ([89e6765](https://github.com/joaofnds/gastro/commit/89e67651a8c6a3a9917a0b89564eeaa85f70efb6))
+
 # [1.1.0](https://github.com/joaofnds/gastro/compare/v1.0.0...v1.1.0) (2022-07-10)
 
 
