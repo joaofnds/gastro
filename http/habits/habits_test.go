@@ -7,8 +7,6 @@ import (
 	"astro/http/habits"
 	"astro/logger"
 	"astro/postgres"
-	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -17,6 +15,7 @@ import (
 	"testing"
 
 	. "astro/test/matchers"
+	"astro/test/transaction"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -31,7 +30,6 @@ func TestHealth(t *testing.T) {
 
 var _ = Describe("/habits", func() {
 	var app *fxtest.App
-	var transaction *sql.Tx
 
 	BeforeEach(func() {
 		app = fxtest.New(
@@ -43,17 +41,12 @@ var _ = Describe("/habits", func() {
 			postgres.Module,
 			habit.Module,
 			habits.Providers,
-			fx.Decorate(func(repo *habit.SQLHabitRepository, db *sql.DB) *habit.SQLHabitRepository {
-				transaction, _ = db.BeginTx(context.Background(), nil)
-				repo.DB = transaction
-				return repo
-			}),
+			transaction.Module,
 		)
 		app.RequireStart()
 	})
 
 	AfterEach(func() {
-		transaction.Rollback()
 		app.RequireStop()
 	})
 

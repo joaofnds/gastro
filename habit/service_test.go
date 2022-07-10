@@ -7,6 +7,7 @@ import (
 	"astro/postgres"
 	"astro/test"
 	. "astro/test/matchers"
+	"astro/test/transaction"
 	"time"
 
 	"context"
@@ -37,9 +38,9 @@ var _ = Describe("habit service", func() {
 			postgres.Module,
 			habit.Module,
 			fx.Populate(&habitService),
+			transaction.Module,
 		)
 		app.RequireStart()
-		Must(habitService.DeleteAll(context.Background()))
 	})
 
 	AfterEach(func() {
