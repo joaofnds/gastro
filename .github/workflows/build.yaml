@@ -34,10 +34,14 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: superfly/flyctl-actions/setup-flyctl@master
-        run: flyctl deploy -a gastro -i $IMAGE
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - run: flyctl deploy --app gastro --image $IMAGE --image-label $VERSION
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          VERSION: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
