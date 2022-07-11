@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/joaofnds/gastro/compare/v1.6.1...v1.7.0) (2022-07-11)
+
+
+### Features
+
+* use PAT to generate release ([ddd6478](https://github.com/joaofnds/gastro/commit/ddd6478c3e2760d4dfeea91aee443d12d065e3eb))
+
 ## [1.6.1](https://github.com/joaofnds/gastro/compare/v1.6.0...v1.6.1) (2022-07-11)
 
 
