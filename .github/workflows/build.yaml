@@ -32,7 +32,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - uses: uperfly/flyctl-actions/setup-flyctl@master
+      - uses: superfly/flyctl-actions/setup-flyctl@master
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
