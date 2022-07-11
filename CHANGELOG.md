@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/joaofnds/gastro/compare/v1.8.0...v1.9.0) (2022-07-11)
+
+
+### Features
+
+* get image from tags ([17e078e](https://github.com/joaofnds/gastro/commit/17e078e657e5e85a8d54c44cfed08b3aec5c7c70))
+
 # [1.8.0](https://github.com/joaofnds/gastro/compare/v1.7.0...v1.8.0) (2022-07-11)
 
 
