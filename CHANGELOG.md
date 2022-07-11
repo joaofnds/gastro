@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/joaofnds/gastro/compare/v1.4.0...v1.5.0) (2022-07-11)
+
+
+### Features
+
+* **config:** skip file lookup if CONFIG_PATH not set ([c29eca3](https://github.com/joaofnds/gastro/commit/c29eca30401e1cc973e50eb8a16f7991e5770bf9))
+
 # [1.4.0](https://github.com/joaofnds/gastro/compare/v1.3.0...v1.4.0) (2022-07-11)
 
 
