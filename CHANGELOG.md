@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/joaofnds/gastro/compare/v1.2.0...v1.3.0) (2022-07-11)
+
+
+### Features
+
+* bump go version ([a9bee71](https://github.com/joaofnds/gastro/commit/a9bee71d793fae7ac5ba95776e86935e563c662b))
+
 # [1.2.0](https://github.com/joaofnds/gastro/compare/v1.1.0...v1.2.0) (2022-07-10)
 
 
