@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/joaofnds/gastro/compare/v1.5.0...v1.5.1) (2022-07-11)
+
+
+### Bug Fixes
+
+* **config:** check for empty CONFIG_FILE ([324c53e](https://github.com/joaofnds/gastro/commit/324c53ec95871b75173b7b7455d5771745555856))
+
 # [1.5.0](https://github.com/joaofnds/gastro/compare/v1.4.0...v1.5.0) (2022-07-11)
 
 
