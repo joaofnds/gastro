@@ -27,7 +27,7 @@ func init() {
 
 func LoadConfig(logger *zap.Logger) error {
 	configFile, ok := os.LookupEnv(configPath)
-	if !ok {
+	if !ok || configFile == "" {
 		logger.Warn("could not lookup config path, will skip config file load")
 		return nil
 	}
