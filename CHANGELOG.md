@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/joaofnds/gastro/compare/v1.6.0...v1.6.1) (2022-07-11)
+
+
+### Bug Fixes
+
+* typo ([e4853ea](https://github.com/joaofnds/gastro/commit/e4853ea94f5791b7a2db12177916c16773437827))
+
 # [1.6.0](https://github.com/joaofnds/gastro/compare/v1.5.1...v1.6.0) (2022-07-11)
 
 
