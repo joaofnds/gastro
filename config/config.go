@@ -1,11 +1,11 @@
 package config
 
 import (
-	"log"
 	"os"
 
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
+	"go.uber.org/zap"
 )
 
 const configPath = "CONFIG_PATH"
@@ -25,10 +25,11 @@ func init() {
 	viper.MustBindEnv("port", "PORT")
 }
 
-func LoadConfig() error {
+func LoadConfig(logger *zap.Logger) error {
 	configFile, ok := os.LookupEnv(configPath)
 	if !ok {
-		log.Fatalf("could not lookup env %q", configPath)
+		logger.Warn("could not lookup config path, will skip config file load")
+		return nil
 	}
 
 	viper.SetConfigFile(configFile)
