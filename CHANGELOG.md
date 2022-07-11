@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/joaofnds/gastro/compare/v1.7.0...v1.8.0) (2022-07-11)
+
+
+### Features
+
+* bump semantic release version ([e6131cd](https://github.com/joaofnds/gastro/commit/e6131cd9a9a1e0a6d5cca55eb0730c5a80f7209e))
+
 # [1.7.0](https://github.com/joaofnds/gastro/compare/v1.6.1...v1.7.0) (2022-07-11)
 
 
