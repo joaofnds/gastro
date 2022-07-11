@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/joaofnds/gastro/compare/v1.5.1...v1.6.0) (2022-07-11)
+
+
+### Features
+
+* deploy on fly ([ed398c3](https://github.com/joaofnds/gastro/commit/ed398c38c6577640ade2f8e3cbcfac75d5380306))
+
 ## [1.5.1](https://github.com/joaofnds/gastro/compare/v1.5.0...v1.5.1) (2022-07-11)
 
 
