@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/joaofnds/gastro/compare/v1.3.0...v1.4.0) (2022-07-11)
+
+
+### Features
+
+* add viper env binds ([2d90227](https://github.com/joaofnds/gastro/commit/2d90227213e3b5172868724ef9aa10922599ae32))
+
 # [1.3.0](https://github.com/joaofnds/gastro/compare/v1.2.0...v1.3.0) (2022-07-11)
 
 
