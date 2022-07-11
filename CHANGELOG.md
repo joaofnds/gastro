@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/joaofnds/gastro/compare/v1.9.0...v1.10.0) (2022-07-11)
+
+
+### Features
+
+* add deploy job ([fe2e85b](https://github.com/joaofnds/gastro/commit/fe2e85b9d5df7c583754cf6cafc3157aef5d75cb))
+
 # [1.9.0](https://github.com/joaofnds/gastro/compare/v1.8.0...v1.9.0) (2022-07-11)
 
 
