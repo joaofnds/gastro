@@ -1,6 +1,10 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/spf13/viper"
+)
 
 type PostgresConfig struct {
 	Host     string `mapstructure:"host"`
@@ -8,6 +12,14 @@ type PostgresConfig struct {
 	User     string `mapstructure:"user"`
 	Password string `mapstructure:"password"`
 	DBName   string `mapstructure:"dbname"`
+}
+
+func init() {
+	viper.MustBindEnv("postgres.host", "POSTGRES_HOST")
+	viper.MustBindEnv("postgres.port", "POSTGRES_PORT")
+	viper.MustBindEnv("postgres.user", "POSTGRES_USER")
+	viper.MustBindEnv("postgres.password", "POSTGRES_PASSWORD")
+	viper.MustBindEnv("postgres.dbname", "POSTGRES_DBNAME")
 }
 
 func (config PostgresConfig) ConnectionString() string {

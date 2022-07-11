@@ -20,6 +20,11 @@ type AppConfig struct {
 	Postgres PostgresConfig `mapstructure:"postgres"`
 }
 
+func init() {
+	viper.MustBindEnv("env", "ENV")
+	viper.MustBindEnv("port", "PORT")
+}
+
 func LoadConfig() error {
 	configFile, ok := os.LookupEnv(configPath)
 	if !ok {
