@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/joaofnds/gastro/compare/v1.10.0...v1.11.0) (2022-07-11)
+
+
+### Features
+
+* set image label ([8cee3e6](https://github.com/joaofnds/gastro/commit/8cee3e6327c75651c1099a3c24aa2d2fd1fe1339))
+
 # [1.10.0](https://github.com/joaofnds/gastro/compare/v1.9.0...v1.10.0) (2022-07-11)
 
 
