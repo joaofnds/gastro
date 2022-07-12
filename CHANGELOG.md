@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/joaofnds/gastro/compare/v1.12.1...v1.13.0) (2022-07-12)
+
+
+### Features
+
+* use docker metadata action again ([8d41120](https://github.com/joaofnds/gastro/commit/8d411204f0ec89583d8996145f23a586a836d15f))
+
 ## [1.12.1](https://github.com/joaofnds/gastro/compare/v1.12.0...v1.12.1) (2022-07-12)
 
 
