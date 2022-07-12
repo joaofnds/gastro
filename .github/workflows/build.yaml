@@ -34,7 +34,9 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://gastro.fly.dev/
     steps:
       - uses: superfly/flyctl-actions/setup-flyctl@master
         env:
