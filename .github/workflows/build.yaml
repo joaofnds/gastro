@@ -39,6 +39,14 @@ jobs:
       name: production
       url: https://gastro.fly.dev/
     steps:
+      - uses: docker/metadata-action@v3
+        id: meta
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=sha,prefix=,format=short
+            type=semver,pattern={{version}}
+
       - uses: superfly/flyctl-actions/setup-flyctl@master
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
