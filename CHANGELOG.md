@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/joaofnds/gastro/compare/v1.12.0...v1.12.1) (2022-07-12)
+
+
+### Bug Fixes
+
+* set dependency ([7f1c1ef](https://github.com/joaofnds/gastro/commit/7f1c1efe258d7189b1a06c8a6a823f5359439236))
+
 # [1.12.0](https://github.com/joaofnds/gastro/compare/v1.11.0...v1.12.0) (2022-07-12)
 
 
