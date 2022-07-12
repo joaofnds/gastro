@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/joaofnds/gastro/compare/v1.13.0...v1.14.0) (2022-07-12)
+
+
+### Features
+
+* set csrf header ([b39253d](https://github.com/joaofnds/gastro/commit/b39253dcec2f26e07a245e465efa0d0e05d3c666))
+
 # [1.13.0](https://github.com/joaofnds/gastro/compare/v1.12.1...v1.13.0) (2022-07-12)
 
 
