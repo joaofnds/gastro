@@ -17,7 +17,12 @@ var (
 )
 
 func NewFiber() *fiber.App {
-	return fiber.New()
+	app := fiber.New()
+	app.Use(func(c *fiber.Ctx) error {
+		c.Set("Access-Control-Allow-Origin", "*")
+		return c.Next()
+	})
+	return app
 }
 
 func HookFiber(lc fx.Lifecycle, app *fiber.App, config config.AppConfig) {
