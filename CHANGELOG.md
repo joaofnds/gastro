@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/joaofnds/gastro/compare/v1.11.0...v1.12.0) (2022-07-12)
+
+
+### Features
+
+* add environment ([39c896f](https://github.com/joaofnds/gastro/commit/39c896f8f95a3f73fa1333320dd55bb6b56f30c0))
+
 # [1.11.0](https://github.com/joaofnds/gastro/compare/v1.10.0...v1.11.0) (2022-07-11)
 
 
