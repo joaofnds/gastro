@@ -92,6 +92,22 @@ var _ = Describe("/habits", func() {
 			})
 		})
 
+		Describe("after deleting the habit", func() {
+			It("has status 404", func() {
+				api := driver.NewAPI()
+				Must2(api.Create("read"))
+
+				res := Must2(api.Get("read"))
+				Expect(res.StatusCode).To(Equal(http.StatusOK))
+
+				res = Must2(api.Delete("read"))
+				Expect(res.StatusCode).To(Equal(http.StatusOK))
+
+				res = Must2(api.Get("read"))
+				Expect(res.StatusCode).To(Equal(http.StatusNotFound))
+			})
+		})
+
 		Describe("when habit is not found", func() {
 			It("has status 404", func() {
 				api := driver.NewAPI()

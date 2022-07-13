@@ -26,6 +26,16 @@ func (a API) Get(name string) (*http.Response, error) {
 	return http.Get(url)
 }
 
+func (a API) Delete(name string) (*http.Response, error) {
+	url := fmt.Sprintf("http://localhost:3000/habits/%s", name)
+	req, err := http.NewRequest(http.MethodDelete, url, strings.NewReader(""))
+	if err != nil {
+		return nil, err
+	}
+
+	return http.DefaultClient.Do(req)
+}
+
 func (a API) AddActivity(name string) (*http.Response, error) {
 	url := fmt.Sprintf("http://localhost:3000/habits/%s", name)
 	return http.Post(url, "application/json", strings.NewReader(""))
