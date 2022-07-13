@@ -58,8 +58,7 @@ func HealthHandler(app *fiber.App, habitService *habit.HabitService, logger *zap
 		err := habitService.DeleteByName(c.Context(), h.Name)
 		if err != nil {
 			logger.Error("failed to delete habit by name", zap.Error(err))
-			c.SendStatus(http.StatusInternalServerError)
-			return err
+			return c.SendStatus(http.StatusInternalServerError)
 		}
 		return c.Status(http.StatusOK).JSON(h)
 	})
