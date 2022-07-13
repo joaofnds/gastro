@@ -1,3 +1,15 @@
+# [1.15.0](https://github.com/joaofnds/gastro/compare/v1.14.0...v1.15.0) (2022-07-13)
+
+
+### Bug Fixes
+
+* return error ([74e1dc1](https://github.com/joaofnds/gastro/commit/74e1dc18258015b0dff49c4eccaa30e3019c0741))
+
+
+### Features
+
+* **habit:** add delete method ([8d62621](https://github.com/joaofnds/gastro/commit/8d6262140ae4fce6d314547cb62ff1f89dbe5fb3))
+
 # [1.14.0](https://github.com/joaofnds/gastro/compare/v1.13.0...v1.14.0) (2022-07-12)
 
 
