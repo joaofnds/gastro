@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/joaofnds/gastro/compare/v1.16.0...v1.17.0) (2022-07-14)
+
+
+### Features
+
+* **http:** use fiber cors middleware ([8185b6e](https://github.com/joaofnds/gastro/commit/8185b6e9673912da10a08e494c689df2f1c43e2b))
+
 # [1.16.0](https://github.com/joaofnds/gastro/compare/v1.15.1...v1.16.0) (2022-07-14)
 
 
