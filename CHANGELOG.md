@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/joaofnds/gastro/compare/v1.15.1...v1.16.0) (2022-07-14)
+
+
+### Features
+
+* **cors:** set allowed methods ([ece514e](https://github.com/joaofnds/gastro/commit/ece514e326bd1774869f6012ad0494c75a24243a))
+
 ## [1.15.1](https://github.com/joaofnds/gastro/compare/v1.15.0...v1.15.1) (2022-07-14)
 
 
