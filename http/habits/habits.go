@@ -55,12 +55,14 @@ func HealthHandler(app *fiber.App, habitService *habit.HabitService, logger *zap
 
 	app.Delete("/habits/:name", findHabitByName, func(c *fiber.Ctx) error {
 		h := c.Locals("habit").(habit.Habit)
+
 		err := habitService.DeleteByName(c.Context(), h.Name)
 		if err != nil {
 			logger.Error("failed to delete habit by name", zap.Error(err))
 			return c.SendStatus(http.StatusInternalServerError)
 		}
-		return c.Status(http.StatusOK).JSON(h)
+
+		return c.SendStatus(http.StatusOK)
 	})
 
 	app.Post("/habits/:name", findHabitByName, func(c *fiber.Ctx) error {
