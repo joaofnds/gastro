@@ -20,6 +20,7 @@ func NewFiber() *fiber.App {
 	app := fiber.New()
 	app.Use(func(c *fiber.Ctx) error {
 		c.Set("Access-Control-Allow-Origin", "*")
+		c.Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE")
 		return c.Next()
 	})
 	return app
