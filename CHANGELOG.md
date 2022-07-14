@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/joaofnds/gastro/compare/v1.15.0...v1.15.1) (2022-07-14)
+
+
+### Bug Fixes
+
+* return just status on delete ([31a9547](https://github.com/joaofnds/gastro/commit/31a95470bfa05d9d4055e9f7a713c1f9f42f07aa))
+
 # [1.15.0](https://github.com/joaofnds/gastro/compare/v1.14.0...v1.15.0) (2022-07-13)
 
 
