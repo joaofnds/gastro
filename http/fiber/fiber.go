@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"go.uber.org/fx"
 )
 
@@ -18,11 +19,7 @@ var (
 
 func NewFiber() *fiber.App {
 	app := fiber.New()
-	app.Use(func(c *fiber.Ctx) error {
-		c.Set("Access-Control-Allow-Origin", "*")
-		c.Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE")
-		return c.Next()
-	})
+	app.Use(cors.New())
 	return app
 }
 
