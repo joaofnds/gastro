@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/joaofnds/gastro/compare/v1.17.0...v1.18.0) (2022-07-15)
+
+
+### Features
+
+* use fx.Module ([fac5615](https://github.com/joaofnds/gastro/commit/fac56155a29ca0136e76eb822c40f760c71010ba))
+
 # [1.17.0](https://github.com/joaofnds/gastro/compare/v1.16.0...v1.17.0) (2022-07-14)
 
 
