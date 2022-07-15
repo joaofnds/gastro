@@ -2,4 +2,4 @@ package habit
 
 import "go.uber.org/fx"
 
-var Module = fx.Options(fx.Provide(NewHabitRepository), fx.Provide(NewHabitService))
+var Module = fx.Module("habit", fx.Provide(NewHabitRepository), fx.Provide(NewHabitService))

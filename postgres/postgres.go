@@ -11,7 +11,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var Module = fx.Options(fx.Provide(NewClient), fx.Invoke(HookConnection))
+var Module = fx.Module("postgres", fx.Provide(NewClient), fx.Invoke(HookConnection))
 
 func NewClient(config config.AppConfig, logger *zap.Logger) (*sql.DB, error) {
 	db, err := sql.Open("postgres", config.Postgres.ConnectionString())

@@ -8,7 +8,7 @@ import (
 	"go.uber.org/fx"
 )
 
-var Module = fx.Invoke(HookTransaction)
+var Module = fx.Module("transaction", fx.Invoke(HookTransaction))
 
 func HookTransaction(lc fx.Lifecycle, db *sql.DB, repo *habit.SQLHabitRepository) {
 	var transaction *sql.Tx
