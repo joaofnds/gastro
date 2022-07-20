@@ -1,3 +1,10 @@
+## [1.18.1](https://github.com/joaofnds/gastro/compare/v1.18.0...v1.18.1) (2022-07-20)
+
+
+### Bug Fixes
+
+* **dockerfile:** use COPY instead of ADD ([e646c7f](https://github.com/joaofnds/gastro/commit/e646c7f3f715549311fd6f181dd3cd5469be2c22))
+
 # [1.18.0](https://github.com/joaofnds/gastro/compare/v1.17.0...v1.18.0) (2022-07-15)
 
 
