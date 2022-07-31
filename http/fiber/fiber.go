@@ -5,8 +5,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/fx"
 )
 
@@ -19,6 +21,7 @@ var (
 
 func NewFiber() *fiber.App {
 	app := fiber.New()
+	app.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
 	app.Use(cors.New())
 	return app
 }
