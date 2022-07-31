@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/joaofnds/gastro/compare/v1.18.1...v1.19.0) (2022-07-31)
+
+
+### Features
+
+* add /metrics ([74017bd](https://github.com/joaofnds/gastro/commit/74017bde0198996010b7337cff2b62c063efce59))
+
 ## [1.18.1](https://github.com/joaofnds/gastro/compare/v1.18.0...v1.18.1) (2022-07-20)
 
 
