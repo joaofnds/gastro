@@ -31,6 +31,7 @@ var _ = Describe("/habits", func() {
 		app = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
+			test.FakeInstrumentation,
 			config.Module,
 			fiber.Module,
 			postgres.Module,

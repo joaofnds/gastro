@@ -4,21 +4,27 @@ import (
 	"context"
 	"errors"
 	"time"
-
-	"go.uber.org/zap"
 )
 
 type HabitService struct {
-	repo   HabitRepository
-	logger *zap.Logger
+	repo            HabitRepository
+	instrumentation HabitInstrumentation
 }
 
-func NewHabitService(sqlRepo *SQLHabitRepository, logger *zap.Logger) *HabitService {
-	return &HabitService{sqlRepo, logger}
+func NewHabitService(sqlRepo *SQLHabitRepository, instumentation HabitInstrumentation) *HabitService {
+	return &HabitService{sqlRepo, instumentation}
 }
 
 func (service *HabitService) Create(ctx context.Context, name string) (Habit, error) {
-	return service.repo.Create(ctx, name)
+	habit, err := service.repo.Create(ctx, name)
+
+	if err != nil {
+		service.instrumentation.LogFailedToCreateHabit(err)
+	} else {
+		service.instrumentation.LogHabitCreated()
+	}
+
+	return habit, err
 }
 
 func (service *HabitService) AddActivity(ctx context.Context, habit Habit, date time.Time) (Activity, error) {
@@ -35,7 +41,7 @@ func (service *HabitService) FindByName(ctx context.Context, name string) (Habit
 		}
 	}
 
-  return habit, nil
+	return habit, nil
 }
 
 func (service *HabitService) List(ctx context.Context) ([]Habit, error) {

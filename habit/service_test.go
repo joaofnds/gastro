@@ -32,6 +32,7 @@ var _ = Describe("habit service", func() {
 		app = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
+			test.FakeInstrumentation,
 			config.Module,
 			fx.Decorate(test.RandomAppConfigPort),
 			postgres.Module,
