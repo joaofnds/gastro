@@ -1,3 +1,10 @@
+# [1.21.0](https://github.com/joaofnds/gastro/compare/v1.20.0...v1.21.0) (2022-08-01)
+
+
+### Features
+
+* add fly `/metrics` config ([6313282](https://github.com/joaofnds/gastro/commit/63132826933d589ebf3b5c2190fe44cd728eb7ae))
+
 # [1.20.0](https://github.com/joaofnds/gastro/compare/v1.19.0...v1.20.0) (2022-07-31)
 
 
