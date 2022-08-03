@@ -1,3 +1,10 @@
+# [1.22.0](https://github.com/joaofnds/gastro/compare/v1.21.0...v1.22.0) (2022-08-03)
+
+
+### Features
+
+* set metrics port ([332efe9](https://github.com/joaofnds/gastro/commit/332efe984081bec4f415e564d7765212efbb7168))
+
 # [1.21.0](https://github.com/joaofnds/gastro/compare/v1.20.0...v1.21.0) (2022-08-01)
 
 
