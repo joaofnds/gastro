@@ -40,5 +40,5 @@ timeout = "2s"
 path = "/health"
 
 [metrics]
-port = 8080
+port = 9091
 path = "/metrics"

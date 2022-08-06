@@ -5,6 +5,7 @@ import (
 	"astro/habit"
 	"astro/http"
 	"astro/logger"
+	"astro/metrics"
 	"astro/postgres"
 
 	"go.uber.org/fx"
@@ -13,6 +14,7 @@ import (
 func main() {
 	fx.New(
 		logger.Module,
+		metrics.Module,
 		config.Module,
 		http.Module,
 		postgres.Module,
