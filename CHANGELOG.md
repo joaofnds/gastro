@@ -1,3 +1,10 @@
+# [1.23.0](https://github.com/joaofnds/gastro/compare/v1.22.0...v1.23.0) (2022-08-06)
+
+
+### Features
+
+* create separate metrics server ([d35d8ea](https://github.com/joaofnds/gastro/commit/d35d8ea2afe15ef1787f29dd0e2d45c7f88af594))
+
 # [1.22.0](https://github.com/joaofnds/gastro/compare/v1.21.0...v1.22.0) (2022-08-03)
 
 
