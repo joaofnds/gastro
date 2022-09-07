@@ -1,3 +1,10 @@
+## [1.23.1](https://github.com/joaofnds/gastro/compare/v1.23.0...v1.23.1) (2022-09-07)
+
+
+### Bug Fixes
+
+* **metrics:** update metrics server address ([5d3bc55](https://github.com/joaofnds/gastro/commit/5d3bc556a51a766a36d410fd647cd148aa7dc3e6))
+
 # [1.23.0](https://github.com/joaofnds/gastro/compare/v1.22.0...v1.23.0) (2022-08-06)
 
 
