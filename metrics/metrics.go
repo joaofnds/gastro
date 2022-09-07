@@ -18,8 +18,7 @@ type MetricsServer = http.Server
 
 func NewMetricsServer() *MetricsServer {
 	http.Handle("/metrics", promhttp.Handler())
-	server := http.Server{Addr: ":9091"}
-	return &server
+	return &http.Server{Addr: "0.0.0.0:9091"}
 }
 
 func HookMetricsHandler(lc fx.Lifecycle, server *MetricsServer, logger *zap.Logger) {
