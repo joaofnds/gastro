@@ -1,3 +1,10 @@
+# [1.24.0](https://github.com/joaofnds/gastro/compare/v1.23.1...v1.24.0) (2022-09-24)
+
+
+### Features
+
+* **http:** return habit on create ([a813cf6](https://github.com/joaofnds/gastro/commit/a813cf6de59a47ae4410424a795af41f1131339c))
+
 ## [1.23.1](https://github.com/joaofnds/gastro/compare/v1.23.0...v1.23.1) (2022-09-07)
 
 
