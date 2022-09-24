@@ -82,13 +82,13 @@ func HealthHandler(app *fiber.App, habitService *habit.HabitService, logger *zap
 		if name == "" {
 			return c.SendStatus(http.StatusBadRequest)
 		}
-		_, err := habitService.Create(c.Context(), name)
 
+		h, err := habitService.Create(c.Context(), name)
 		if err != nil {
 			logger.Error("failed to create habit", zap.Error(err))
 			return c.SendStatus(http.StatusInternalServerError)
 		}
 
-		return c.SendStatus(http.StatusCreated)
+		return c.Status(http.StatusCreated).JSON(h)
 	})
 }

@@ -33,9 +33,20 @@ func (d *Driver) List() ([]habit.Habit, error) {
 	return data, err
 }
 
-func (d *Driver) Create(name string) error {
-	_, err := d.api.Create(name)
-	return err
+func (d *Driver) Create(name string) (habit.Habit, error) {
+	var habit habit.Habit
+	res, err := d.api.Create(name)
+	if err != nil {
+		return habit, err
+	}
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return habit, err
+	}
+	defer res.Body.Close()
+
+	err = json.Unmarshal(body, &habit)
+	return habit, err
 }
 
 func (d *Driver) Get(name string) (habit.Habit, error) {

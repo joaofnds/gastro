@@ -7,6 +7,8 @@ import (
 	"astro/http/habits"
 	"astro/postgres"
 	"astro/test"
+	"encoding/json"
+	"io"
 	"net/http"
 	"testing"
 
@@ -19,7 +21,7 @@ import (
 	"go.uber.org/fx/fxtest"
 )
 
-func TestHealth(t *testing.T) {
+func TestHabits(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "/habits suite")
 }
@@ -49,7 +51,7 @@ var _ = Describe("/habits", func() {
 	Describe("GET", func() {
 		It("returns a list of habits", func() {
 			app := driver.NewDriver()
-			Must(app.Create("read"))
+			Must2(app.Create("read"))
 
 			data := Must2(app.List())
 
@@ -62,6 +64,16 @@ var _ = Describe("/habits", func() {
 		It("returns status created", func() {
 			res, _ := driver.NewAPI().Create("read")
 			Expect(res.StatusCode).To(Equal(http.StatusCreated))
+		})
+
+		It("returns the created habit", func() {
+			res, _ := driver.NewAPI().Create("read")
+			body := Must2(io.ReadAll(res.Body))
+			defer res.Body.Close()
+
+			var habit habit.Habit
+			Must(json.Unmarshal(body, &habit))
+			Expect(habit.Name).To(Equal("read"))
 		})
 
 		Describe("without name", func() {
@@ -84,7 +96,7 @@ var _ = Describe("/habits", func() {
 
 			It("returns the habit", func() {
 				app := driver.NewDriver()
-				Must(app.Create("read"))
+				Must2(app.Create("read"))
 
 				habit := Must2(app.Get("read"))
 				Expect(habit.ID > 0).To(BeTrue())
