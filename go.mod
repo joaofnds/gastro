@@ -3,6 +3,7 @@ module astro
 go 1.18
 
 require (
+	filippo.io/age v1.0.0
 	github.com/gofiber/fiber/v2 v2.34.1
 	github.com/lib/pq v1.10.6
 	github.com/onsi/ginkgo/v2 v2.1.4
@@ -11,7 +12,6 @@ require (
 	github.com/spf13/viper v1.12.0
 	go.uber.org/fx v1.17.1
 	go.uber.org/zap v1.21.0
-	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
 )
 
 require (
@@ -41,6 +41,7 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/dig v1.14.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
+	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2 // indirect
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/text v0.3.7 // indirect
