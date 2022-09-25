@@ -7,11 +7,9 @@ import (
 type TokenConfig struct {
 	PublicKey  string `mapstructure:"public_key"`
 	PrivateKey string `mapstructure:"private_key"`
-	Passphrase string `mapstructure:"passphrase"`
 }
 
 func init() {
 	viper.MustBindEnv("token.public_key", "TOKEN_PUBLIC_KEY")
 	viper.MustBindEnv("token.private_key", "TOKEN_PRIVATE_KEY")
-	viper.MustBindEnv("token.passphrase", "TOKEN_PASSPHRASE")
 }
