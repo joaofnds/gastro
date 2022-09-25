@@ -18,6 +18,7 @@ type AppConfig struct {
 	Env      string         `mapstructure:"env"`
 	Port     int            `mapstructure:"port"`
 	Postgres PostgresConfig `mapstructure:"postgres"`
+	Token    TokenConfig    `mapstructure:"token"`
 }
 
 func init() {
