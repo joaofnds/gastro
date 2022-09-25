@@ -1,3 +1,16 @@
+# [1.25.0](https://github.com/joaofnds/gastro/compare/v1.24.0...v1.25.0) (2022-09-25)
+
+
+### Bug Fixes
+
+* ignore test secrets ([422f3a1](https://github.com/joaofnds/gastro/commit/422f3a11eea2ac20b7aa947224e1d6b7f8c5f510))
+
+
+### Features
+
+* add token service ([ebe823e](https://github.com/joaofnds/gastro/commit/ebe823e4a183db1d9803d9c4d4b0abf2f9f4fadd))
+* use age for token encryption ([06032a4](https://github.com/joaofnds/gastro/commit/06032a4c1f25a67559ddccb2e532924fbcdeeede))
+
 # [1.24.0](https://github.com/joaofnds/gastro/compare/v1.23.1...v1.24.0) (2022-09-24)
 
 
