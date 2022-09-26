@@ -67,3 +67,13 @@ func (d *Driver) Get(name string) (habit.Habit, error) {
 
 	return data, err
 }
+
+func (d *Driver) CreateToken() ([]byte, error) {
+	res, err := d.api.CreateToken()
+	if err != nil {
+		return []byte{}, err
+	}
+	defer res.Body.Close()
+
+	return io.ReadAll(res.Body)
+}

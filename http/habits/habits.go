@@ -11,11 +11,9 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	Providers = fx.Invoke(HealthHandler)
-)
+var Providers = fx.Invoke(HabitsHandler)
 
-func HealthHandler(app *fiber.App, habitService *habit.HabitService, logger *zap.Logger) {
+func HabitsHandler(app *fiber.App, habitService *habit.HabitService, logger *zap.Logger) {
 	findHabitByName := func(c *fiber.Ctx) error {
 		name := c.Params("name")
 		if name == "" {

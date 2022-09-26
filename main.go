@@ -7,6 +7,7 @@ import (
 	"astro/logger"
 	"astro/metrics"
 	"astro/postgres"
+	"astro/token"
 
 	"go.uber.org/fx"
 )
@@ -19,5 +20,6 @@ func main() {
 		http.Module,
 		postgres.Module,
 		habit.Module,
+		token.Module,
 	).Run()
 }

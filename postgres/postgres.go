@@ -46,6 +46,12 @@ func HookConnection(lifecycle fx.Lifecycle, db *sql.DB, logger *zap.Logger) {
 				return err
 			}
 
+			err = enableUUIDExtension(ctx, db)
+			if err != nil {
+				logger.Error("failed to enable uuid extension", zap.Error(err))
+				return err
+			}
+
 			return nil
 		},
 
@@ -81,5 +87,10 @@ func createActivitiesTable(ctx context.Context, db *sql.DB) error {
 		);
 		CREATE INDEX IF NOT EXISTS idx_activity_habit ON activities(habit_id);
 	`)
+	return err
+}
+
+func enableUUIDExtension(ctx context.Context, db *sql.DB) error {
+	_, err := db.ExecContext(ctx, `CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
 	return err
 }
