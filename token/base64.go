@@ -17,7 +17,7 @@ func (e Base64Encoder) Encode(in []byte) ([]byte, error) {
 }
 
 func (e Base64Encoder) Decode(in []byte) ([]byte, error) {
-	b := make([]byte, base64.StdEncoding.DecodedLen(len(in))-1)
-	_, err := base64.StdEncoding.Decode(b, in)
-	return b, err
+	b := make([]byte, base64.StdEncoding.DecodedLen(len(in)))
+	n, err := base64.StdEncoding.Decode(b, in)
+	return b[:n], err
 }
