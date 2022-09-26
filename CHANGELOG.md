@@ -1,3 +1,10 @@
+# [1.26.0](https://github.com/joaofnds/gastro/compare/v1.25.0...v1.26.0) (2022-09-26)
+
+
+### Features
+
+* generate tokens ([e93e3bc](https://github.com/joaofnds/gastro/commit/e93e3bcc0494a633c9dd7b0fc8334dca1d8b8d19))
+
 # [1.25.0](https://github.com/joaofnds/gastro/compare/v1.24.0...v1.25.0) (2022-09-25)
 
 
