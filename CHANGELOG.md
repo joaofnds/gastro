@@ -1,3 +1,10 @@
+## [1.26.1](https://github.com/joaofnds/gastro/compare/v1.26.0...v1.26.1) (2022-09-26)
+
+
+### Bug Fixes
+
+* **token:** fix base64 decoder byte slice length ([f9fa188](https://github.com/joaofnds/gastro/commit/f9fa18871a6346778397edc0708335f30f7d30b7))
+
 # [1.26.0](https://github.com/joaofnds/gastro/compare/v1.25.0...v1.26.0) (2022-09-26)
 
 
