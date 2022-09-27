@@ -11,10 +11,7 @@ func FindPorts(start, amount int) []int {
 
 	for port := start; port < start+amount && found < amount; port++ {
 		if l, err := net.Listen("tcp", ":"+strconv.Itoa(port)); err == nil {
-			if err = l.Close(); err != nil {
-				panic(err)
-			}
-
+			l.Close()
 			ports[found] = port
 			found++
 		}
