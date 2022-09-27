@@ -3,21 +3,38 @@ package driver
 import (
 	"astro/habit"
 	"encoding/json"
+	"fmt"
 	"io"
 )
 
 type Driver struct {
-	api *API
+	api   *API
+	Token string
 }
 
 func NewDriver() *Driver {
-	return &Driver{NewAPI()}
+	return &Driver{NewAPI(), ""}
+}
+
+func (d *Driver) GetToken() {
+	res, err := d.api.CreateToken()
+	if err != nil {
+		panic(err)
+	}
+	defer res.Body.Close()
+
+	token, err := io.ReadAll(res.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	d.Token = string(token)
 }
 
 func (d *Driver) List() ([]habit.Habit, error) {
 	data := []habit.Habit{}
 
-	res, err := d.api.List()
+	res, err := d.api.List(d.Token)
 	if err != nil {
 		return data, err
 	}
@@ -35,7 +52,7 @@ func (d *Driver) List() ([]habit.Habit, error) {
 
 func (d *Driver) Create(name string) (habit.Habit, error) {
 	var habit habit.Habit
-	res, err := d.api.Create(name)
+	res, err := d.api.Create(d.Token, name)
 	if err != nil {
 		return habit, err
 	}
@@ -52,7 +69,7 @@ func (d *Driver) Create(name string) (habit.Habit, error) {
 func (d *Driver) Get(name string) (habit.Habit, error) {
 	data := habit.Habit{}
 
-	res, err := d.api.Get(name)
+	res, err := d.api.Get(d.Token, name)
 	if err != nil {
 		return data, err
 	}
@@ -66,6 +83,19 @@ func (d *Driver) Get(name string) (habit.Habit, error) {
 	err = json.Unmarshal(str, &data)
 
 	return data, err
+}
+
+func (d *Driver) AddActivity(name string) error {
+	res, err := d.api.AddActivity(d.Token, name)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != 201 {
+		return fmt.Errorf("failed to add activity")
+	}
+
+	return nil
 }
 
 func (d *Driver) CreateToken() ([]byte, error) {

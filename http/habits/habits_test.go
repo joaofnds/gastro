@@ -5,8 +5,10 @@ import (
 	"astro/habit"
 	"astro/http/fiber"
 	"astro/http/habits"
+	httpToken "astro/http/token"
 	"astro/postgres"
 	"astro/test"
+	"astro/token"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -27,10 +29,14 @@ func TestHabits(t *testing.T) {
 }
 
 var _ = Describe("/habits", func() {
-	var app *fxtest.App
+	var (
+		fxApp *fxtest.App
+		app   *driver.Driver
+		api   *driver.API
+	)
 
 	BeforeEach(func() {
-		app = fxtest.New(
+		fxApp = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
 			test.FakeInstrumentation,
@@ -40,17 +46,21 @@ var _ = Describe("/habits", func() {
 			habit.Module,
 			habits.Providers,
 			transaction.Module,
-		)
-		app.RequireStart()
+			token.Module,
+			httpToken.Providers,
+		).RequireStart()
+
+		app = driver.NewDriver()
+		api = driver.NewAPI()
+		app.GetToken()
 	})
 
 	AfterEach(func() {
-		app.RequireStop()
+		fxApp.RequireStop()
 	})
 
 	Describe("GET", func() {
 		It("returns a list of habits", func() {
-			app := driver.NewDriver()
 			Must2(app.Create("read"))
 
 			data := Must2(app.List())
@@ -58,16 +68,21 @@ var _ = Describe("/habits", func() {
 			Expect(data).To(HaveLen(1))
 			Expect(data[0].Name).To(Equal("read"))
 		})
+
+		It("requires token", func() {
+			res := Must2(api.List(""))
+			Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
+		})
 	})
 
 	Describe("POST", func() {
 		It("returns status created", func() {
-			res, _ := driver.NewAPI().Create("read")
+			res, _ := api.Create(app.Token, "read")
 			Expect(res.StatusCode).To(Equal(http.StatusCreated))
 		})
 
 		It("returns the created habit", func() {
-			res, _ := driver.NewAPI().Create("read")
+			res, _ := api.Create(app.Token, "read")
 			body := Must2(io.ReadAll(res.Body))
 			defer res.Body.Close()
 
@@ -76,26 +91,36 @@ var _ = Describe("/habits", func() {
 			Expect(habit.Name).To(Equal("read"))
 		})
 
+		It("requires token", func() {
+			res := Must2(api.Create("", "read"))
+			Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
+		})
+
 		Describe("without name", func() {
 			It("return bad request", func() {
-				res, _ := driver.NewAPI().Create("")
+				res, _ := api.Create(app.Token, "")
 				Expect(res.StatusCode).To(Equal(http.StatusBadRequest))
 			})
 		})
 	})
 
 	Describe("/:name", func() {
+		It("requires token", func() {
+			Must2(app.Create("read"))
+
+			res := Must2(api.Get("", "read"))
+			Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
+		})
+
 		Describe("when habit is found", func() {
 			It("has status 200", func() {
-				api := driver.NewAPI()
-				Must2(api.Create("read"))
+				Must2(app.Create("read"))
 
-				res := Must2(api.Get("read"))
+				res := Must2(api.Get(app.Token, "read"))
 				Expect(res.StatusCode).To(Equal(http.StatusOK))
 			})
 
 			It("returns the habit", func() {
-				app := driver.NewDriver()
 				Must2(app.Create("read"))
 
 				habit := Must2(app.Get("read"))
@@ -107,42 +132,62 @@ var _ = Describe("/habits", func() {
 
 		Describe("after deleting the habit", func() {
 			It("has status 404", func() {
-				api := driver.NewAPI()
-				Must2(api.Create("read"))
+				api := api
+				Must2(api.Create(app.Token, "read"))
 
-				res := Must2(api.Get("read"))
+				res := Must2(api.Get(app.Token, "read"))
 				Expect(res.StatusCode).To(Equal(http.StatusOK))
 
-				res = Must2(api.Delete("read"))
+				res = Must2(api.Delete(app.Token, "read"))
 				Expect(res.StatusCode).To(Equal(http.StatusOK))
 
-				res = Must2(api.Get("read"))
+				res = Must2(api.Get(app.Token, "read"))
 				Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 			})
 		})
 
 		Describe("when habit is not found", func() {
 			It("has status 404", func() {
-				api := driver.NewAPI()
-				Must2(api.Create("read"))
+				Must2(api.Create(app.Token, "read"))
 
-				res := Must2(api.Get("not read"))
+				res := Must2(api.Get(app.Token, "not read"))
 				Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 			})
 		})
 
-		Describe("activities", func() {
-			It("POST to add acitity", func() {
-				app := driver.NewDriver()
-				api := driver.NewAPI()
-				Must2(api.Create("read"))
+		PDescribe("cannot read habits from other users", func() {})
 
-				Must2(api.AddActivity("read"))
-				Must2(api.AddActivity("read"))
-				Must2(api.AddActivity("read"))
+		Describe("activities", func() {
+			It("requires token", func() {
+				Must2(app.Create("read"))
+
+				res := Must2(api.AddActivity("", "read"))
+
+				Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
+			})
+
+			It("POST to add activity", func() {
+				Must2(app.Create("read"))
+				Must(app.AddActivity("read"))
+				Must(app.AddActivity("read"))
+				Must(app.AddActivity("read"))
 
 				habit := Must2(app.Get("read"))
 				Expect(habit.Activities).To(HaveLen(3))
+			})
+		})
+
+		Describe("delete", func() {
+			It("requires token", func() {
+				Must2(app.Create("read"))
+				res := Must2(api.Delete("", "read"))
+				Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
+			})
+
+			It("return status ok", func() {
+				Must2(app.Create("read"))
+				res := Must2(api.Delete(app.Token, "read"))
+				Expect(res.StatusCode).To(Equal(http.StatusOK))
 			})
 		})
 	})
