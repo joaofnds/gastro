@@ -155,14 +155,22 @@ var _ = Describe("/habits", func() {
 			})
 		})
 
-		PDescribe("cannot read habits from other users", func() {})
+		It("cannot read habits from other users", func() {
+			res := Must2(api.CreateToken())
+			defer res.Body.Close()
+			otherToken := Must2(io.ReadAll(res.Body))
+
+			Must2(app.Create("read"))
+
+			res = Must2(api.Get(string(otherToken), "read"))
+
+			Expect(res.StatusCode).To(Equal(http.StatusNotFound))
+		})
 
 		Describe("activities", func() {
 			It("requires token", func() {
 				Must2(app.Create("read"))
-
 				res := Must2(api.AddActivity("", "read"))
-
 				Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
 			})
 

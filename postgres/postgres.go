@@ -71,9 +71,10 @@ func createHabitsTable(ctx context.Context, db *sql.DB) error {
 	_, err := db.ExecContext(ctx, `
 		CREATE TABLE IF NOT EXISTS habits (
 			id   SERIAL PRIMARY KEY,
-			name VARCHAR NOT NULL
+			name VARCHAR NOT NULL,
+			user_id UUID NOT NULL
 		);
-		CREATE UNIQUE INDEX IF NOT EXISTS idx_habit_name ON habits(name);
+		CREATE UNIQUE INDEX IF NOT EXISTS idx_habit_name ON habits(name, user_id);
 	`)
 	return err
 }

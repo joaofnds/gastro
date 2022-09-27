@@ -18,7 +18,8 @@ type habitsController struct {
 }
 
 func (c habitsController) list(ctx *fiber.Ctx) error {
-	habits, err := c.habitService.List(ctx.Context())
+	userID := ctx.Locals("userID").(string)
+	habits, err := c.habitService.List(ctx.Context(), userID)
 
 	if err != nil {
 		c.logger.Error("failed to list habits", zap.Error(err))
@@ -34,9 +35,10 @@ func (habitsController) get(ctx *fiber.Ctx) error {
 }
 
 func (c habitsController) delete(ctx *fiber.Ctx) error {
+	userID := ctx.Locals("userID").(string)
 	h := ctx.Locals("habit").(habit.Habit)
 
-	err := c.habitService.DeleteByName(ctx.Context(), h.Name)
+	err := c.habitService.DeleteByName(ctx.Context(), userID, h.Name)
 	if err != nil {
 		c.logger.Error("failed to delete habit by name", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
@@ -63,7 +65,8 @@ func (c habitsController) create(ctx *fiber.Ctx) error {
 		return ctx.SendStatus(http.StatusBadRequest)
 	}
 
-	h, err := c.habitService.Create(ctx.Context(), name)
+	userID := ctx.Locals("userID").(string)
+	h, err := c.habitService.Create(ctx.Context(), userID, name)
 	if err != nil {
 		c.logger.Error("failed to create habit", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
@@ -78,7 +81,8 @@ func (c habitsController) middlewareFindHabit(ctx *fiber.Ctx) error {
 		return ctx.SendStatus(http.StatusBadRequest)
 	}
 
-	h, err := c.habitService.FindByName(ctx.Context(), name)
+	userID := ctx.Locals("userID").(string)
+	h, err := c.habitService.FindByName(ctx.Context(), userID, name)
 	if err != nil {
 		if errors.Is(err, habit.HabitNotFoundErr) {
 			return ctx.SendStatus(http.StatusNotFound)

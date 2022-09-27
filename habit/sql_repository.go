@@ -20,8 +20,12 @@ func NewHabitRepository(db *sql.DB) *SQLHabitRepository {
 	return &SQLHabitRepository{db}
 }
 
-func (repo *SQLHabitRepository) Create(ctx context.Context, name string) (Habit, error) {
-	row := repo.DB.QueryRowContext(ctx, "INSERT INTO habits(name) VALUES ($1) RETURNING id", name)
+func (repo *SQLHabitRepository) Create(ctx context.Context, userID, name string) (Habit, error) {
+	row := repo.DB.QueryRowContext(
+		ctx,
+		"INSERT INTO habits(user_id, name) VALUES ($1, $2) RETURNING id",
+		userID, name,
+	)
 	if row.Err() != nil {
 		return Habit{}, row.Err()
 	}
@@ -32,10 +36,11 @@ func (repo *SQLHabitRepository) Create(ctx context.Context, name string) (Habit,
 		return Habit{}, err
 	}
 
-	return Habit{id, name, []Activity{}}, row.Err()
+	h := Habit{ID: id, Name: name, Activities: []Activity{}}
+	return h, row.Err()
 }
 
-func (repo *SQLHabitRepository) FindByName(ctx context.Context, queryName string) (Habit, error) {
+func (repo *SQLHabitRepository) FindByName(ctx context.Context, userID, name string) (Habit, error) {
 	rows, err := repo.DB.QueryContext(ctx, `
 		SELECT
 			habits.id,
@@ -44,8 +49,9 @@ func (repo *SQLHabitRepository) FindByName(ctx context.Context, queryName string
 			activities.created_at
 		FROM habits
 			LEFT JOIN activities ON activities.habit_id = habits.id
-		WHERE habits.name = $1`,
-		queryName,
+		WHERE habits.user_id = $1 AND habits.name = $2`,
+		userID,
+		name,
 	)
 	if err != nil {
 		return Habit{}, err
@@ -80,7 +86,7 @@ func (repo *SQLHabitRepository) AddActivity(ctx context.Context, habit Habit, ti
 	return Activity{id, time}, row.Err()
 }
 
-func (repo *SQLHabitRepository) List(ctx context.Context) ([]Habit, error) {
+func (repo *SQLHabitRepository) List(ctx context.Context, userID string) ([]Habit, error) {
 	rows, err := repo.DB.QueryContext(ctx, `
 		SELECT
 			habits.id,
@@ -89,8 +95,9 @@ func (repo *SQLHabitRepository) List(ctx context.Context) ([]Habit, error) {
 			activities.created_at
 		FROM habits
 			LEFT JOIN activities ON activities.habit_id = habits.id
-	`)
-
+		WHERE habits.user_id = $1`,
+		userID,
+	)
 	if err != nil {
 		return []Habit{}, err
 	}
@@ -100,8 +107,18 @@ func (repo *SQLHabitRepository) List(ctx context.Context) ([]Habit, error) {
 	return scanRows(rows)
 }
 
-func (repo *SQLHabitRepository) DeleteByName(ctx context.Context, name string) error {
-	_, err := repo.DB.ExecContext(ctx, "DELETE FROM habits WHERE name = $1", name)
+func (repo *SQLHabitRepository) DeleteByName(ctx context.Context, userID, name string) error {
+	r, err := repo.DB.ExecContext(ctx, "DELETE FROM habits WHERE user_id = $1 AND name = $2", userID, name)
+	if err != nil {
+		return err
+	}
+	rows, err := r.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return HabitNotFoundErr
+	}
 	return err
 }
 
