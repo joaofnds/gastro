@@ -7,6 +7,7 @@ import (
 	"astro/postgres"
 	"astro/test"
 	"astro/token"
+	"fmt"
 	"io"
 	"net/http"
 	"testing"
@@ -16,6 +17,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )
 
@@ -26,9 +28,10 @@ func TestTokenHTTP(t *testing.T) {
 
 var _ = Describe("/token", Ordered, func() {
 	var app *fxtest.App
-	api := driver.NewAPI()
+	var api *driver.API
 
 	BeforeAll(func() {
+		var cfg config.AppConfig
 		app = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
@@ -38,8 +41,12 @@ var _ = Describe("/token", Ordered, func() {
 			postgres.Module,
 			token.Module,
 			httpToken.Providers,
+			fx.Decorate(test.RandomAppConfigPort),
+			fx.Populate(&cfg),
 		)
 		app.RequireStart()
+		url := fmt.Sprintf("http://localhost:%d", cfg.Port)
+		api = driver.NewAPI(url)
 	})
 
 	AfterAll(func() { app.RequireStop() })

@@ -8,21 +8,23 @@ import (
 	"strings"
 )
 
-type API struct{}
+type API struct {
+	baseURL string
+}
 
-func NewAPI() *API {
-	return &API{}
+func NewAPI(baseURL string) *API {
+	return &API{baseURL}
 }
 
 type Headers = map[string]string
 
 func (a API) List(token string) (*http.Response, error) {
-	return get("http://localhost:3000/habits", map[string]string{"Authorization": token})
+	return get(a.baseURL+"/habits", map[string]string{"Authorization": token})
 }
 
 func (a API) Create(token, name string) (*http.Response, error) {
 	return post(
-		"http://localhost:3000/habits?name="+name,
+		a.baseURL+"/habits?name="+name,
 		Headers{"Content-Type": "application/text", "Authorization": token},
 		&bytes.Buffer{},
 	)
@@ -30,13 +32,13 @@ func (a API) Create(token, name string) (*http.Response, error) {
 
 func (a API) Get(token, name string) (*http.Response, error) {
 	return get(
-		"http://localhost:3000/habits/"+name,
+		a.baseURL+"/habits/"+name,
 		map[string]string{"Authorization": token},
 	)
 }
 
 func (a API) Delete(token, name string) (*http.Response, error) {
-	url := fmt.Sprintf("http://localhost:3000/habits/%s", name)
+	url := fmt.Sprintf(a.baseURL+"/habits/%s", name)
 	req, err := http.NewRequest(http.MethodDelete, url, strings.NewReader(""))
 	if err != nil {
 		return nil, err
@@ -48,18 +50,18 @@ func (a API) Delete(token, name string) (*http.Response, error) {
 
 func (a API) AddActivity(token, name string) (*http.Response, error) {
 	return post(
-		"http://localhost:3000/habits/"+name,
+		a.baseURL+"/habits/"+name,
 		map[string]string{"Authorization": token},
 		&bytes.Buffer{},
 	)
 }
 
 func (a API) CreateToken() (*http.Response, error) {
-	return http.Post("http://localhost:3000/token", "application/text", strings.NewReader(""))
+	return http.Post(a.baseURL+"/token", "application/text", strings.NewReader(""))
 }
 
 func (a API) TestToken(token []byte) (*http.Response, error) {
-	req, err := http.NewRequest(http.MethodGet, "http://localhost:3000/tokentest", strings.NewReader(""))
+	req, err := http.NewRequest(http.MethodGet, a.baseURL+"/tokentest", strings.NewReader(""))
 	if err != nil {
 		return nil, err
 	}

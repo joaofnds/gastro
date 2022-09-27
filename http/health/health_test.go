@@ -5,11 +5,13 @@ import (
 	"astro/http/fiber"
 	"astro/http/health"
 	"astro/test"
+	"fmt"
 	"net/http"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )
 
@@ -20,6 +22,7 @@ func TestHealth(t *testing.T) {
 
 var _ = Describe("/", func() {
 	var app *fxtest.App
+	var cfg config.AppConfig
 
 	BeforeEach(func() {
 		app = fxtest.New(
@@ -28,6 +31,8 @@ var _ = Describe("/", func() {
 			config.Module,
 			fiber.Module,
 			health.Providers,
+			fx.Decorate(test.RandomAppConfigPort),
+			fx.Populate(&cfg),
 		)
 		app.RequireStart()
 	})
@@ -37,7 +42,8 @@ var _ = Describe("/", func() {
 	})
 
 	It("returns status OK", func() {
-		res, _ := http.Get("http://localhost:3000/health")
+		url := fmt.Sprintf("http://localhost:%d/health", cfg.Port)
+		res, _ := http.Get(url)
 		Expect(res.StatusCode).To(Equal(http.StatusOK))
 	})
 })

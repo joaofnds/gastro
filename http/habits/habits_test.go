@@ -10,6 +10,7 @@ import (
 	"astro/test"
 	"astro/token"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"testing"
@@ -20,6 +21,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )
 
@@ -36,6 +38,7 @@ var _ = Describe("/habits", func() {
 	)
 
 	BeforeEach(func() {
+		var cfg config.AppConfig
 		fxApp = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
@@ -48,10 +51,13 @@ var _ = Describe("/habits", func() {
 			transaction.Module,
 			token.Module,
 			httpToken.Providers,
+			fx.Decorate(test.RandomAppConfigPort),
+			fx.Populate(&cfg),
 		).RequireStart()
 
-		app = driver.NewDriver()
-		api = driver.NewAPI()
+		url := fmt.Sprintf("http://localhost:%d", cfg.Port)
+		app = driver.NewDriver(url)
+		api = driver.NewAPI(url)
 		app.GetToken()
 	})
 

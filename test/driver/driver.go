@@ -12,8 +12,8 @@ type Driver struct {
 	Token string
 }
 
-func NewDriver() *Driver {
-	return &Driver{NewAPI(), ""}
+func NewDriver(url string) *Driver {
+	return &Driver{NewAPI(url), ""}
 }
 
 func (d *Driver) GetToken() {
