@@ -1,3 +1,11 @@
+# [1.27.0](https://github.com/joaofnds/gastro/compare/v1.26.1...v1.27.0) (2022-09-27)
+
+
+### Features
+
+* require token on habit routes ([d12c628](https://github.com/joaofnds/gastro/commit/d12c628d7f063400207428f26fd9fb22997696e3))
+* scope habits to user ([e8084e7](https://github.com/joaofnds/gastro/commit/e8084e73f93a5e31a84b605c910e44642f72b213))
+
 ## [1.26.1](https://github.com/joaofnds/gastro/compare/v1.26.0...v1.26.1) (2022-09-26)
 
 
