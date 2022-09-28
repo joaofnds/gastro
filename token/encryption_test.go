@@ -20,6 +20,7 @@ var _ = Describe("encryption service", Ordered, func() {
 		fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
+			test.NopTokenInstrumentation,
 			config.Module,
 			fx.Populate(&cfg),
 			token.Module,

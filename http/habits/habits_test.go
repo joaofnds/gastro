@@ -43,6 +43,7 @@ var _ = Describe("/habits", func() {
 			GinkgoT(),
 			test.NopLogger,
 			test.FakeInstrumentation,
+			test.NopTokenInstrumentation,
 			config.Module,
 			fiber.Module,
 			postgres.Module,

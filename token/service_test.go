@@ -20,6 +20,7 @@ var _ = Describe("token service", Ordered, func() {
 		fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
+			test.NopTokenInstrumentation,
 			config.Module,
 			postgres.Module,
 			token.Module,
