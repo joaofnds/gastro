@@ -6,12 +6,12 @@ import (
 	"go.uber.org/fx"
 )
 
-var FakeInstrumentation = fx.Decorate(NewFakeHabitInstrumentation)
+var NopHabitInstrumentation = fx.Decorate(NewNopHabitInstrumentation)
 
-type FakeHabitInstrumentation struct{}
+type nopHabitInstrumentation struct{}
 
-func NewFakeHabitInstrumentation() habit.HabitInstrumentation {
-	return &FakeHabitInstrumentation{}
+func NewNopHabitInstrumentation() habit.HabitInstrumentation {
+	return &nopHabitInstrumentation{}
 }
-func (l *FakeHabitInstrumentation) LogFailedToCreateHabit(err error) {}
-func (l *FakeHabitInstrumentation) LogHabitCreated()                 {}
+func (l *nopHabitInstrumentation) LogFailedToCreateHabit(err error) {}
+func (l *nopHabitInstrumentation) LogHabitCreated()                 {}

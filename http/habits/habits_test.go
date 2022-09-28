@@ -42,9 +42,9 @@ var _ = Describe("/habits", func() {
 		fxApp = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
-			test.FakeInstrumentation,
-			test.NopTokenInstrumentation,
 			test.RandomAppConfigPort,
+			test.NopHabitInstrumentation,
+			test.NopTokenInstrumentation,
 			config.Module,
 			fiber.Module,
 			postgres.Module,

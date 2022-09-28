@@ -35,13 +35,13 @@ var _ = Describe("/token", Ordered, func() {
 		app = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
-			test.FakeInstrumentation,
+			test.NopHabitInstrumentation,
+			test.RandomAppConfigPort,
 			config.Module,
 			fiber.Module,
 			postgres.Module,
 			token.Module,
 			httpToken.Providers,
-			test.RandomAppConfigPort,
 			fx.Populate(&cfg),
 		)
 		app.RequireStart()

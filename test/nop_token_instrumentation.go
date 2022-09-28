@@ -8,12 +8,12 @@ import (
 
 var NopTokenInstrumentation = fx.Decorate(NewFakeTokenInstrumentation)
 
-type FakeTokenInstrumentation struct{}
+type nopTokenInstrumentation struct{}
 
 func NewFakeTokenInstrumentation() token.TokenInstrumentation {
-	return &FakeTokenInstrumentation{}
+	return &nopTokenInstrumentation{}
 }
-func (i FakeTokenInstrumentation) TokenCreated()                  {}
-func (i FakeTokenInstrumentation) FailedToCreateToken(err error)  {}
-func (i FakeTokenInstrumentation) TokenDecrypted()                {}
-func (i FakeTokenInstrumentation) FailedToDecryptToken(err error) {}
+func (i nopTokenInstrumentation) TokenCreated()                  {}
+func (i nopTokenInstrumentation) FailedToCreateToken(err error)  {}
+func (i nopTokenInstrumentation) TokenDecrypted()                {}
+func (i nopTokenInstrumentation) FailedToDecryptToken(err error) {}
