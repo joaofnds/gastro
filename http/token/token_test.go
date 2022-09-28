@@ -41,7 +41,7 @@ var _ = Describe("/token", Ordered, func() {
 			postgres.Module,
 			token.Module,
 			httpToken.Providers,
-			fx.Decorate(test.RandomAppConfigPort),
+			test.RandomAppConfigPort,
 			fx.Populate(&cfg),
 		)
 		app.RequireStart()

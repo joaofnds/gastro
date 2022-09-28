@@ -28,10 +28,10 @@ var _ = Describe("/", func() {
 		app = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
+			test.RandomAppConfigPort,
 			config.Module,
 			fiber.Module,
 			health.Providers,
-			fx.Decorate(test.RandomAppConfigPort),
 			fx.Populate(&cfg),
 		)
 		app.RequireStart()

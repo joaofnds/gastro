@@ -44,6 +44,7 @@ var _ = Describe("/habits", func() {
 			test.NopLogger,
 			test.FakeInstrumentation,
 			test.NopTokenInstrumentation,
+			test.RandomAppConfigPort,
 			config.Module,
 			fiber.Module,
 			postgres.Module,
@@ -52,7 +53,6 @@ var _ = Describe("/habits", func() {
 			transaction.Module,
 			token.Module,
 			httpToken.Providers,
-			fx.Decorate(test.RandomAppConfigPort),
 			fx.Populate(&cfg),
 		).RequireStart()
 
