@@ -1,3 +1,10 @@
+# [1.28.0](https://github.com/joaofnds/gastro/compare/v1.27.0...v1.28.0) (2022-09-28)
+
+
+### Features
+
+* add token instrumentation ([d49cfa2](https://github.com/joaofnds/gastro/commit/d49cfa22a35a324505d2ee3ad9ce021ca36d58ac))
+
 # [1.27.0](https://github.com/joaofnds/gastro/compare/v1.26.1...v1.27.0) (2022-09-27)
 
 
