@@ -23,9 +23,12 @@ func HabitsHandler(
 		logger:       logger,
 	}
 
-	app.Get("/habits", c.middlewareDecodeToken, c.list)
-	app.Get("/habits/:name", c.middlewareDecodeToken, c.middlewareFindHabit, c.get)
-	app.Delete("/habits/:name", c.middlewareDecodeToken, c.middlewareFindHabit, c.delete)
-	app.Post("/habits/:name", c.middlewareDecodeToken, c.middlewareFindHabit, c.addActivity)
-	app.Post("/habits", c.middlewareDecodeToken, c.create)
+	habits := app.Group("/habits", c.middlewareDecodeToken)
+	habits.Get("/", c.list)
+	habits.Post("/", c.create)
+
+	habit := habits.Group("/:name", c.middlewareFindHabit)
+	habit.Get("/", c.get)
+	habit.Post("/", c.addActivity)
+	habit.Delete("/", c.delete)
 }
