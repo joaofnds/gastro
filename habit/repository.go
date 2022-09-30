@@ -6,10 +6,10 @@ import (
 )
 
 type HabitRepository interface {
-	Create(ctx context.Context, userID, name string) (Habit, error)
-	FindByName(ctx context.Context, userID, name string) (Habit, error)
-	AddActivity(ctx context.Context, habit Habit, time time.Time) (Activity, error)
+	Create(ctx context.Context, create CreateDTO) (Habit, error)
 	List(ctx context.Context, userID string) ([]Habit, error)
-	DeleteByName(ctx context.Context, userID string, name string) error
+	Find(ctx context.Context, find FindDTO) (Habit, error)
+	Delete(ctx context.Context, find FindDTO) error
 	DeleteAll(ctx context.Context) error
+	AddActivity(ctx context.Context, habit Habit, time time.Time) (Activity, error)
 }

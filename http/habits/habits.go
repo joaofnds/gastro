@@ -27,7 +27,7 @@ func HabitsHandler(
 	habits.Get("/", c.list)
 	habits.Post("/", c.create)
 
-	habit := habits.Group("/:name", c.middlewareFindHabit)
+	habit := habits.Group("/:id", c.middlewareFindHabit)
 	habit.Get("/", c.get)
 	habit.Post("/", c.addActivity)
 	habit.Delete("/", c.delete)

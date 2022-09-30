@@ -2,6 +2,7 @@ package habits
 
 import (
 	"astro/habit"
+	"astro/metrics/utils"
 	"astro/token"
 	"errors"
 	"net/http"
@@ -38,9 +39,9 @@ func (c habitsController) delete(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("userID").(string)
 	h := ctx.Locals("habit").(habit.Habit)
 
-	err := c.habitService.DeleteByName(ctx.Context(), userID, h.Name)
+	err := c.habitService.Delete(ctx.Context(), habit.FindDTO{HabitID: h.ID, UserID: userID})
 	if err != nil {
-		c.logger.Error("failed to delete habit by name", zap.Error(err))
+		c.logger.Error("failed to delete", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
 
@@ -66,7 +67,7 @@ func (c habitsController) create(ctx *fiber.Ctx) error {
 	}
 
 	userID := ctx.Locals("userID").(string)
-	h, err := c.habitService.Create(ctx.Context(), userID, name)
+	h, err := c.habitService.Create(ctx.Context(), habit.CreateDTO{UserID: userID, Name: name})
 	if err != nil {
 		c.logger.Error("failed to create habit", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
@@ -76,13 +77,14 @@ func (c habitsController) create(ctx *fiber.Ctx) error {
 }
 
 func (c habitsController) middlewareFindHabit(ctx *fiber.Ctx) error {
-	name := ctx.Params("name")
-	if name == "" {
-		return ctx.SendStatus(http.StatusBadRequest)
+	id := ctx.Params("id")
+	if !utils.IsUUID(id) {
+		return ctx.SendStatus(http.StatusNotFound)
 	}
 
 	userID := ctx.Locals("userID").(string)
-	h, err := c.habitService.FindByName(ctx.Context(), userID, name)
+
+	h, err := c.habitService.Find(ctx.Context(), habit.FindDTO{HabitID: id, UserID: userID})
 	if err != nil {
 		if errors.Is(err, habit.HabitNotFoundErr) {
 			return ctx.SendStatus(http.StatusNotFound)

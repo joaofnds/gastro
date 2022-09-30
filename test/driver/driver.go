@@ -17,18 +17,11 @@ func NewDriver(url string) *Driver {
 }
 
 func (d *Driver) GetToken() {
-	res, err := d.api.CreateToken()
+	token, err := d.CreateToken()
 	if err != nil {
 		panic(err)
 	}
-	defer res.Body.Close()
-
-	token, err := io.ReadAll(res.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	d.Token = string(token)
+	d.Token = token
 }
 
 func (d *Driver) List() ([]habit.Habit, error) {
@@ -66,10 +59,10 @@ func (d *Driver) Create(name string) (habit.Habit, error) {
 	return habit, err
 }
 
-func (d *Driver) Get(name string) (habit.Habit, error) {
+func (d *Driver) Get(id string) (habit.Habit, error) {
 	data := habit.Habit{}
 
-	res, err := d.api.Get(d.Token, name)
+	res, err := d.api.Get(d.Token, id)
 	if err != nil {
 		return data, err
 	}
@@ -85,8 +78,8 @@ func (d *Driver) Get(name string) (habit.Habit, error) {
 	return data, err
 }
 
-func (d *Driver) AddActivity(name string) error {
-	res, err := d.api.AddActivity(d.Token, name)
+func (d *Driver) AddActivity(id string) error {
+	res, err := d.api.AddActivity(d.Token, id)
 	if err != nil {
 		return err
 	}
@@ -98,12 +91,13 @@ func (d *Driver) AddActivity(name string) error {
 	return nil
 }
 
-func (d *Driver) CreateToken() ([]byte, error) {
+func (d *Driver) CreateToken() (string, error) {
 	res, err := d.api.CreateToken()
 	if err != nil {
-		return []byte{}, err
+		return "", err
 	}
 	defer res.Body.Close()
 
-	return io.ReadAll(res.Body)
+	b, err := io.ReadAll(res.Body)
+	return string(b), err
 }

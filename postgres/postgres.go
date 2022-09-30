@@ -34,6 +34,12 @@ func HookConnection(lifecycle fx.Lifecycle, db *sql.DB, logger *zap.Logger) {
 
 			logger.Info("successfully pinged db")
 
+			err = enableUUIDExtension(ctx, db)
+			if err != nil {
+				logger.Error("failed to enable uuid extension", zap.Error(err))
+				return err
+			}
+
 			err = createHabitsTable(ctx, db)
 			if err != nil {
 				logger.Error("failed to create habits table", zap.Error(err))
@@ -43,12 +49,6 @@ func HookConnection(lifecycle fx.Lifecycle, db *sql.DB, logger *zap.Logger) {
 			err = createActivitiesTable(ctx, db)
 			if err != nil {
 				logger.Error("failed to create activities table", zap.Error(err))
-				return err
-			}
-
-			err = enableUUIDExtension(ctx, db)
-			if err != nil {
-				logger.Error("failed to enable uuid extension", zap.Error(err))
 				return err
 			}
 
@@ -70,11 +70,11 @@ func HookConnection(lifecycle fx.Lifecycle, db *sql.DB, logger *zap.Logger) {
 func createHabitsTable(ctx context.Context, db *sql.DB) error {
 	_, err := db.ExecContext(ctx, `
 		CREATE TABLE IF NOT EXISTS habits (
-			id   SERIAL PRIMARY KEY,
-			name VARCHAR NOT NULL,
-			user_id UUID NOT NULL
+			id   UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+			user_id UUID NOT NULL,
+			name VARCHAR NOT NULL
 		);
-		CREATE UNIQUE INDEX IF NOT EXISTS idx_habit_name ON habits(name, user_id);
+		CREATE UNIQUE INDEX IF NOT EXISTS idx_habit_id_and_user_id ON habits(id, user_id);
 	`)
 	return err
 }
@@ -82,8 +82,8 @@ func createHabitsTable(ctx context.Context, db *sql.DB) error {
 func createActivitiesTable(ctx context.Context, db *sql.DB) error {
 	_, err := db.ExecContext(ctx, `
 		CREATE TABLE IF NOT EXISTS activities (
-			id         SERIAL PRIMARY KEY,
-			habit_id   INTEGER NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
+			id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+			habit_id   UUID NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
 			created_at TIMESTAMP NOT NULL DEFAULT NOW()
 		);
 		CREATE INDEX IF NOT EXISTS idx_activity_habit ON activities(habit_id);

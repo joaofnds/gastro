@@ -15,8 +15,8 @@ func NewHabitService(sqlRepo *SQLHabitRepository, instrumentation HabitInstrumen
 	return &HabitService{sqlRepo, instrumentation}
 }
 
-func (service *HabitService) Create(ctx context.Context, userID, name string) (Habit, error) {
-	habit, err := service.repo.Create(ctx, userID, name)
+func (service *HabitService) Create(ctx context.Context, create CreateDTO) (Habit, error) {
+	habit, err := service.repo.Create(ctx, create)
 
 	if err != nil {
 		service.instrumentation.LogFailedToCreateHabit(err)
@@ -31,8 +31,8 @@ func (service *HabitService) AddActivity(ctx context.Context, habit Habit, date 
 	return service.repo.AddActivity(ctx, habit, date.Truncate(time.Second))
 }
 
-func (service *HabitService) FindByName(ctx context.Context, userID, name string) (Habit, error) {
-	habit, err := service.repo.FindByName(ctx, userID, name)
+func (service *HabitService) Find(ctx context.Context, find FindDTO) (Habit, error) {
+	habit, err := service.repo.Find(ctx, find)
 	if err != nil {
 		if errors.Is(err, HabitNotFoundErr) {
 			return habit, err
@@ -48,8 +48,8 @@ func (service *HabitService) List(ctx context.Context, userID string) ([]Habit, 
 	return service.repo.List(ctx, userID)
 }
 
-func (service *HabitService) DeleteByName(ctx context.Context, userID, name string) error {
-	return service.repo.DeleteByName(ctx, userID, name)
+func (service *HabitService) Delete(ctx context.Context, find FindDTO) error {
+	return service.repo.Delete(ctx, find)
 }
 
 func (service *HabitService) DeleteAll(ctx context.Context) error {
