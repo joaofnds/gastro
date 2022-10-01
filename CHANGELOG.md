@@ -1,3 +1,10 @@
+# [1.31.0](https://github.com/joaofnds/gastro/compare/v1.30.0...v1.31.0) (2022-10-01)
+
+
+### Features
+
+* prefix metric names with "astro" ([1990aef](https://github.com/joaofnds/gastro/commit/1990aef555e04798497e34b6d51a31cc9e039c25))
+
 # [1.30.0](https://github.com/joaofnds/gastro/compare/v1.29.0...v1.30.0) (2022-10-01)
 
 
