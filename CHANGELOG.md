@@ -1,3 +1,10 @@
+# [1.29.0](https://github.com/joaofnds/gastro/compare/v1.28.0...v1.29.0) (2022-10-01)
+
+
+### Features
+
+* use uuid for habit id and activity id ([d0f8b16](https://github.com/joaofnds/gastro/commit/d0f8b164d5a14ea173c21ceda02fad1fead332eb))
+
 # [1.28.0](https://github.com/joaofnds/gastro/compare/v1.27.0...v1.28.0) (2022-09-28)
 
 
