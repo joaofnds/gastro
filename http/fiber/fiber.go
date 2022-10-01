@@ -10,15 +10,19 @@ import (
 	"go.uber.org/fx"
 )
 
-var (
-	Module = fx.Options(
-		fx.Provide(NewFiber),
-		fx.Invoke(HookFiber),
-	)
+var Module = fx.Options(
+	fx.Provide(NewPromHTTPInstrumentation),
+	fx.Provide(NewFiber),
+	fx.Invoke(HookFiber),
 )
 
-func NewFiber() *fiber.App {
+type HTTPInstrumentation interface {
+	Middleware(*fiber.Ctx) error
+}
+
+func NewFiber(instrumentation HTTPInstrumentation) *fiber.App {
 	app := fiber.New()
+	app.Use(instrumentation.Middleware)
 	app.Use(cors.New())
 	return app
 }

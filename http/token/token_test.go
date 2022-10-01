@@ -37,6 +37,7 @@ var _ = Describe("/token", Ordered, func() {
 			test.NopLogger,
 			test.NopHabitInstrumentation,
 			test.RandomAppConfigPort,
+			test.NopHTTPInstrumentation,
 			config.Module,
 			fiber.Module,
 			postgres.Module,

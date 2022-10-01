@@ -46,6 +46,7 @@ var _ = Describe("/habits", func() {
 			test.RandomAppConfigPort,
 			test.NopHabitInstrumentation,
 			test.NopTokenInstrumentation,
+			test.NopHTTPInstrumentation,
 			config.Module,
 			fiber.Module,
 			postgres.Module,

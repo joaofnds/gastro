@@ -29,6 +29,7 @@ var _ = Describe("/", func() {
 			GinkgoT(),
 			test.NopLogger,
 			test.RandomAppConfigPort,
+			test.NopHTTPInstrumentation,
 			config.Module,
 			fiber.Module,
 			health.Providers,
