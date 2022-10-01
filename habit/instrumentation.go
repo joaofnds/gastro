@@ -20,8 +20,8 @@ type PromHabitInstrumentation struct {
 func NewPromHabitInstrumentation(logger *zap.Logger) HabitInstrumentation {
 	return &PromHabitInstrumentation{
 		logger:             logger,
-		habitsCreated:      promauto.NewCounter(prometheus.CounterOpts{Name: "habits_created"}),
-		habitsCreateFailed: promauto.NewCounter(prometheus.CounterOpts{Name: "habits_create_fail"}),
+		habitsCreated:      promauto.NewCounter(prometheus.CounterOpts{Name: "astro_habits_created"}),
+		habitsCreateFailed: promauto.NewCounter(prometheus.CounterOpts{Name: "astro_habits_create_fail"}),
 	}
 }
 

@@ -16,9 +16,9 @@ type PromTokenInstrumentation struct {
 func NewPromTokenInstrumentation(logger *zap.Logger) TokenInstrumentation {
 	return &PromTokenInstrumentation{
 		logger:         logger,
-		tokensCreated:  promauto.NewCounter(prometheus.CounterOpts{Name: "token_created"}),
-		decrypts:       promauto.NewCounter(prometheus.CounterOpts{Name: "token_decrypts"}),
-		decryptsFailed: promauto.NewCounter(prometheus.CounterOpts{Name: "token_decrypts_failed"}),
+		tokensCreated:  promauto.NewCounter(prometheus.CounterOpts{Name: "astro_token_created"}),
+		decrypts:       promauto.NewCounter(prometheus.CounterOpts{Name: "astro_token_decrypts"}),
+		decryptsFailed: promauto.NewCounter(prometheus.CounterOpts{Name: "astro_token_decrypts_failed"}),
 	}
 }
 

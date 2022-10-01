@@ -15,7 +15,7 @@ type PromHabitInstrumentation struct{}
 func NewPromHTTPInstrumentation() HTTPInstrumentation {
 	return &PromHTTPInstrumentation{
 		req: promauto.NewCounterVec(
-			prometheus.CounterOpts{Name: "request"},
+			prometheus.CounterOpts{Name: "astro_request"},
 			[]string{"method", "path"},
 		),
 	}
