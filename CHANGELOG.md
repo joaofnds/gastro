@@ -1,3 +1,10 @@
+# [1.30.0](https://github.com/joaofnds/gastro/compare/v1.29.0...v1.30.0) (2022-10-01)
+
+
+### Features
+
+* add http instrumentation ([1926c1b](https://github.com/joaofnds/gastro/commit/1926c1ba5daa660e59ea61dab84a50a76bacaf43))
+
 # [1.29.0](https://github.com/joaofnds/gastro/compare/v1.28.0...v1.29.0) (2022-10-01)
 
 
