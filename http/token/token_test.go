@@ -71,12 +71,12 @@ var _ = Describe("/token", Ordered, func() {
 			token := Must2(io.ReadAll(res.Body))
 			defer res.Body.Close()
 
-			res = Must2(api.TestToken(token))
+			res = Must2(api.TestToken(string(token)))
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
 		})
 
 		It("returns bad request for invalid tokens", func() {
-			res := Must2(api.TestToken([]byte("invalid token")))
+			res := Must2(api.TestToken("invalid token"))
 			Expect(res.StatusCode).To(Equal(http.StatusBadRequest))
 		})
 	})
