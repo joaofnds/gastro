@@ -15,4 +15,5 @@ var Module = fx.Module(
 	health.Providers,
 	habits.Providers,
 	token.Providers,
+	RootProvider,
 )
