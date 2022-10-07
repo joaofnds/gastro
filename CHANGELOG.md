@@ -1,3 +1,10 @@
+# [1.32.0](https://github.com/joaofnds/gastro/compare/v1.31.0...v1.32.0) (2022-10-07)
+
+
+### Features
+
+* redirect '/' to github repo ([f7cc96a](https://github.com/joaofnds/gastro/commit/f7cc96a4db992bbc6f352342cefffac1cb4344ea))
+
 # [1.31.0](https://github.com/joaofnds/gastro/compare/v1.30.0...v1.31.0) (2022-10-01)
 
 
