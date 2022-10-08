@@ -1,3 +1,11 @@
+# [1.36.0](https://github.com/joaofnds/gastro/compare/v1.35.0...v1.36.0) (2022-10-08)
+
+
+### Features
+
+* add rate limit middleware ([498c7d5](https://github.com/joaofnds/gastro/commit/498c7d53d6bf1e0b68122e98f302f5b869de32d0))
+* add recover middleware ([cac57ad](https://github.com/joaofnds/gastro/commit/cac57adc7064aa7e2e74dc8f5105273937f15fec))
+
 # [1.35.0](https://github.com/joaofnds/gastro/compare/v1.34.1...v1.35.0) (2022-10-08)
 
 
