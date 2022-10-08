@@ -22,6 +22,6 @@ func NewPromHTTPInstrumentation() HTTPInstrumentation {
 }
 
 func (i *PromHTTPInstrumentation) Middleware(ctx *fiber.Ctx) error {
-	i.req.With(prometheus.Labels{"method": ctx.Method(), "path": ctx.Path()}).Inc()
+	i.req.With(prometheus.Labels{"method": ctx.Route().Method, "path": string(ctx.Context().Path())}).Inc()
 	return ctx.Next()
 }
