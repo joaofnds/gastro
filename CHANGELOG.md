@@ -1,3 +1,10 @@
+# [1.35.0](https://github.com/joaofnds/gastro/compare/v1.34.1...v1.35.0) (2022-10-08)
+
+
+### Features
+
+* add status code label to request metric ([9d62755](https://github.com/joaofnds/gastro/commit/9d627557cf1b5e4cc1fbcb3ebb926c4a887ae8ae))
+
 ## [1.34.1](https://github.com/joaofnds/gastro/compare/v1.34.0...v1.34.1) (2022-10-08)
 
 
