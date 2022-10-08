@@ -1,3 +1,10 @@
+# [1.34.0](https://github.com/joaofnds/gastro/compare/v1.33.0...v1.34.0) (2022-10-08)
+
+
+### Features
+
+* use fiber methods to get method and path ([404d794](https://github.com/joaofnds/gastro/commit/404d794daa4642f99c6e9899a94c66a6720034f5))
+
 # [1.33.0](https://github.com/joaofnds/gastro/compare/v1.32.0...v1.33.0) (2022-10-08)
 
 
