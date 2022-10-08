@@ -51,4 +51,14 @@ var _ = Describe("fiber", func() {
 		req = Must2(util.Get(url+"/somethingelse", nil))
 		Expect(req.StatusCode).To(Equal(http.StatusNotFound))
 	})
+
+	It("limits requests", func() {
+		for i := 0; i < 30; i++ {
+			req := Must2(util.Get(url+"/somethingelse", nil))
+			Expect(req.StatusCode).To(Equal(http.StatusNotFound))
+		}
+
+		req := Must2(util.Get(url+"/somethingelse", nil))
+		Expect(req.StatusCode).To(Equal(http.StatusTooManyRequests))
+	})
 })

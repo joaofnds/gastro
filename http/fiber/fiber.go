@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"go.uber.org/fx"
 )
@@ -24,6 +25,10 @@ type HTTPInstrumentation interface {
 func NewFiber(instrumentation HTTPInstrumentation) *fiber.App {
 	app := fiber.New()
 	app.Use(recover.New())
+	app.Use(limiter.New(limiter.Config{
+		Max:               30,
+		LimiterMiddleware: limiter.SlidingWindow{},
+	}))
 	app.Use(instrumentation.Middleware)
 	app.Use(cors.New())
 	return app
