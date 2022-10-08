@@ -2,7 +2,6 @@ package habits
 
 import (
 	"astro/habit"
-	"astro/metrics/utils"
 	"astro/token"
 	"errors"
 	"net/http"
@@ -78,7 +77,7 @@ func (c habitsController) create(ctx *fiber.Ctx) error {
 
 func (c habitsController) middlewareFindHabit(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
-	if !utils.IsUUID(id) {
+	if !IsUUID(id) {
 		return ctx.SendStatus(http.StatusNotFound)
 	}
 
