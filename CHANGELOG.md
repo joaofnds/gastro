@@ -1,3 +1,10 @@
+# [1.33.0](https://github.com/joaofnds/gastro/compare/v1.32.0...v1.33.0) (2022-10-08)
+
+
+### Features
+
+* update to go 1.19 ([fad2ff1](https://github.com/joaofnds/gastro/commit/fad2ff128a12b72df49d13073b67330b0ce261bb))
+
 # [1.32.0](https://github.com/joaofnds/gastro/compare/v1.31.0...v1.32.0) (2022-10-07)
 
 
