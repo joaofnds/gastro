@@ -1,3 +1,15 @@
+# [1.37.0](https://github.com/joaofnds/gastro/compare/v1.36.0...v1.37.0) (2022-10-09)
+
+
+### Bug Fixes
+
+* set metrics address to localhost ([1427d94](https://github.com/joaofnds/gastro/commit/1427d94a8f28e3294e86065410fb44702126b70f))
+
+
+### Features
+
+* add metrics server config ([57e259e](https://github.com/joaofnds/gastro/commit/57e259e819138f483e3112897d98d676e8a040f9))
+
 # [1.36.0](https://github.com/joaofnds/gastro/compare/v1.35.0...v1.36.0) (2022-10-08)
 
 
