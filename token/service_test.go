@@ -45,7 +45,7 @@ var _ = Describe("token service", Ordered, func() {
 		token := Must2(service.NewToken())
 		Expect(token).To(HaveLen(tokenLen))
 
-		decoded := Must2(service.IdFromToken(token))
+		decoded := Must2(service.IDFromToken(token))
 		Expect(decoded).To(HaveLen(uuidLen))
 	})
 
@@ -176,7 +176,7 @@ var _ = Describe("token service", Ordered, func() {
 			tok, err := service.NewToken()
 			Expect(err).To(BeNil())
 
-			id, err := service.IdFromToken(tok)
+			id, err := service.IDFromToken(tok)
 
 			Expect(id).To(HaveLen(uuidLen))
 			Expect(err).To(BeNil())
@@ -192,7 +192,7 @@ var _ = Describe("token service", Ordered, func() {
 				mockEncoder.EXPECT().Decode(gomock.Any()).Return([]byte{}, encoderErr)
 
 				service = token.NewTokenService(idGen, encrypter, mockEncoder, instrumentation)
-				b, err := service.IdFromToken([]byte{})
+				b, err := service.IDFromToken([]byte{})
 
 				Expect(b).To(BeNil())
 				Expect(err).To(Equal(err))
@@ -210,7 +210,7 @@ var _ = Describe("token service", Ordered, func() {
 				mockInstrumentation.EXPECT().FailedToDecryptToken(encoderErr)
 
 				service = token.NewTokenService(idGen, encrypter, mockEncoder, mockInstrumentation)
-				id, err := service.IdFromToken([]byte{})
+				id, err := service.IDFromToken([]byte{})
 
 				Expect(id).To(BeNil())
 				Expect(err).To(Equal(encoderErr))
@@ -227,7 +227,7 @@ var _ = Describe("token service", Ordered, func() {
 				mockEncrypter.EXPECT().Decrypt(gomock.Any()).Return([]byte{}, encrypterErr)
 
 				service = token.NewTokenService(idGen, mockEncrypter, encoder, instrumentation)
-				b, err := service.IdFromToken([]byte{})
+				b, err := service.IDFromToken([]byte{})
 
 				Expect(b).To(BeNil())
 				Expect(err).To(Equal(err))
@@ -245,7 +245,7 @@ var _ = Describe("token service", Ordered, func() {
 				mockInstrumentation.EXPECT().FailedToDecryptToken(encrypterErr)
 
 				service = token.NewTokenService(idGen, mockEncrypter, encoder, mockInstrumentation)
-				id, err := service.IdFromToken([]byte{})
+				id, err := service.IDFromToken([]byte{})
 
 				Expect(id).To(BeNil())
 				Expect(err).To(Equal(encrypterErr))

@@ -104,7 +104,7 @@ func (c habitsController) middlewareDecodeToken(ctx *fiber.Ctx) error {
 		return ctx.Status(http.StatusUnauthorized).SendString("missing Authorization token")
 	}
 
-	id, err := c.tokenService.IdFromToken([]byte(token))
+	id, err := c.tokenService.IDFromToken([]byte(token))
 	if err != nil {
 		return ctx.SendStatus(http.StatusUnauthorized)
 	}

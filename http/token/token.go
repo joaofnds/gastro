@@ -26,7 +26,7 @@ func TokenHandler(app *fiber.App, tokenService *token.TokenService) {
 		if !ok {
 			return c.Status(http.StatusBadRequest).SendString("missing Authorization header")
 		}
-		_, err := tokenService.IdFromToken([]byte(token))
+		_, err := tokenService.IDFromToken([]byte(token))
 		if err != nil {
 			return c.SendStatus(http.StatusBadRequest)
 		}

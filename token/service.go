@@ -56,7 +56,7 @@ func (t *TokenService) NewToken() ([]byte, error) {
 	return tok, nil
 }
 
-func (t *TokenService) IdFromToken(token []byte) ([]byte, error) {
+func (t *TokenService) IDFromToken(token []byte) ([]byte, error) {
 	b, err := t.encoder.Decode(token)
 	if err != nil {
 		t.instrumentation.FailedToDecryptToken(err)
