@@ -10,8 +10,9 @@ import (
 
 const configPath = "CONFIG_PATH"
 
-var (
-	Module = fx.Options(fx.Invoke(LoadConfig), fx.Provide(NewAppConfig))
+var Module = fx.Options(
+	fx.Invoke(LoadConfig),
+	fx.Provide(NewAppConfig),
 )
 
 type AppConfig struct {
@@ -19,6 +20,7 @@ type AppConfig struct {
 	Port     int            `mapstructure:"port"`
 	Postgres PostgresConfig `mapstructure:"postgres"`
 	Token    TokenConfig    `mapstructure:"token"`
+	Metrics  MetricsConfig  `mapstructure:"metrics"`
 }
 
 func init() {

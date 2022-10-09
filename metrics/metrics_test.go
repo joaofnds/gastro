@@ -1,14 +1,17 @@
 package metrics_test
 
 import (
+	"astro/config"
 	. "astro/http/req"
 	"astro/metrics"
 	"astro/test"
 	. "astro/test/matchers"
+	"fmt"
 	"io"
 	"net/http"
 	"testing"
 
+	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -21,14 +24,18 @@ func TestHealth(t *testing.T) {
 }
 
 var _ = Describe("/", Ordered, func() {
-	url := "http://localhost:9091/metrics"
+	var url string
 
 	BeforeAll(func() {
+		var cfg config.AppConfig
 		fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
+			config.Module,
 			metrics.Module,
+			fx.Populate(&cfg),
 		).RequireStart()
+		url = fmt.Sprintf("http://%s/metrics", cfg.Metrics.Address)
 	})
 
 	It("returns status OK", func() {
