@@ -13,6 +13,9 @@ const configPath = "CONFIG_PATH"
 var Module = fx.Options(
 	fx.Invoke(LoadConfig),
 	fx.Provide(NewAppConfig),
+	fx.Provide(NewPostgresConfig),
+	fx.Provide(NewTokenConfig),
+	fx.Provide(NewMetricsConfig),
 )
 
 type AppConfig struct {
@@ -48,3 +51,7 @@ func NewAppConfig() (AppConfig, error) {
 
 	return config, nil
 }
+
+func NewPostgresConfig(appConfig AppConfig) PostgresConfig { return appConfig.Postgres }
+func NewTokenConfig(appConfig AppConfig) TokenConfig       { return appConfig.Token }
+func NewMetricsConfig(appConfig AppConfig) MetricsConfig   { return appConfig.Metrics }

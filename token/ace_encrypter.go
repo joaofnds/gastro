@@ -14,13 +14,13 @@ type AceEncrypter struct {
 	identity  age.Identity
 }
 
-func NewAceEncrypter(config config.AppConfig) (Encrypter, error) {
-	recipient, err := age.ParseX25519Recipient(config.Token.PublicKey)
+func NewAceEncrypter(tokenConfig config.TokenConfig) (Encrypter, error) {
+	recipient, err := age.ParseX25519Recipient(tokenConfig.PublicKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse recipient: %w", err)
 	}
 
-	identity, err := age.ParseX25519Identity(config.Token.PrivateKey)
+	identity, err := age.ParseX25519Identity(tokenConfig.PrivateKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse identity: %w", err)
 	}

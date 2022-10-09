@@ -13,8 +13,8 @@ import (
 
 var Module = fx.Module("postgres", fx.Provide(NewClient), fx.Invoke(HookConnection))
 
-func NewClient(config config.AppConfig, logger *zap.Logger) (*sql.DB, error) {
-	db, err := sql.Open("postgres", config.Postgres.ConnectionString())
+func NewClient(postgresConfig config.PostgresConfig, logger *zap.Logger) (*sql.DB, error) {
+	db, err := sql.Open("postgres", postgresConfig.ConnectionString())
 	if err != nil {
 		logger.Error("failed to connect to postgres", zap.Error(err))
 		return nil, err

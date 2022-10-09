@@ -14,7 +14,7 @@ import (
 
 var _ = Describe("ace encrypter", Ordered, func() {
 	var service token.Encrypter
-	var cfg config.AppConfig
+	var cfg config.TokenConfig
 
 	BeforeAll(func() {
 		fxtest.New(
@@ -49,11 +49,9 @@ var _ = Describe("ace encrypter", Ordered, func() {
 
 	Describe("with invalid public key", func() {
 		It("fails to create service", func() {
-			_, err := token.NewAceEncrypter(config.AppConfig{
-				Token: config.TokenConfig{
-					PublicKey:  "this is invalid",
-					PrivateKey: cfg.Token.PrivateKey,
-				},
+			_, err := token.NewAceEncrypter(config.TokenConfig{
+				PublicKey:  "this is invalid",
+				PrivateKey: cfg.PrivateKey,
 			})
 
 			Expect(err).NotTo(BeNil())
@@ -63,11 +61,9 @@ var _ = Describe("ace encrypter", Ordered, func() {
 
 	Describe("invalid private key", func() {
 		It("fails to create service", func() {
-			_, err := token.NewAceEncrypter(config.AppConfig{
-				Token: config.TokenConfig{
-					PublicKey:  cfg.Token.PublicKey,
-					PrivateKey: "this is invalid",
-				},
+			_, err := token.NewAceEncrypter(config.TokenConfig{
+				PublicKey:  cfg.PublicKey,
+				PrivateKey: "this is invalid",
 			})
 
 			Expect(err).NotTo(BeNil())

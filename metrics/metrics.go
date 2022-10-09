@@ -17,9 +17,9 @@ var Module = fx.Options(
 
 type MetricsServer = http.Server
 
-func NewMetricsServer(cfg config.AppConfig) *MetricsServer {
+func NewMetricsServer(metricsConfig config.MetricsConfig) *MetricsServer {
 	http.Handle("/metrics", promhttp.Handler())
-	return &http.Server{Addr: cfg.Metrics.Address}
+	return &http.Server{Addr: metricsConfig.Address}
 }
 
 func HookMetricsHandler(lc fx.Lifecycle, server *MetricsServer, logger *zap.Logger) {

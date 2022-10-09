@@ -27,15 +27,15 @@ var _ = Describe("/", Ordered, func() {
 	var url string
 
 	BeforeAll(func() {
-		var cfg config.AppConfig
+		var metricsConfig config.MetricsConfig
 		fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
 			config.Module,
 			metrics.Module,
-			fx.Populate(&cfg),
+			fx.Populate(&metricsConfig),
 		).RequireStart()
-		url = fmt.Sprintf("http://%s/metrics", cfg.Metrics.Address)
+		url = fmt.Sprintf("http://%s/metrics", metricsConfig.Address)
 	})
 
 	It("returns status OK", func() {
