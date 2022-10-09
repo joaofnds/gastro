@@ -60,7 +60,7 @@ func (t *TokenService) IdFromToken(token []byte) ([]byte, error) {
 	b, err := t.encoder.Decode(token)
 	if err != nil {
 		t.instrumentation.FailedToDecryptToken(err)
-		return b, err
+		return nil, err
 	}
 
 	tok, err := t.encrypter.Decrypt(b)
@@ -70,5 +70,6 @@ func (t *TokenService) IdFromToken(token []byte) ([]byte, error) {
 	}
 
 	t.instrumentation.TokenDecrypted()
+
 	return tok, nil
 }
