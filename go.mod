@@ -5,6 +5,7 @@ go 1.18
 require (
 	filippo.io/age v1.0.0
 	github.com/gofiber/fiber/v2 v2.34.1
+	github.com/golang/mock v1.4.4
 	github.com/lib/pq v1.10.6
 	github.com/onsi/ginkgo/v2 v2.1.4
 	github.com/onsi/gomega v1.19.0

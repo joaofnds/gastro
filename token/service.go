@@ -36,13 +36,13 @@ func (t *TokenService) NewToken() ([]byte, error) {
 	id, err := t.idGen.NewID()
 	if err != nil {
 		t.instrumentation.FailedToCreateToken(err)
-		return id, err
+		return nil, err
 	}
 
 	encrypted, err := t.encrypter.Encrypt(id)
 	if err != nil {
 		t.instrumentation.FailedToCreateToken(err)
-		return id, err
+		return nil, err
 	}
 
 	tok, err := t.encoder.Encode(encrypted)

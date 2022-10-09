@@ -6,7 +6,9 @@ import (
 	"astro/test"
 	. "astro/test/matchers"
 	"astro/token"
+	"errors"
 
+	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/fx"
@@ -14,7 +16,13 @@ import (
 )
 
 var _ = Describe("token service", Ordered, func() {
-	var service *token.TokenService
+	var (
+		service         *token.TokenService
+		idGen           token.IDGenerator
+		encrypter       token.Encrypter
+		encoder         token.Encoder
+		instrumentation token.TokenInstrumentation
+	)
 
 	BeforeAll(func() {
 		fxtest.New(
@@ -24,7 +32,7 @@ var _ = Describe("token service", Ordered, func() {
 			config.Module,
 			postgres.Module,
 			token.Module,
-			fx.Populate(&service),
+			fx.Populate(&service, &idGen, &encrypter, &encoder, &instrumentation),
 		)
 	})
 
@@ -39,5 +47,116 @@ var _ = Describe("token service", Ordered, func() {
 
 		decoded := Must2(service.IdFromToken(token))
 		Expect(decoded).To(HaveLen(uuidLen))
+	})
+
+	It("reports that the token was created", func() {
+		c := gomock.NewController(GinkgoT())
+		defer c.Finish()
+
+		mockInstrumentation := token.NewMockTokenInstrumentation(c)
+		mockInstrumentation.EXPECT().TokenCreated()
+
+		service = token.NewTokenService(idGen, encrypter, encoder, mockInstrumentation)
+		_, err := service.NewToken()
+		Expect(err).To(BeNil())
+	})
+
+	Describe("when id generator errors", func() {
+		It("returns an error", func() {
+			c := gomock.NewController(GinkgoT())
+			defer c.Finish()
+
+			idGenErr := errors.New("could not generate an id")
+			mockIdGen := token.NewMockIDGenerator(c)
+			mockIdGen.EXPECT().NewID().Return([]byte{}, idGenErr)
+
+			service = token.NewTokenService(mockIdGen, encrypter, encoder, instrumentation)
+			_, err := service.NewToken()
+
+			Expect(err).To(Equal(err))
+		})
+
+		It("reports the failure", func() {
+			c := gomock.NewController(GinkgoT())
+			defer c.Finish()
+
+			idGenErr := errors.New("could not generate an id")
+			mockIdGen := token.NewMockIDGenerator(c)
+			mockIdGen.EXPECT().NewID().Return([]byte{}, idGenErr)
+
+			mockInstrumentation := token.NewMockTokenInstrumentation(c)
+			mockInstrumentation.EXPECT().FailedToCreateToken(idGenErr)
+
+			service = token.NewTokenService(mockIdGen, encrypter, encoder, mockInstrumentation)
+			id, err := service.NewToken()
+			Expect(id).To(BeNil())
+			Expect(err).To(Equal(idGenErr))
+		})
+	})
+
+	Describe("when encrypter errors", func() {
+		It("returns an error", func() {
+			c := gomock.NewController(GinkgoT())
+			defer c.Finish()
+
+			encrypterErr := errors.New("could not encrypt the id")
+			mockEncrypter := token.NewMockEncrypter(c)
+			mockEncrypter.EXPECT().Encrypt(gomock.Any()).Return([]byte{}, encrypterErr)
+
+			service = token.NewTokenService(idGen, mockEncrypter, encoder, instrumentation)
+			_, err := service.NewToken()
+
+			Expect(err).To(Equal(err))
+		})
+
+		It("reports the failure", func() {
+			c := gomock.NewController(GinkgoT())
+			defer c.Finish()
+
+			encrypterErr := errors.New("could not encrypt the id")
+			mockEncrypter := token.NewMockEncrypter(c)
+			mockEncrypter.EXPECT().Encrypt(gomock.Any()).Return([]byte{}, encrypterErr)
+
+			mockInstrumentation := token.NewMockTokenInstrumentation(c)
+			mockInstrumentation.EXPECT().FailedToCreateToken(encrypterErr)
+
+			service = token.NewTokenService(idGen, mockEncrypter, encoder, mockInstrumentation)
+			id, err := service.NewToken()
+			Expect(id).To(BeNil())
+			Expect(err).To(Equal(encrypterErr))
+		})
+	})
+
+	Describe("when encoder errors", func() {
+		It("returns an error", func() {
+			c := gomock.NewController(GinkgoT())
+			defer c.Finish()
+
+			encoderErr := errors.New("could not encrypt the id")
+			mockEncoder := token.NewMockEncoder(c)
+			mockEncoder.EXPECT().Encode(gomock.Any()).Return([]byte{}, encoderErr)
+
+			service = token.NewTokenService(idGen, encrypter, mockEncoder, instrumentation)
+			_, err := service.NewToken()
+
+			Expect(err).To(Equal(err))
+		})
+
+		It("reports the failure", func() {
+			c := gomock.NewController(GinkgoT())
+			defer c.Finish()
+
+			encoderErr := errors.New("could not encode the id")
+			mockEncoder := token.NewMockEncoder(c)
+			mockEncoder.EXPECT().Encode(gomock.Any()).Return([]byte{}, encoderErr)
+
+			mockInstrumentation := token.NewMockTokenInstrumentation(c)
+			mockInstrumentation.EXPECT().FailedToCreateToken(encoderErr)
+
+			service = token.NewTokenService(idGen, encrypter, mockEncoder, mockInstrumentation)
+			id, err := service.NewToken()
+			Expect(id).To(BeNil())
+			Expect(err).To(Equal(encoderErr))
+		})
 	})
 })
