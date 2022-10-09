@@ -36,7 +36,7 @@ var _ = Describe("/token", Ordered, func() {
 			GinkgoT(),
 			test.NopLogger,
 			test.NopHabitInstrumentation,
-			test.RandomAppConfigPort,
+			test.NewPortAppConfig,
 			test.NopHTTPInstrumentation,
 			config.Module,
 			fiber.Module,

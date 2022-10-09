@@ -37,7 +37,7 @@ var _ = Describe("habit service", func() {
 			GinkgoT(),
 			test.NopLogger,
 			test.NopHabitInstrumentation,
-			test.RandomAppConfigPort,
+			test.NewPortAppConfig,
 			config.Module,
 			postgres.Module,
 			habit.Module,

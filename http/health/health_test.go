@@ -28,7 +28,7 @@ var _ = Describe("/", func() {
 		app = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
-			test.RandomAppConfigPort,
+			test.NewPortAppConfig,
 			test.NopHTTPInstrumentation,
 			config.Module,
 			fiber.Module,

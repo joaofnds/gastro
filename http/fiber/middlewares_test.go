@@ -29,7 +29,7 @@ var _ = Describe("fiber", func() {
 		fxApp = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
-			test.RandomAppConfigPort,
+			test.NewPortAppConfig,
 			test.NopHTTPInstrumentation,
 			test.PanicHandler,
 			config.Module,

@@ -43,7 +43,7 @@ var _ = Describe("/habits", func() {
 		fxApp = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
-			test.RandomAppConfigPort,
+			test.NewPortAppConfig,
 			test.NopHabitInstrumentation,
 			test.NopTokenInstrumentation,
 			test.NopHTTPInstrumentation,
