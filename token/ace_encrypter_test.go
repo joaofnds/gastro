@@ -12,8 +12,8 @@ import (
 	"go.uber.org/fx/fxtest"
 )
 
-var _ = Describe("encryption service", Ordered, func() {
-	var service *token.EncryptionService
+var _ = Describe("ace encrypter", Ordered, func() {
+	var service token.Encrypter
 	var cfg config.AppConfig
 
 	BeforeAll(func() {
@@ -49,7 +49,7 @@ var _ = Describe("encryption service", Ordered, func() {
 
 	Describe("with invalid public key", func() {
 		It("fails to create service", func() {
-			_, err := token.NewEncryptionService(config.AppConfig{
+			_, err := token.NewAceEncrypter(config.AppConfig{
 				Token: config.TokenConfig{
 					PublicKey:  "this is invalid",
 					PrivateKey: cfg.Token.PrivateKey,
@@ -63,7 +63,7 @@ var _ = Describe("encryption service", Ordered, func() {
 
 	Describe("invalid private key", func() {
 		It("fails to create service", func() {
-			_, err := token.NewEncryptionService(config.AppConfig{
+			_, err := token.NewAceEncrypter(config.AppConfig{
 				Token: config.TokenConfig{
 					PublicKey:  cfg.Token.PublicKey,
 					PrivateKey: "this is invalid",

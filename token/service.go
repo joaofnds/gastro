@@ -22,53 +22,53 @@ type TokenInstrumentation interface {
 }
 
 type TokenService struct {
-	idService IDGenerator
-	crypto    Encrypter
-	base64    Encoder
-	instr     TokenInstrumentation
+	idGen           IDGenerator
+	encrypter       Encrypter
+	encoder         Encoder
+	instrumentation TokenInstrumentation
 }
 
-func NewTokenService(repo *UserIDService, enc *EncryptionService, instr TokenInstrumentation) *TokenService {
-	return &TokenService{repo, enc, NewBase64Encoder(), instr}
+func NewTokenService(id IDGenerator, encrypter Encrypter, encoder Encoder, instrumentation TokenInstrumentation) *TokenService {
+	return &TokenService{id, encrypter, encoder, instrumentation}
 }
 
 func (t *TokenService) NewToken() ([]byte, error) {
-	id, err := t.idService.NewID()
+	id, err := t.idGen.NewID()
 	if err != nil {
-		t.instr.FailedToCreateToken(err)
+		t.instrumentation.FailedToCreateToken(err)
 		return id, err
 	}
 
-	encrypted, err := t.crypto.Encrypt(id)
+	encrypted, err := t.encrypter.Encrypt(id)
 	if err != nil {
-		t.instr.FailedToCreateToken(err)
+		t.instrumentation.FailedToCreateToken(err)
 		return id, err
 	}
 
-	tok, err := t.base64.Encode(encrypted)
+	tok, err := t.encoder.Encode(encrypted)
 	if err != nil {
-		t.instr.FailedToCreateToken(err)
+		t.instrumentation.FailedToCreateToken(err)
 		return nil, err
 	}
 
-	t.instr.TokenCreated()
+	t.instrumentation.TokenCreated()
 
 	return tok, nil
 }
 
 func (t *TokenService) IdFromToken(token []byte) ([]byte, error) {
-	b, err := t.base64.Decode(token)
+	b, err := t.encoder.Decode(token)
 	if err != nil {
-		t.instr.FailedToDecryptToken(err)
+		t.instrumentation.FailedToDecryptToken(err)
 		return b, err
 	}
 
-	tok, err := t.crypto.Decrypt(b)
+	tok, err := t.encrypter.Decrypt(b)
 	if err != nil {
-		t.instr.FailedToDecryptToken(err)
+		t.instrumentation.FailedToDecryptToken(err)
 		return nil, err
 	}
 
-	t.instr.TokenDecrypted()
+	t.instrumentation.TokenDecrypted()
 	return tok, nil
 }

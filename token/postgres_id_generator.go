@@ -4,7 +4,7 @@ import (
 	"database/sql"
 )
 
-type UserIDService struct {
+type PostgresIDGenerator struct {
 	DB Querier
 }
 
@@ -12,11 +12,11 @@ type Querier interface {
 	QueryRow(string, ...any) *sql.Row
 }
 
-func NewUserIDService(db *sql.DB) *UserIDService {
-	return &UserIDService{db}
+func NewPostgresIDGenerator(db *sql.DB) IDGenerator {
+	return &PostgresIDGenerator{db}
 }
 
-func (repo *UserIDService) NewID() ([]byte, error) {
+func (repo *PostgresIDGenerator) NewID() ([]byte, error) {
 	uuid := []byte{}
 
 	row := repo.DB.QueryRow("select uuid_generate_v4()")
