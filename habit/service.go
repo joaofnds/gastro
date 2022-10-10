@@ -11,7 +11,7 @@ type HabitService struct {
 	instrumentation HabitInstrumentation
 }
 
-func NewHabitService(sqlRepo *SQLHabitRepository, instrumentation HabitInstrumentation) *HabitService {
+func NewHabitService(sqlRepo HabitRepository, instrumentation HabitInstrumentation) *HabitService {
 	return &HabitService{sqlRepo, instrumentation}
 }
 

@@ -41,8 +41,8 @@ var _ = Describe("habit service", func() {
 			config.Module,
 			postgres.Module,
 			habit.Module,
-			fx.Populate(&habitService),
 			transaction.Module,
+			fx.Populate(&habitService),
 		)
 		app.RequireStart()
 	})

@@ -17,7 +17,7 @@ type PromHabitInstrumentation struct {
 	habitsCreateFailed prometheus.Counter
 }
 
-func NewPromHabitInstrumentation(logger *zap.Logger) HabitInstrumentation {
+func NewPromHabitInstrumentation(logger *zap.Logger) *PromHabitInstrumentation {
 	return &PromHabitInstrumentation{
 		logger:             logger,
 		habitsCreated:      promauto.NewCounter(prometheus.CounterOpts{Name: "astro_habits_created"}),

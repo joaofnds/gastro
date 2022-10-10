@@ -16,7 +16,7 @@ type Querier interface {
 	ExecContext(context.Context, string, ...any) (sql.Result, error)
 }
 
-func NewHabitRepository(db *sql.DB) *SQLHabitRepository {
+func NewSQLHabitRepository(db *sql.DB) *SQLHabitRepository {
 	return &SQLHabitRepository{db}
 }
 
