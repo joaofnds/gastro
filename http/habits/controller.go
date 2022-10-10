@@ -11,10 +11,33 @@ import (
 	"go.uber.org/zap"
 )
 
+func NewHabitsController(
+	habitService *habit.HabitService,
+	tokenService *token.TokenService,
+	logger *zap.Logger,
+) *habitsController {
+	return &habitsController{
+		habitService: habitService,
+		tokenService: tokenService,
+		logger:       logger,
+	}
+}
+
 type habitsController struct {
 	habitService *habit.HabitService
 	tokenService *token.TokenService
 	logger       *zap.Logger
+}
+
+func (c habitsController) RegisterHandlers(app *fiber.App) {
+	habits := app.Group("/habits", c.middlewareDecodeToken)
+	habits.Get("/", c.list)
+	habits.Post("/", c.create)
+
+	habit := habits.Group("/:id", c.middlewareFindHabit)
+	habit.Get("/", c.get)
+	habit.Post("/", c.addActivity)
+	habit.Delete("/", c.delete)
 }
 
 func (c habitsController) list(ctx *fiber.Ctx) error {
