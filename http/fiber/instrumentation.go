@@ -35,12 +35,10 @@ func (i *PromHTTPInstrumentation) Middleware(ctx *fiber.Ctx) error {
 }
 
 func (i *PromHTTPInstrumentation) LogReq(ctx *fiber.Ctx) {
-	req, res := ctx.Request(), ctx.Response()
-
 	labels := prometheus.Labels{}
-	labels[lblMethod] = string(req.Header.Method())
-	labels[lblPath] = string(req.URI().Path())
-	labels[lblStatus] = strconv.Itoa(res.StatusCode())
+	labels[lblMethod] = string(ctx.Route().Method)
+	labels[lblPath] = string(ctx.Route().Path)
+	labels[lblStatus] = strconv.Itoa(ctx.Response().StatusCode())
 
 	i.req.With(labels).Inc()
 }
