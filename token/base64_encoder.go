@@ -6,7 +6,7 @@ import (
 
 type Base64Encoder struct{}
 
-func NewBase64Encoder() Encoder {
+func NewBase64Encoder() *Base64Encoder {
 	return &Base64Encoder{}
 }
 

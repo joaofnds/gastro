@@ -12,7 +12,7 @@ type Querier interface {
 	QueryRow(string, ...any) *sql.Row
 }
 
-func NewPostgresIDGenerator(db *sql.DB) IDGenerator {
+func NewPostgresIDGenerator(db *sql.DB) *PostgresIDGenerator {
 	return &PostgresIDGenerator{db}
 }
 

@@ -13,7 +13,7 @@ type PromTokenInstrumentation struct {
 	decryptsFailed prometheus.Counter
 }
 
-func NewPromTokenInstrumentation(logger *zap.Logger) TokenInstrumentation {
+func NewPromTokenInstrumentation(logger *zap.Logger) *PromTokenInstrumentation {
 	return &PromTokenInstrumentation{
 		logger:         logger,
 		tokensCreated:  promauto.NewCounter(prometheus.CounterOpts{Name: "astro_token_created"}),
