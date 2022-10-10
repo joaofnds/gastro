@@ -5,9 +5,9 @@ import (
 	"go.uber.org/fx"
 )
 
-var RootProvider = fx.Invoke(HabitsHandler)
+var RootProvider = fx.Invoke(RootHandler)
 
-func HabitsHandler(app *fiber.App) {
+func RootHandler(app *fiber.App) {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Redirect("https://github.com/joaofnds/astro")
 	})
