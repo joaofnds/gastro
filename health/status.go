@@ -18,8 +18,5 @@ type HealthCheck struct {
 }
 
 func (hc HealthCheck) AllUp() bool {
-	if !hc.DB.IsUp() {
-		return false
-	}
-	return true
+	return hc.DB.IsUp()
 }
