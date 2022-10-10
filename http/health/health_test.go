@@ -2,10 +2,15 @@ package health_test
 
 import (
 	"astro/config"
+	"astro/health"
 	"astro/http/fiber"
-	"astro/http/health"
+	httpHealth "astro/http/health"
+	"astro/postgres"
 	"astro/test"
+	testHealth "astro/test/health"
+	. "astro/test/matchers"
 	"fmt"
+	"io"
 	"net/http"
 	"testing"
 
@@ -20,31 +25,74 @@ func TestHealth(t *testing.T) {
 	RunSpecs(t, "/health suite")
 }
 
-var _ = Describe("/", func() {
+var _ = Describe("/health", func() {
 	var app *fxtest.App
-	var cfg config.AppConfig
+	var url string
 
-	BeforeEach(func() {
-		app = fxtest.New(
-			GinkgoT(),
-			test.NopLogger,
-			test.NewPortAppConfig,
-			test.NopHTTPInstrumentation,
-			config.Module,
-			fiber.Module,
-			health.Providers,
-			fx.Populate(&cfg),
-		)
-		app.RequireStart()
+	Context("healty", func() {
+		BeforeEach(func() {
+			var cfg config.AppConfig
+			app = fxtest.New(
+				GinkgoT(),
+				test.NopLogger,
+				test.NewPortAppConfig,
+				test.NopHTTPInstrumentation,
+				config.Module,
+				postgres.Module,
+				health.Module,
+				fiber.Module,
+				httpHealth.Providers,
+				fx.Populate(&cfg),
+			)
+			url = fmt.Sprintf("http://localhost:%d/health", cfg.Port)
+			app.RequireStart()
+		})
+
+		AfterEach(func() { app.RequireStop() })
+
+		It("returns status OK", func() {
+			res := Must2(http.Get(url))
+			Expect(res.StatusCode).To(Equal(http.StatusOK))
+		})
+
+		It("contains info about the db", func() {
+			res := Must2(http.Get(url))
+			b := Must2(io.ReadAll(res.Body))
+			Expect(b).To(ContainSubstring(`"db":{"status":"up"}`))
+		})
 	})
 
-	AfterEach(func() {
-		app.RequireStop()
-	})
+	Context("unhealty", func() {
+		BeforeEach(func() {
+			var cfg config.AppConfig
+			app = fxtest.New(
+				GinkgoT(),
+				test.NopLogger,
+				test.NewPortAppConfig,
+				test.NopHTTPInstrumentation,
+				testHealth.UnhealthyHealthService,
+				config.Module,
+				postgres.Module,
+				health.Module,
+				fiber.Module,
+				httpHealth.Providers,
+				fx.Populate(&cfg),
+			)
+			url = fmt.Sprintf("http://localhost:%d/health", cfg.Port)
+			app.RequireStart()
+		})
 
-	It("returns status OK", func() {
-		url := fmt.Sprintf("http://localhost:%d/health", cfg.Port)
-		res, _ := http.Get(url)
-		Expect(res.StatusCode).To(Equal(http.StatusOK))
+		AfterEach(func() { app.RequireStop() })
+
+		It("returns status OK", func() {
+			res := Must2(http.Get(url))
+			Expect(res.StatusCode).To(Equal(http.StatusServiceUnavailable))
+		})
+
+		It("contains info about the db", func() {
+			res := Must2(http.Get(url))
+			b := Must2(io.ReadAll(res.Body))
+			Expect(b).To(ContainSubstring(`"db":{"status":"down"}`))
+		})
 	})
 })

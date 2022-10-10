@@ -1,16 +1,39 @@
 package health
 
 import (
+	"astro/health"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/fx"
 )
 
-var Providers = fx.Invoke(HealthHandler)
+var Providers = fx.Options(
+	fx.Provide(NewHealthController),
+	fx.Invoke(func(app *fiber.App, controller *HealthController) {
+		controller.Register(app)
+	}),
+)
 
-func HealthHandler(app *fiber.App) {
-	app.Get("/health", func(c *fiber.Ctx) error {
-		return c.SendStatus(http.StatusOK)
-	})
+type HealthController struct {
+	service health.HealthChecker
+}
+
+func NewHealthController(service health.HealthChecker) *HealthController {
+	return &HealthController{service}
+}
+
+func (c *HealthController) Register(app *fiber.App) {
+	app.Get("/health", c.CheckHealth)
+}
+
+func (c *HealthController) CheckHealth(ctx *fiber.Ctx) error {
+	status := http.StatusOK
+
+	h := c.service.CheckHealth()
+	if !h.AllUp() {
+		status = http.StatusServiceUnavailable
+	}
+
+	return ctx.Status(status).JSON(h)
 }
