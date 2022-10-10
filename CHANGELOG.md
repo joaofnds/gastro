@@ -1,3 +1,10 @@
+# [1.38.0](https://github.com/joaofnds/gastro/compare/v1.37.1...v1.38.0) (2022-10-10)
+
+
+### Features
+
+* **metrics:** change request path label to fiber path ([8b32ad9](https://github.com/joaofnds/gastro/commit/8b32ad91774549109059d90e0da057f9af02fbed))
+
 ## [1.37.1](https://github.com/joaofnds/gastro/compare/v1.37.0...v1.37.1) (2022-10-09)
 
 # [1.37.0](https://github.com/joaofnds/gastro/compare/v1.36.0...v1.37.0) (2022-10-09)
