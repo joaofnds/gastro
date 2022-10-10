@@ -29,7 +29,7 @@ type habitsController struct {
 	logger       *zap.Logger
 }
 
-func (c habitsController) RegisterHandlers(app *fiber.App) {
+func (c habitsController) Register(app *fiber.App) {
 	habits := app.Group("/habits", c.middlewareDecodeToken)
 	habits.Get("/", c.list)
 	habits.Post("/", c.create)
