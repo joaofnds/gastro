@@ -1,3 +1,10 @@
+# [1.39.0](https://github.com/joaofnds/gastro/compare/v1.38.1...v1.39.0) (2022-10-10)
+
+
+### Features
+
+* add proper health checks ([07525ff](https://github.com/joaofnds/gastro/commit/07525ffba2b81774f4bcf4932f4fd108cc65202f))
+
 ## [1.38.1](https://github.com/joaofnds/gastro/compare/v1.38.0...v1.38.1) (2022-10-10)
 
 # [1.38.0](https://github.com/joaofnds/gastro/compare/v1.37.1...v1.38.0) (2022-10-10)
