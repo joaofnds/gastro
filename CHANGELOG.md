@@ -1,3 +1,11 @@
+# [1.41.0](https://github.com/joaofnds/gastro/compare/v1.40.0...v1.41.0) (2022-10-11)
+
+
+### Features
+
+* configure fx to use zap ([93b144c](https://github.com/joaofnds/gastro/commit/93b144cc8384f63b22703843e05582ce417000a2))
+* enable trusted proxy check ([7df938b](https://github.com/joaofnds/gastro/commit/7df938b6e2fcfd538cfd09b4f770843b714d3e34))
+
 # [1.40.0](https://github.com/joaofnds/gastro/compare/v1.39.2...v1.40.0) (2022-10-11)
 
 
