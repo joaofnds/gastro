@@ -1,3 +1,10 @@
+# [1.42.0](https://github.com/joaofnds/gastro/compare/v1.41.0...v1.42.0) (2022-10-11)
+
+
+### Features
+
+* get client ip from fly header ([df180ac](https://github.com/joaofnds/gastro/commit/df180ac34661f8b00d94ed0bc3a845e0c9b18ee4))
+
 # [1.41.0](https://github.com/joaofnds/gastro/compare/v1.40.0...v1.41.0) (2022-10-11)
 
 
