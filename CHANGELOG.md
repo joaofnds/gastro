@@ -1,3 +1,10 @@
+# [1.40.0](https://github.com/joaofnds/gastro/compare/v1.39.2...v1.40.0) (2022-10-11)
+
+
+### Features
+
+* add ip label to astro_request ([aa91f7b](https://github.com/joaofnds/gastro/commit/aa91f7bacb72477ec07eac3790c82ac71d9128ea))
+
 ## [1.39.2](https://github.com/joaofnds/gastro/compare/v1.39.1...v1.39.2) (2022-10-10)
 
 ## [1.39.1](https://github.com/joaofnds/gastro/compare/v1.39.0...v1.39.1) (2022-10-10)
