@@ -8,7 +8,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
-var (
+const (
+	lblIP     = "ip"
 	lblMethod = "method"
 	lblPath   = "path"
 	lblStatus = "status"
@@ -24,7 +25,7 @@ func NewPromHTTPInstrumentation() HTTPInstrumentation {
 	return &PromHTTPInstrumentation{
 		req: promauto.NewCounterVec(
 			prometheus.CounterOpts{Name: "astro_request"},
-			[]string{lblMethod, lblPath, lblStatus},
+			[]string{lblIP, lblMethod, lblPath, lblStatus},
 		),
 	}
 }
@@ -36,6 +37,7 @@ func (i *PromHTTPInstrumentation) Middleware(ctx *fiber.Ctx) error {
 
 func (i *PromHTTPInstrumentation) LogReq(ctx *fiber.Ctx) {
 	labels := prometheus.Labels{}
+	labels[lblIP] = string(ctx.IP())
 	labels[lblMethod] = string(ctx.Route().Method)
 	labels[lblPath] = string(ctx.Route().Path)
 	labels[lblStatus] = strconv.Itoa(ctx.Response().StatusCode())
