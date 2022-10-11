@@ -24,8 +24,7 @@ type HTTPInstrumentation interface {
 
 func NewFiber(instrumentation HTTPInstrumentation) *fiber.App {
 	app := fiber.New(fiber.Config{
-		DisableStartupMessage:   true,
-		EnableTrustedProxyCheck: true,
+		DisableStartupMessage: true,
 	})
 	app.Use(recover.New())
 	app.Use(limiter.New(limiter.Config{
