@@ -37,7 +37,7 @@ func (i *PromHTTPInstrumentation) Middleware(ctx *fiber.Ctx) error {
 
 func (i *PromHTTPInstrumentation) LogReq(ctx *fiber.Ctx) {
 	labels := prometheus.Labels{}
-	labels[lblIP] = string(ctx.IP())
+	labels[lblIP] = ctx.Get("Fly-Client-IP", ctx.IP())
 	labels[lblMethod] = string(ctx.Route().Method)
 	labels[lblPath] = string(ctx.Route().Path)
 	labels[lblStatus] = strconv.Itoa(ctx.Response().StatusCode())
