@@ -53,7 +53,7 @@ var _ = Describe("fiber", func() {
 	})
 
 	It("limits requests", func() {
-		for i := 0; i < 30; i++ {
+		for i := 0; i < 120; i++ {
 			req := Must2(Get(url+"/somethingelse", nil))
 			Expect(req.StatusCode).To(Equal(http.StatusNotFound))
 		}

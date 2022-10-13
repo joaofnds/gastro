@@ -4,6 +4,7 @@ import (
 	"astro/config"
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -31,7 +32,8 @@ func NewFiber(instrumentation Instrumentation) *fiber.App {
 	})
 	app.Use(recover.New())
 	app.Use(limiter.New(limiter.Config{
-		Max:               30,
+		Max:               120,
+		Expiration:        1 * time.Minute,
 		LimiterMiddleware: limiter.SlidingWindow{},
 	}))
 	app.Use(instrumentation.Middleware)
