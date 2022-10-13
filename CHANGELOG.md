@@ -1,3 +1,10 @@
+# [1.43.0](https://github.com/joaofnds/gastro/compare/v1.42.1...v1.43.0) (2022-10-13)
+
+
+### Features
+
+* increase request limit to 120req/min ([4dd9e87](https://github.com/joaofnds/gastro/commit/4dd9e877a3366f667ad9e1897209c251a7453a23))
+
 ## [1.42.1](https://github.com/joaofnds/gastro/compare/v1.42.0...v1.42.1) (2022-10-13)
 
 # [1.42.0](https://github.com/joaofnds/gastro/compare/v1.41.0...v1.42.0) (2022-10-11)
