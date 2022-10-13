@@ -4,15 +4,11 @@ import (
 	"database/sql"
 )
 
-type Checker interface {
-	CheckHealth() Check
-}
-
 type Service struct {
 	db *sql.DB
 }
 
-func NewService(db *sql.DB) Checker {
+func NewService(db *sql.DB) *Service {
 	return &Service{db}
 }
 
