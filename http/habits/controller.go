@@ -11,25 +11,25 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewHabitsController(
-	habitService *habit.HabitService,
-	tokenService *token.TokenService,
+func NewController(
+	habitService *habit.Service,
+	tokenService *token.Service,
 	logger *zap.Logger,
-) *habitsController {
-	return &habitsController{
+) *Controller {
+	return &Controller{
 		habitService: habitService,
 		tokenService: tokenService,
 		logger:       logger,
 	}
 }
 
-type habitsController struct {
-	habitService *habit.HabitService
-	tokenService *token.TokenService
+type Controller struct {
+	habitService *habit.Service
+	tokenService *token.Service
 	logger       *zap.Logger
 }
 
-func (c habitsController) Register(app *fiber.App) {
+func (c Controller) Register(app *fiber.App) {
 	habits := app.Group("/habits", c.middlewareDecodeToken)
 	habits.Get("/", c.list)
 	habits.Post("/", c.create)
@@ -40,7 +40,7 @@ func (c habitsController) Register(app *fiber.App) {
 	habit.Delete("/", c.delete)
 }
 
-func (c habitsController) list(ctx *fiber.Ctx) error {
+func (c Controller) list(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("userID").(string)
 	habits, err := c.habitService.List(ctx.Context(), userID)
 
@@ -52,12 +52,12 @@ func (c habitsController) list(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(habits)
 }
 
-func (habitsController) get(ctx *fiber.Ctx) error {
+func (Controller) get(ctx *fiber.Ctx) error {
 	h := ctx.Locals("habit")
 	return ctx.Status(http.StatusOK).JSON(h)
 }
 
-func (c habitsController) delete(ctx *fiber.Ctx) error {
+func (c Controller) delete(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("userID").(string)
 	h := ctx.Locals("habit").(habit.Habit)
 
@@ -70,7 +70,7 @@ func (c habitsController) delete(ctx *fiber.Ctx) error {
 	return ctx.SendStatus(http.StatusOK)
 }
 
-func (c habitsController) addActivity(ctx *fiber.Ctx) error {
+func (c Controller) addActivity(ctx *fiber.Ctx) error {
 	h := ctx.Locals("habit").(habit.Habit)
 
 	_, err := c.habitService.AddActivity(ctx.Context(), h, time.Now().UTC())
@@ -82,7 +82,7 @@ func (c habitsController) addActivity(ctx *fiber.Ctx) error {
 	return ctx.SendStatus(http.StatusCreated)
 }
 
-func (c habitsController) create(ctx *fiber.Ctx) error {
+func (c Controller) create(ctx *fiber.Ctx) error {
 	name := ctx.Query("name")
 	if name == "" {
 		return ctx.SendStatus(http.StatusBadRequest)
@@ -98,7 +98,7 @@ func (c habitsController) create(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusCreated).JSON(h)
 }
 
-func (c habitsController) middlewareFindHabit(ctx *fiber.Ctx) error {
+func (c Controller) middlewareFindHabit(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	if !IsUUID(id) {
 		return ctx.SendStatus(http.StatusNotFound)
@@ -108,7 +108,7 @@ func (c habitsController) middlewareFindHabit(ctx *fiber.Ctx) error {
 
 	h, err := c.habitService.Find(ctx.Context(), habit.FindDTO{HabitID: id, UserID: userID})
 	if err != nil {
-		if errors.Is(err, habit.HabitNotFoundErr) {
+		if errors.Is(err, habit.NotFoundErr) {
 			return ctx.SendStatus(http.StatusNotFound)
 		}
 
@@ -121,7 +121,7 @@ func (c habitsController) middlewareFindHabit(ctx *fiber.Ctx) error {
 	return ctx.Next()
 }
 
-func (c habitsController) middlewareDecodeToken(ctx *fiber.Ctx) error {
+func (c Controller) middlewareDecodeToken(ctx *fiber.Ctx) error {
 	token, ok := ctx.GetReqHeaders()["Authorization"]
 	if !ok {
 		return ctx.Status(http.StatusUnauthorized).SendString("missing Authorization token")

@@ -13,7 +13,7 @@ type nopHTTPInstrumentation struct{}
 
 type PromHabitInstrumentation struct{}
 
-func newNopHTTPInstrumentation() astroFiber.HTTPInstrumentation {
+func newNopHTTPInstrumentation() astroFiber.Instrumentation {
 	return &nopHTTPInstrumentation{}
 }
 

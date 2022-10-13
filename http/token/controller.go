@@ -7,36 +7,36 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func NewTokenController(service *token.TokenService) *TokenController {
-	return &TokenController{service}
+func NewController(service *token.Service) *Controller {
+	return &Controller{service}
 }
 
-type TokenController struct {
-	service *token.TokenService
+type Controller struct {
+	service *token.Service
 }
 
-func (c *TokenController) Register(app *fiber.App) {
+func (c *Controller) Register(app *fiber.App) {
 	app.Post("/token", c.Create)
 	app.Get("/tokentest", c.TestToken)
 }
 
-func (c *TokenController) Create(ctx *fiber.Ctx) error {
-	token, err := c.service.NewToken()
+func (c *Controller) Create(ctx *fiber.Ctx) error {
+	tok, err := c.service.NewToken()
 	if err != nil {
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
 
-	return ctx.Status(http.StatusCreated).Send(token)
+	return ctx.Status(http.StatusCreated).Send(tok)
 }
 
-func (c *TokenController) TestToken(ctx *fiber.Ctx) error {
+func (c *Controller) TestToken(ctx *fiber.Ctx) error {
 	headers := ctx.GetReqHeaders()
-	token, ok := headers["Authorization"]
+	tok, ok := headers["Authorization"]
 	if !ok {
 		return ctx.Status(http.StatusBadRequest).SendString("missing Authorization header")
 	}
 
-	_, err := c.service.IDFromToken([]byte(token))
+	_, err := c.service.IDFromToken([]byte(tok))
 	if err != nil {
 		return ctx.SendStatus(http.StatusBadRequest)
 	}

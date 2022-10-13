@@ -10,7 +10,7 @@ var NopHabitInstrumentation = fx.Decorate(NewNopHabitInstrumentation)
 
 type nopHabitInstrumentation struct{}
 
-func NewNopHabitInstrumentation() habit.HabitInstrumentation {
+func NewNopHabitInstrumentation() habit.Instrumentation {
 	return &nopHabitInstrumentation{}
 }
 func (l *nopHabitInstrumentation) LogFailedToCreateHabit(err error) {}

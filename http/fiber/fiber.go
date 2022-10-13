@@ -13,16 +13,19 @@ import (
 )
 
 var Module = fx.Options(
-	fx.Provide(NewPromHTTPInstrumentation),
 	fx.Provide(NewFiber),
 	fx.Invoke(HookFiber),
+	fx.Provide(NewPromHTTPInstrumentation),
+	fx.Provide(func(instr *PromInstrumentation) Instrumentation {
+		return instr
+	}),
 )
 
-type HTTPInstrumentation interface {
+type Instrumentation interface {
 	Middleware(*fiber.Ctx) error
 }
 
-func NewFiber(instrumentation HTTPInstrumentation) *fiber.App {
+func NewFiber(instrumentation Instrumentation) *fiber.App {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 	})

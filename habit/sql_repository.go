@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type SQLHabitRepository struct {
+type SQLRepository struct {
 	DB Querier
 }
 
@@ -16,11 +16,11 @@ type Querier interface {
 	ExecContext(context.Context, string, ...any) (sql.Result, error)
 }
 
-func NewSQLHabitRepository(db *sql.DB) *SQLHabitRepository {
-	return &SQLHabitRepository{db}
+func NewSQLRepository(db *sql.DB) *SQLRepository {
+	return &SQLRepository{db}
 }
 
-func (repo *SQLHabitRepository) Create(ctx context.Context, create CreateDTO) (Habit, error) {
+func (repo *SQLRepository) Create(ctx context.Context, create CreateDTO) (Habit, error) {
 	row := repo.DB.QueryRowContext(
 		ctx,
 		"INSERT INTO habits(user_id, name) VALUES ($1, $2) RETURNING id",
@@ -40,7 +40,7 @@ func (repo *SQLHabitRepository) Create(ctx context.Context, create CreateDTO) (H
 	return h, row.Err()
 }
 
-func (repo *SQLHabitRepository) Find(ctx context.Context, find FindDTO) (Habit, error) {
+func (repo *SQLRepository) Find(ctx context.Context, find FindDTO) (Habit, error) {
 	return repo.findOne(ctx, `
 		SELECT
 			habits.id,
@@ -56,7 +56,7 @@ func (repo *SQLHabitRepository) Find(ctx context.Context, find FindDTO) (Habit, 
 	)
 }
 
-func (repo *SQLHabitRepository) AddActivity(ctx context.Context, habit Habit, time time.Time) (Activity, error) {
+func (repo *SQLRepository) AddActivity(ctx context.Context, habit Habit, time time.Time) (Activity, error) {
 	row := repo.DB.QueryRowContext(
 		ctx,
 		"INSERT INTO activities(habit_id, created_at) VALUES ($1, $2) RETURNING id",
@@ -75,7 +75,7 @@ func (repo *SQLHabitRepository) AddActivity(ctx context.Context, habit Habit, ti
 	return Activity{id, time}, row.Err()
 }
 
-func (repo *SQLHabitRepository) List(ctx context.Context, userID string) ([]Habit, error) {
+func (repo *SQLRepository) List(ctx context.Context, userID string) ([]Habit, error) {
 	rows, err := repo.DB.QueryContext(ctx, `
 		SELECT
 			habits.id,
@@ -97,7 +97,7 @@ func (repo *SQLHabitRepository) List(ctx context.Context, userID string) ([]Habi
 	return scanRows(rows)
 }
 
-func (repo *SQLHabitRepository) Delete(ctx context.Context, find FindDTO) error {
+func (repo *SQLRepository) Delete(ctx context.Context, find FindDTO) error {
 	r, err := repo.DB.ExecContext(
 		ctx,
 		"DELETE FROM habits WHERE id = $1 AND user_id = $2",
@@ -112,12 +112,12 @@ func (repo *SQLHabitRepository) Delete(ctx context.Context, find FindDTO) error 
 		return err
 	}
 	if rows == 0 {
-		return HabitNotFoundErr
+		return NotFoundErr
 	}
 	return err
 }
 
-func (repo *SQLHabitRepository) DeleteAll(ctx context.Context) error {
+func (repo *SQLRepository) DeleteAll(ctx context.Context) error {
 	_, err := repo.DB.ExecContext(ctx, "DELETE FROM habits")
 	return err
 }
@@ -160,7 +160,7 @@ func scanRows(rows *sql.Rows) ([]Habit, error) {
 	return habits, nil
 }
 
-func (repo *SQLHabitRepository) findOne(ctx context.Context, query string, args ...any) (Habit, error) {
+func (repo *SQLRepository) findOne(ctx context.Context, query string, args ...any) (Habit, error) {
 	rows, err := repo.DB.QueryContext(ctx, query, args...)
 	if err != nil {
 		return Habit{}, err
@@ -174,7 +174,7 @@ func (repo *SQLHabitRepository) findOne(ctx context.Context, query string, args 
 	}
 
 	if len(habits) == 0 {
-		return Habit{}, HabitNotFoundErr
+		return Habit{}, NotFoundErr
 	}
 
 	return habits[0], err

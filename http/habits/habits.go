@@ -6,8 +6,8 @@ import (
 )
 
 var Providers = fx.Options(
-	fx.Provide(NewHabitsController),
-	fx.Invoke(func(app *fiber.App, controller *habitsController) {
+	fx.Provide(NewController),
+	fx.Invoke(func(app *fiber.App, controller *Controller) {
 		controller.Register(app)
 	}),
 )

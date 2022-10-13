@@ -154,73 +154,73 @@ func (mr *MockEncoderMockRecorder) Encode(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Encode", reflect.TypeOf((*MockEncoder)(nil).Encode), arg0)
 }
 
-// MockTokenInstrumentation is a mock of TokenInstrumentation interface.
-type MockTokenInstrumentation struct {
+// MockInstrumentation is a mock of Instrumentation interface.
+type MockInstrumentation struct {
 	ctrl     *gomock.Controller
-	recorder *MockTokenInstrumentationMockRecorder
+	recorder *MockInstrumentationMockRecorder
 }
 
-// MockTokenInstrumentationMockRecorder is the mock recorder for MockTokenInstrumentation.
-type MockTokenInstrumentationMockRecorder struct {
-	mock *MockTokenInstrumentation
+// MockInstrumentationMockRecorder is the mock recorder for MockInstrumentation.
+type MockInstrumentationMockRecorder struct {
+	mock *MockInstrumentation
 }
 
-// NewMockTokenInstrumentation creates a new mock instance.
-func NewMockTokenInstrumentation(ctrl *gomock.Controller) *MockTokenInstrumentation {
-	mock := &MockTokenInstrumentation{ctrl: ctrl}
-	mock.recorder = &MockTokenInstrumentationMockRecorder{mock}
+// NewMockInstrumentation creates a new mock instance.
+func NewMockInstrumentation(ctrl *gomock.Controller) *MockInstrumentation {
+	mock := &MockInstrumentation{ctrl: ctrl}
+	mock.recorder = &MockInstrumentationMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockTokenInstrumentation) EXPECT() *MockTokenInstrumentationMockRecorder {
+func (m *MockInstrumentation) EXPECT() *MockInstrumentationMockRecorder {
 	return m.recorder
 }
 
 // FailedToCreateToken mocks base method.
-func (m *MockTokenInstrumentation) FailedToCreateToken(err error) {
+func (m *MockInstrumentation) FailedToCreateToken(err error) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "FailedToCreateToken", err)
 }
 
 // FailedToCreateToken indicates an expected call of FailedToCreateToken.
-func (mr *MockTokenInstrumentationMockRecorder) FailedToCreateToken(err interface{}) *gomock.Call {
+func (mr *MockInstrumentationMockRecorder) FailedToCreateToken(err interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FailedToCreateToken", reflect.TypeOf((*MockTokenInstrumentation)(nil).FailedToCreateToken), err)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FailedToCreateToken", reflect.TypeOf((*MockInstrumentation)(nil).FailedToCreateToken), err)
 }
 
 // FailedToDecryptToken mocks base method.
-func (m *MockTokenInstrumentation) FailedToDecryptToken(err error) {
+func (m *MockInstrumentation) FailedToDecryptToken(err error) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "FailedToDecryptToken", err)
 }
 
 // FailedToDecryptToken indicates an expected call of FailedToDecryptToken.
-func (mr *MockTokenInstrumentationMockRecorder) FailedToDecryptToken(err interface{}) *gomock.Call {
+func (mr *MockInstrumentationMockRecorder) FailedToDecryptToken(err interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FailedToDecryptToken", reflect.TypeOf((*MockTokenInstrumentation)(nil).FailedToDecryptToken), err)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FailedToDecryptToken", reflect.TypeOf((*MockInstrumentation)(nil).FailedToDecryptToken), err)
 }
 
 // TokenCreated mocks base method.
-func (m *MockTokenInstrumentation) TokenCreated() {
+func (m *MockInstrumentation) TokenCreated() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "TokenCreated")
 }
 
 // TokenCreated indicates an expected call of TokenCreated.
-func (mr *MockTokenInstrumentationMockRecorder) TokenCreated() *gomock.Call {
+func (mr *MockInstrumentationMockRecorder) TokenCreated() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TokenCreated", reflect.TypeOf((*MockTokenInstrumentation)(nil).TokenCreated))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TokenCreated", reflect.TypeOf((*MockInstrumentation)(nil).TokenCreated))
 }
 
 // TokenDecrypted mocks base method.
-func (m *MockTokenInstrumentation) TokenDecrypted() {
+func (m *MockInstrumentation) TokenDecrypted() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "TokenDecrypted")
 }
 
 // TokenDecrypted indicates an expected call of TokenDecrypted.
-func (mr *MockTokenInstrumentationMockRecorder) TokenDecrypted() *gomock.Call {
+func (mr *MockInstrumentationMockRecorder) TokenDecrypted() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TokenDecrypted", reflect.TypeOf((*MockTokenInstrumentation)(nil).TokenDecrypted))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TokenDecrypted", reflect.TypeOf((*MockInstrumentation)(nil).TokenDecrypted))
 }

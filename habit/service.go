@@ -6,16 +6,16 @@ import (
 	"time"
 )
 
-type HabitService struct {
-	repo            HabitRepository
-	instrumentation HabitInstrumentation
+type Service struct {
+	repo            Repository
+	instrumentation Instrumentation
 }
 
-func NewHabitService(sqlRepo HabitRepository, instrumentation HabitInstrumentation) *HabitService {
-	return &HabitService{sqlRepo, instrumentation}
+func NewService(sqlRepo Repository, instrumentation Instrumentation) *Service {
+	return &Service{sqlRepo, instrumentation}
 }
 
-func (service *HabitService) Create(ctx context.Context, create CreateDTO) (Habit, error) {
+func (service *Service) Create(ctx context.Context, create CreateDTO) (Habit, error) {
 	habit, err := service.repo.Create(ctx, create)
 
 	if err != nil {
@@ -27,14 +27,14 @@ func (service *HabitService) Create(ctx context.Context, create CreateDTO) (Habi
 	return habit, err
 }
 
-func (service *HabitService) AddActivity(ctx context.Context, habit Habit, date time.Time) (Activity, error) {
+func (service *Service) AddActivity(ctx context.Context, habit Habit, date time.Time) (Activity, error) {
 	return service.repo.AddActivity(ctx, habit, date.Truncate(time.Second))
 }
 
-func (service *HabitService) Find(ctx context.Context, find FindDTO) (Habit, error) {
+func (service *Service) Find(ctx context.Context, find FindDTO) (Habit, error) {
 	habit, err := service.repo.Find(ctx, find)
 	if err != nil {
-		if errors.Is(err, HabitNotFoundErr) {
+		if errors.Is(err, NotFoundErr) {
 			return habit, err
 		} else {
 			return habit, RepositoryErr
@@ -44,14 +44,14 @@ func (service *HabitService) Find(ctx context.Context, find FindDTO) (Habit, err
 	return habit, nil
 }
 
-func (service *HabitService) List(ctx context.Context, userID string) ([]Habit, error) {
+func (service *Service) List(ctx context.Context, userID string) ([]Habit, error) {
 	return service.repo.List(ctx, userID)
 }
 
-func (service *HabitService) Delete(ctx context.Context, find FindDTO) error {
+func (service *Service) Delete(ctx context.Context, find FindDTO) error {
 	return service.repo.Delete(ctx, find)
 }
 
-func (service *HabitService) DeleteAll(ctx context.Context) error {
+func (service *Service) DeleteAll(ctx context.Context) error {
 	return service.repo.DeleteAll(ctx)
 }

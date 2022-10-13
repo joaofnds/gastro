@@ -10,7 +10,7 @@ var NopTokenInstrumentation = fx.Decorate(NewFakeTokenInstrumentation)
 
 type nopTokenInstrumentation struct{}
 
-func NewFakeTokenInstrumentation() token.TokenInstrumentation {
+func NewFakeTokenInstrumentation() token.Instrumentation {
 	return &nopTokenInstrumentation{}
 }
 func (i nopTokenInstrumentation) TokenCreated()                  {}

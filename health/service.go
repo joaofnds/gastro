@@ -4,23 +4,23 @@ import (
 	"database/sql"
 )
 
-type HealthChecker interface {
-	CheckHealth() HealthCheck
+type Checker interface {
+	CheckHealth() Check
 }
 
-type HealthService struct {
+type Service struct {
 	db *sql.DB
 }
 
-func NewHealthService(db *sql.DB) HealthChecker {
-	return &HealthService{db}
+func NewService(db *sql.DB) Checker {
+	return &Service{db}
 }
 
-func (c *HealthService) CheckHealth() HealthCheck {
-	return HealthCheck{DB: c.DBHealth()}
+func (c *Service) CheckHealth() Check {
+	return Check{DB: c.DBHealth()}
 }
 
-func (c *HealthService) DBHealth() Status {
+func (c *Service) DBHealth() Status {
 	if err := c.db.Ping(); err != nil {
 		return Status{Status: StatusDown}
 	}

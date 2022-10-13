@@ -13,10 +13,10 @@ func (s Status) IsUp() bool {
 	return s.Status == StatusUp
 }
 
-type HealthCheck struct {
+type Check struct {
 	DB Status `json:"db"`
 }
 
-func (hc HealthCheck) AllUp() bool {
+func (hc Check) AllUp() bool {
 	return hc.DB.IsUp()
 }

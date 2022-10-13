@@ -11,18 +11,18 @@ import (
 )
 
 var Module = fx.Options(
-	fx.Provide(NewMetricsServer),
-	fx.Invoke(HookMetricsHandler),
+	fx.Provide(NewServer),
+	fx.Invoke(HookHandler),
 )
 
-type MetricsServer = http.Server
+type Server = http.Server
 
-func NewMetricsServer(metricsConfig config.MetricsConfig) *MetricsServer {
+func NewServer(metricsConfig config.MetricsConfig) *Server {
 	http.Handle("/metrics", promhttp.Handler())
 	return &http.Server{Addr: metricsConfig.Address}
 }
 
-func HookMetricsHandler(lc fx.Lifecycle, server *MetricsServer, logger *zap.Logger) {
+func HookHandler(lc fx.Lifecycle, server *Server, logger *zap.Logger) {
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
 			go func() {

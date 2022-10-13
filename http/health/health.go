@@ -9,25 +9,25 @@ import (
 )
 
 var Providers = fx.Options(
-	fx.Provide(NewHealthController),
-	fx.Invoke(func(app *fiber.App, controller *HealthController) {
+	fx.Provide(NewController),
+	fx.Invoke(func(app *fiber.App, controller *Controller) {
 		controller.Register(app)
 	}),
 )
 
-type HealthController struct {
-	service health.HealthChecker
+type Controller struct {
+	service health.Checker
 }
 
-func NewHealthController(service health.HealthChecker) *HealthController {
-	return &HealthController{service}
+func NewController(service health.Checker) *Controller {
+	return &Controller{service}
 }
 
-func (c *HealthController) Register(app *fiber.App) {
+func (c *Controller) Register(app *fiber.App) {
 	app.Get("/health", c.CheckHealth)
 }
 
-func (c *HealthController) CheckHealth(ctx *fiber.Ctx) error {
+func (c *Controller) CheckHealth(ctx *fiber.Ctx) error {
 	status := http.StatusOK
 
 	h := c.service.CheckHealth()

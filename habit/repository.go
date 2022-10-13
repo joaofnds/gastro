@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type HabitRepository interface {
+type Repository interface {
 	Create(ctx context.Context, create CreateDTO) (Habit, error)
 	List(ctx context.Context, userID string) ([]Habit, error)
 	Find(ctx context.Context, find FindDTO) (Habit, error)

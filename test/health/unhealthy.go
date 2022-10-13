@@ -8,14 +8,14 @@ import (
 
 var UnhealthyHealthService = fx.Decorate(NewUnhealthyHealthService)
 
-func NewUnhealthyHealthService() HealthChecker {
+func NewUnhealthyHealthService() Checker {
 	return &unhealthyHealthService{}
 }
 
 type unhealthyHealthService struct{}
 
-func (c *unhealthyHealthService) CheckHealth() HealthCheck {
-	return HealthCheck{
+func (c *unhealthyHealthService) CheckHealth() Check {
+	return Check{
 		DB: Status{Status: StatusDown},
 	}
 }

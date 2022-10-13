@@ -2,4 +2,4 @@ package health
 
 import "go.uber.org/fx"
 
-var Module = fx.Provide(NewHealthService)
+var Module = fx.Provide(NewService)

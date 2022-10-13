@@ -10,7 +10,7 @@ import (
 
 var Module = fx.Module("transaction", fx.Invoke(HookTransaction))
 
-func HookTransaction(lc fx.Lifecycle, db *sql.DB, repo *habit.SQLHabitRepository) {
+func HookTransaction(lc fx.Lifecycle, db *sql.DB, repo *habit.SQLRepository) {
 	var transaction *sql.Tx
 
 	lc.Append(fx.Hook{

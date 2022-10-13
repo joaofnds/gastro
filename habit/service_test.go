@@ -26,7 +26,7 @@ func TestHabit(t *testing.T) {
 var _ = Describe("habit service", func() {
 	var (
 		app          *fxtest.App
-		habitService *habit.HabitService
+		habitService *habit.Service
 		userID       = "26b67b16-f8e7-4686-8c78-bc7f5a70ed1a"
 		badHabitID   = "76767d2e-57f8-41c5-b34f-7b845a084d63"
 		uuidLen      = 36
@@ -125,10 +125,10 @@ var _ = Describe("habit service", func() {
 			Expect(habitFound).To(Equal(habitCreated))
 		})
 
-		It("returns HabitNotFoundErr when not found", func() {
+		It("returns NotFoundErr when not found", func() {
 			ctx := context.Background()
 			_, err := habitService.Find(ctx, habit.FindDTO{HabitID: badHabitID, UserID: userID})
-			Expect(err).To(MatchError(habit.HabitNotFoundErr))
+			Expect(err).To(MatchError(habit.NotFoundErr))
 		})
 	})
 
@@ -176,6 +176,6 @@ var _ = Describe("habit service", func() {
 		h := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
 		err := habitService.Delete(ctx, habit.FindDTO{HabitID: h.ID, UserID: otherUserID})
 
-		Expect(err).To(MatchError(habit.HabitNotFoundErr))
+		Expect(err).To(MatchError(habit.NotFoundErr))
 	})
 })

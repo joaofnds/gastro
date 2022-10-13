@@ -6,15 +6,15 @@ import (
 	"go.uber.org/zap"
 )
 
-type PromTokenInstrumentation struct {
+type PromInstrumentation struct {
 	logger         *zap.Logger
 	tokensCreated  prometheus.Counter
 	decrypts       prometheus.Counter
 	decryptsFailed prometheus.Counter
 }
 
-func NewPromTokenInstrumentation(logger *zap.Logger) *PromTokenInstrumentation {
-	return &PromTokenInstrumentation{
+func NewPromInstrumentation(logger *zap.Logger) *PromInstrumentation {
+	return &PromInstrumentation{
 		logger:         logger,
 		tokensCreated:  promauto.NewCounter(prometheus.CounterOpts{Name: "astro_token_created"}),
 		decrypts:       promauto.NewCounter(prometheus.CounterOpts{Name: "astro_token_decrypts"}),
@@ -22,21 +22,21 @@ func NewPromTokenInstrumentation(logger *zap.Logger) *PromTokenInstrumentation {
 	}
 }
 
-func (i *PromTokenInstrumentation) TokenCreated() {
+func (i *PromInstrumentation) TokenCreated() {
 	i.logger.Info("token created")
 	i.tokensCreated.Inc()
 }
 
-func (i *PromTokenInstrumentation) FailedToCreateToken(err error) {
+func (i *PromInstrumentation) FailedToCreateToken(err error) {
 	i.logger.Error("failed to decrypt token", zap.Error(err))
 }
 
-func (i *PromTokenInstrumentation) TokenDecrypted() {
+func (i *PromInstrumentation) TokenDecrypted() {
 	i.logger.Info("token decrypted")
 	i.decrypts.Inc()
 }
 
-func (i *PromTokenInstrumentation) FailedToDecryptToken(err error) {
+func (i *PromInstrumentation) FailedToDecryptToken(err error) {
 	i.logger.Error("failed to decrypt token", zap.Error(err))
 	i.decryptsFailed.Inc()
 }
