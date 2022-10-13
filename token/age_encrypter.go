@@ -9,12 +9,12 @@ import (
 	"filippo.io/age"
 )
 
-type AceEncrypter struct {
+type AgeEncrypter struct {
 	recipient age.Recipient
 	identity  age.Identity
 }
 
-func NewAceEncrypter(tokenConfig config.TokenConfig) (*AceEncrypter, error) {
+func NewAgeEncrypter(tokenConfig config.TokenConfig) (*AgeEncrypter, error) {
 	recipient, err := age.ParseX25519Recipient(tokenConfig.PublicKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse recipient: %w", err)
@@ -25,10 +25,10 @@ func NewAceEncrypter(tokenConfig config.TokenConfig) (*AceEncrypter, error) {
 		return nil, fmt.Errorf("failed to parse identity: %w", err)
 	}
 
-	return &AceEncrypter{recipient: recipient, identity: identity}, nil
+	return &AgeEncrypter{recipient: recipient, identity: identity}, nil
 }
 
-func (t AceEncrypter) Encrypt(data []byte) ([]byte, error) {
+func (t AgeEncrypter) Encrypt(data []byte) ([]byte, error) {
 	b := new(bytes.Buffer)
 	w, err := age.Encrypt(b, t.recipient)
 	if err != nil {
@@ -46,7 +46,7 @@ func (t AceEncrypter) Encrypt(data []byte) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func (t AceEncrypter) Decrypt(data []byte) ([]byte, error) {
+func (t AgeEncrypter) Decrypt(data []byte) ([]byte, error) {
 	b := new(bytes.Buffer)
 
 	r, err := age.Decrypt(bytes.NewReader(data), t.identity)

@@ -12,7 +12,7 @@ import (
 	"go.uber.org/fx/fxtest"
 )
 
-var _ = Describe("ace encrypter", Ordered, func() {
+var _ = Describe("age encrypter", Ordered, func() {
 	var service token.Encrypter
 	var cfg config.TokenConfig
 
@@ -22,9 +22,8 @@ var _ = Describe("ace encrypter", Ordered, func() {
 			test.NopLogger,
 			test.NopTokenInstrumentation,
 			config.Module,
-			fx.Populate(&cfg),
 			token.Module,
-			fx.Populate(&service),
+			fx.Populate(&cfg, &service),
 		)
 	})
 
@@ -49,7 +48,7 @@ var _ = Describe("ace encrypter", Ordered, func() {
 
 	Describe("with invalid public key", func() {
 		It("fails to create service", func() {
-			_, err := token.NewAceEncrypter(config.TokenConfig{
+			_, err := token.NewAgeEncrypter(config.TokenConfig{
 				PublicKey:  "this is invalid",
 				PrivateKey: cfg.PrivateKey,
 			})
@@ -61,7 +60,7 @@ var _ = Describe("ace encrypter", Ordered, func() {
 
 	Describe("invalid private key", func() {
 		It("fails to create service", func() {
-			_, err := token.NewAceEncrypter(config.TokenConfig{
+			_, err := token.NewAgeEncrypter(config.TokenConfig{
 				PublicKey:  cfg.PublicKey,
 				PrivateKey: "this is invalid",
 			})
