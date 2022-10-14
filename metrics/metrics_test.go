@@ -2,7 +2,6 @@ package metrics_test
 
 import (
 	"astro/config"
-	. "astro/http/req"
 	"astro/metrics"
 	"astro/test"
 	. "astro/test/matchers"
@@ -39,12 +38,12 @@ var _ = Describe("/", Ordered, func() {
 	})
 
 	It("returns status OK", func() {
-		res := Must2(Get(url, nil))
+		res := Must2(http.Get(url))
 		Expect(res.StatusCode).To(Equal(http.StatusOK))
 	})
 
 	It("returns how many requests were made", func() {
-		res := Must2(Get(url, nil))
+		res := Must2(http.Get(url))
 		b := Must2(io.ReadAll(res.Body))
 		Expect(b).To(ContainSubstring(`promhttp_metric_handler_requests_total{code="200"} 1`))
 	})

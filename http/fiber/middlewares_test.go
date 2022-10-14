@@ -3,7 +3,6 @@ package fiber_test
 import (
 	"astro/config"
 	"astro/http/fiber"
-	. "astro/http/req"
 	"astro/test"
 	"fmt"
 	"net/http"
@@ -45,20 +44,20 @@ var _ = Describe("fiber", func() {
 	})
 
 	It("recovers from panic", func() {
-		req := Must2(Get(url+"/panic", nil))
+		req := Must2(http.Get(url + "/panic"))
 		Expect(req.StatusCode).To(Equal(http.StatusInternalServerError))
 
-		req = Must2(Get(url+"/somethingelse", nil))
+		req = Must2(http.Get(url + "/somethingelse"))
 		Expect(req.StatusCode).To(Equal(http.StatusNotFound))
 	})
 
 	It("limits requests", func() {
 		for i := 0; i < 120; i++ {
-			req := Must2(Get(url+"/somethingelse", nil))
+			req := Must2(http.Get(url + "/somethingelse"))
 			Expect(req.StatusCode).To(Equal(http.StatusNotFound))
 		}
 
-		req := Must2(Get(url+"/somethingelse", nil))
+		req := Must2(http.Get(url + "/somethingelse"))
 		Expect(req.StatusCode).To(Equal(http.StatusTooManyRequests))
 	})
 })
