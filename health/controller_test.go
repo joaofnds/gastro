@@ -31,7 +31,7 @@ var _ = Describe("/health", func() {
 
 	Context("healty", func() {
 		BeforeEach(func() {
-			var cfg config.App
+			var httpConfig config.HTTP
 			app = fxtest.New(
 				GinkgoT(),
 				test.NopLogger,
@@ -41,12 +41,12 @@ var _ = Describe("/health", func() {
 				postgres.Module,
 				health.Module,
 				astrofiber.Module,
-				fx.Populate(&cfg),
+				fx.Populate(&httpConfig),
 				fx.Invoke(func(app *fiber.App, healthController *health.Controller) {
 					healthController.Register(app)
 				}),
 			)
-			url = fmt.Sprintf("http://localhost:%d/health", cfg.Port)
+			url = fmt.Sprintf("http://localhost:%d/health", httpConfig.Port)
 			app.RequireStart()
 		})
 
@@ -66,7 +66,7 @@ var _ = Describe("/health", func() {
 
 	Context("unhealty", func() {
 		BeforeEach(func() {
-			var cfg config.App
+			var httpConfig config.HTTP
 			app = fxtest.New(
 				GinkgoT(),
 				test.NopLogger,
@@ -77,12 +77,12 @@ var _ = Describe("/health", func() {
 				postgres.Module,
 				health.Module,
 				astrofiber.Module,
-				fx.Populate(&cfg),
+				fx.Populate(&httpConfig),
 				fx.Invoke(func(app *fiber.App, controller *health.Controller) {
 					controller.Register(app)
 				}),
 			)
-			url = fmt.Sprintf("http://localhost:%d/health", cfg.Port)
+			url = fmt.Sprintf("http://localhost:%d/health", httpConfig.Port)
 			app.RequireStart()
 		})
 

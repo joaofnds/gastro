@@ -25,14 +25,14 @@ type Instrumentation interface {
 	Middleware(*fiber.Ctx) error
 }
 
-func NewFiber(instrumentation Instrumentation) *fiber.App {
+func NewFiber(httpConfig config.HTTP,instrumentation Instrumentation) *fiber.App {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 	})
 	app.Use(recover.New())
 	app.Use(limiter.New(limiter.Config{
-		Max:               120,
-		Expiration:        1 * time.Minute,
+		Max:               httpConfig.Limiter.Requests,
+		Expiration:        httpConfig.Limiter.Expiration * time.Second,
 		LimiterMiddleware: limiter.SlidingWindow{},
 	}))
 	app.Use(instrumentation.Middleware)
@@ -40,11 +40,11 @@ func NewFiber(instrumentation Instrumentation) *fiber.App {
 	return app
 }
 
-func HookFiber(lc fx.Lifecycle, app *fiber.App, config config.App) {
+func HookFiber(lc fx.Lifecycle, app *fiber.App, httpConfig config.HTTP) {
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
 			go func() {
-				if err := app.Listen(fmt.Sprintf(":%d", config.Port)); err != nil {
+				if err := app.Listen(fmt.Sprintf(":%d", httpConfig.Port)); err != nil {
 					panic(err)
 				}
 			}()

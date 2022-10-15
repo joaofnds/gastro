@@ -29,7 +29,7 @@ var _ = Describe("fiber middlewares", func() {
 	)
 
 	BeforeEach(func() {
-		var cfg config.App
+		var httpConfig config.HTTP
 
 		fxApp = fxtest.New(
 			GinkgoT(),
@@ -39,10 +39,10 @@ var _ = Describe("fiber middlewares", func() {
 			test.PanicHandler,
 			config.Module,
 			fiber.Module,
-			fx.Populate(&cfg),
+			fx.Populate(&httpConfig),
 		).RequireStart()
 
-		url = fmt.Sprintf("http://localhost:%d", cfg.Port)
+		url = fmt.Sprintf("http://localhost:%d", httpConfig.Port)
 	})
 
 	AfterEach(func() {

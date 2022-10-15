@@ -13,6 +13,7 @@ const path = "CONFIG_PATH"
 var Module = fx.Options(
 	fx.Invoke(LoadConfig),
 	fx.Provide(NewAppConfig),
+	fx.Provide(func(app App) HTTP { return app.HTTP }),
 	fx.Provide(func(app App) Postgres { return app.Postgres }),
 	fx.Provide(func(app App) Token { return app.Token }),
 	fx.Provide(func(app App) Metrics { return app.Metrics }),
@@ -20,7 +21,7 @@ var Module = fx.Options(
 
 type App struct {
 	Env      string   `mapstructure:"env"`
-	Port     int      `mapstructure:"port"`
+	HTTP     HTTP     `mapstructure:"http"`
 	Postgres Postgres `mapstructure:"postgres"`
 	Token    Token    `mapstructure:"token"`
 	Metrics  Metrics  `mapstructure:"metrics"`
@@ -28,7 +29,6 @@ type App struct {
 
 func init() {
 	viper.MustBindEnv("env", "ENV")
-	viper.MustBindEnv("port", "PORT")
 }
 
 func LoadConfig(logger *zap.Logger) error {

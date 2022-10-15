@@ -13,8 +13,8 @@ var (
 	NewPortAppConfig = fx.Decorate(newPortAppConfig)
 )
 
-func newPortAppConfig(config config.App) config.App {
-	config.Port = ports[i] // if this fail we ran out of ports, just increase `preAllocPorts`
+func newPortAppConfig(httpConfig config.HTTP) config.HTTP {
+	httpConfig.Port = ports[i] // if this fail we ran out of ports, just increase `preAllocPorts`
 	i++
-	return config
+	return httpConfig
 }

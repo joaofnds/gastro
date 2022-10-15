@@ -31,7 +31,7 @@ var _ = Describe("/habits", func() {
 	)
 
 	BeforeEach(func() {
-		var cfg config.App
+		var httpConfig config.HTTP
 		fxApp = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
@@ -49,10 +49,10 @@ var _ = Describe("/habits", func() {
 				habitController.Register(app)
 				tokenController.Register(app)
 			}),
-			fx.Populate(&cfg),
+			fx.Populate(&httpConfig),
 		).RequireStart()
 
-		url := fmt.Sprintf("http://localhost:%d", cfg.Port)
+		url := fmt.Sprintf("http://localhost:%d", httpConfig.Port)
 		app = driver.NewDriver(url)
 		api = driver.NewAPI(url)
 		app.GetToken()

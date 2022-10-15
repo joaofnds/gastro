@@ -24,7 +24,7 @@ var _ = Describe("/token", Ordered, func() {
 	var api *driver.API
 
 	BeforeAll(func() {
-		var cfg config.App
+		var httpConfig config.HTTP
 		app = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
@@ -38,10 +38,10 @@ var _ = Describe("/token", Ordered, func() {
 			fx.Invoke(func(app *fiber.App, controller *token.Controller) {
 				controller.Register(app)
 			}),
-			fx.Populate(&cfg),
+			fx.Populate(&httpConfig),
 		)
 		app.RequireStart()
-		url := fmt.Sprintf("http://localhost:%d", cfg.Port)
+		url := fmt.Sprintf("http://localhost:%d", httpConfig.Port)
 		api = driver.NewAPI(url)
 	})
 
