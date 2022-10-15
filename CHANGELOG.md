@@ -1,3 +1,10 @@
+# [1.45.0](https://github.com/joaofnds/gastro/compare/v1.44.4...v1.45.0) (2022-10-15)
+
+
+### Features
+
+* use expiration directly ([1d594e9](https://github.com/joaofnds/gastro/commit/1d594e9c1b0e528f4fe80b548229c90986695443))
+
 ## [1.44.4](https://github.com/joaofnds/gastro/compare/v1.44.3...v1.44.4) (2022-10-15)
 
 ## [1.44.3](https://github.com/joaofnds/gastro/compare/v1.44.2...v1.44.3) (2022-10-15)
