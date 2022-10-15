@@ -1,7 +1,6 @@
 package metrics
 
 import (
-	"astro/config"
 	"context"
 	"net/http"
 
@@ -18,9 +17,9 @@ var Module = fx.Module(
 
 type Server = http.Server
 
-func NewServer(metricsConfig config.Metrics) *Server {
+func NewServer(config Config) *Server {
 	http.Handle("/metrics", promhttp.Handler())
-	return &http.Server{Addr: metricsConfig.Address}
+	return &http.Server{Addr: config.Address}
 }
 
 func HookHandler(lc fx.Lifecycle, server *Server, logger *zap.Logger) {
