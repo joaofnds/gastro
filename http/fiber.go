@@ -3,7 +3,6 @@ package http
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -31,7 +30,7 @@ func NewFiber(config Config, instrumentation Instrumentation) *fiber.App {
 	app.Use(recover.New())
 	app.Use(limiter.New(limiter.Config{
 		Max:               config.Limiter.Requests,
-		Expiration:        config.Limiter.Expiration * time.Second,
+		Expiration:        config.Limiter.Expiration,
 		LimiterMiddleware: limiter.SlidingWindow{},
 	}))
 	app.Use(instrumentation.Middleware)

@@ -3,7 +3,7 @@ http:
   port: 3000
   limiter:
     requests: 120
-    expiration: 60
+    expiration: 60s
 postgres:
   host: localhost
   port: 5432
