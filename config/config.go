@@ -35,7 +35,7 @@ type App struct {
 func LoadConfig(logger *zap.Logger) error {
 	configFile := os.Getenv(path)
 	if configFile == "" {
-		logger.Warn("could not lookup config path, skipping cofing file load")
+		logger.Warn("could not lookup config path, skipping config file load")
 		bindEnvs()
 		return nil
 	}
