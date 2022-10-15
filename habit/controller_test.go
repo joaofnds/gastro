@@ -1,34 +1,26 @@
-package habits_test
+package habit_test
 
 import (
 	"astro/config"
 	"astro/habit"
-	"astro/http/fiber"
-	"astro/http/habits"
-	httpToken "astro/http/token"
+	astrofiber "astro/http/fiber"
 	"astro/postgres"
 	"astro/test"
+	"astro/test/driver"
+	. "astro/test/matchers"
+	"astro/test/transaction"
 	"astro/token"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"testing"
 
-	"astro/test/driver"
-	. "astro/test/matchers"
-	"astro/test/transaction"
-
+	"github.com/gofiber/fiber/v2"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )
-
-func TestHabits(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "/habits suite")
-}
 
 var _ = Describe("/habits", func() {
 	var (
@@ -48,13 +40,15 @@ var _ = Describe("/habits", func() {
 			test.NopTokenInstrumentation,
 			test.NopHTTPInstrumentation,
 			config.Module,
-			fiber.Module,
+			astrofiber.Module,
 			postgres.Module,
 			habit.Module,
-			habits.Providers,
 			transaction.Module,
 			token.Module,
-			httpToken.Providers,
+			fx.Invoke(func(app *fiber.App, habitController *habit.Controller, tokenController *token.Controller) {
+				habitController.Register(app)
+				tokenController.Register(app)
+			}),
 			fx.Populate(&cfg),
 		).RequireStart()
 
@@ -162,7 +156,7 @@ var _ = Describe("/habits", func() {
 		})
 
 		It("cannot read habits from other users", func() {
-			otherUser := string(Must2(app.CreateToken()))
+			otherUser := Must2(app.CreateToken())
 			defaultUserHabit := Must2(app.Create("read"))
 
 			res := Must2(api.Get(otherUser, defaultUserHabit.ID))

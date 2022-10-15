@@ -3,17 +3,17 @@ package health_test
 import (
 	"astro/config"
 	"astro/health"
-	"astro/http/fiber"
-	httpHealth "astro/http/health"
+	astrofiber "astro/http/fiber"
 	"astro/postgres"
 	"astro/test"
-	testHealth "astro/test/health"
+	testhealth "astro/test/health"
 	. "astro/test/matchers"
 	"fmt"
 	"io"
 	"net/http"
 	"testing"
 
+	"github.com/gofiber/fiber/v2"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/fx"
@@ -40,9 +40,11 @@ var _ = Describe("/health", func() {
 				config.Module,
 				postgres.Module,
 				health.Module,
-				fiber.Module,
-				httpHealth.Providers,
+				astrofiber.Module,
 				fx.Populate(&cfg),
+				fx.Invoke(func(app *fiber.App, healthController *health.Controller) {
+					healthController.Register(app)
+				}),
 			)
 			url = fmt.Sprintf("http://localhost:%d/health", cfg.Port)
 			app.RequireStart()
@@ -70,13 +72,15 @@ var _ = Describe("/health", func() {
 				test.NopLogger,
 				test.NewPortAppConfig,
 				test.NopHTTPInstrumentation,
-				testHealth.UnhealthyHealthService,
+				testhealth.UnhealthyHealthService,
 				config.Module,
 				postgres.Module,
 				health.Module,
-				fiber.Module,
-				httpHealth.Providers,
+				astrofiber.Module,
 				fx.Populate(&cfg),
+				fx.Invoke(func(app *fiber.App, controller *health.Controller) {
+					controller.Register(app)
+				}),
 			)
 			url = fmt.Sprintf("http://localhost:%d/health", cfg.Port)
 			app.RequireStart()

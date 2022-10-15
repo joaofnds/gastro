@@ -1,18 +1,17 @@
 package token
 
 import (
-	"astro/token"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func NewController(service *token.Service) *Controller {
+func NewController(service *Service) *Controller {
 	return &Controller{service}
 }
 
 type Controller struct {
-	service *token.Service
+	service *Service
 }
 
 func (c *Controller) Register(app *fiber.App) {

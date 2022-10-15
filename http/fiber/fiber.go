@@ -13,13 +13,12 @@ import (
 	"go.uber.org/fx"
 )
 
-var Module = fx.Options(
+var Module = fx.Module(
+	"fiber",
 	fx.Provide(NewFiber),
 	fx.Invoke(HookFiber),
 	fx.Provide(NewPromHTTPInstrumentation),
-	fx.Provide(func(instr *PromInstrumentation) Instrumentation {
-		return instr
-	}),
+	fx.Provide(func(instr *PromInstrumentation) Instrumentation { return instr }),
 )
 
 type Instrumentation interface {

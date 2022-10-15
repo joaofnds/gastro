@@ -2,29 +2,22 @@ package token_test
 
 import (
 	"astro/config"
-	"astro/http/fiber"
-	httpToken "astro/http/token"
+	astrofiber "astro/http/fiber"
 	"astro/postgres"
 	"astro/test"
+	"astro/test/driver"
+	. "astro/test/matchers"
 	"astro/token"
 	"fmt"
 	"io"
 	"net/http"
-	"testing"
 
-	"astro/test/driver"
-	. "astro/test/matchers"
-
+	"github.com/gofiber/fiber/v2"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )
-
-func TestTokenHTTP(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "/token suite")
-}
 
 var _ = Describe("/token", Ordered, func() {
 	var app *fxtest.App
@@ -39,10 +32,12 @@ var _ = Describe("/token", Ordered, func() {
 			test.NewPortAppConfig,
 			test.NopHTTPInstrumentation,
 			config.Module,
-			fiber.Module,
+			astrofiber.Module,
 			postgres.Module,
 			token.Module,
-			httpToken.Providers,
+			fx.Invoke(func(app *fiber.App, controller *token.Controller) {
+				controller.Register(app)
+			}),
 			fx.Populate(&cfg),
 		)
 		app.RequireStart()

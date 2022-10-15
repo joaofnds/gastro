@@ -1,7 +1,6 @@
 package health
 
 import (
-	"astro/health"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,16 +9,13 @@ import (
 
 var Providers = fx.Options(
 	fx.Provide(NewController),
-	fx.Invoke(func(app *fiber.App, controller *Controller) {
-		controller.Register(app)
-	}),
 )
 
 type Controller struct {
-	service health.Checker
+	service Checker
 }
 
-func NewController(service health.Checker) *Controller {
+func NewController(service Checker) *Controller {
 	return &Controller{service}
 }
 

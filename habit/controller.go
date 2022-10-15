@@ -1,7 +1,6 @@
-package habits
+package habit
 
 import (
-	"astro/habit"
 	"astro/token"
 	"errors"
 	"net/http"
@@ -12,7 +11,7 @@ import (
 )
 
 func NewController(
-	habitService *habit.Service,
+	habitService *Service,
 	tokenService *token.Service,
 	logger *zap.Logger,
 ) *Controller {
@@ -24,7 +23,7 @@ func NewController(
 }
 
 type Controller struct {
-	habitService *habit.Service
+	habitService *Service
 	tokenService *token.Service
 	logger       *zap.Logger
 }
@@ -59,9 +58,9 @@ func (Controller) get(ctx *fiber.Ctx) error {
 
 func (c Controller) delete(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("userID").(string)
-	h := ctx.Locals("habit").(habit.Habit)
+	h := ctx.Locals("habit").(Habit)
 
-	err := c.habitService.Delete(ctx.Context(), habit.FindDTO{HabitID: h.ID, UserID: userID})
+	err := c.habitService.Delete(ctx.Context(), FindDTO{HabitID: h.ID, UserID: userID})
 	if err != nil {
 		c.logger.Error("failed to delete", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
@@ -71,7 +70,7 @@ func (c Controller) delete(ctx *fiber.Ctx) error {
 }
 
 func (c Controller) addActivity(ctx *fiber.Ctx) error {
-	h := ctx.Locals("habit").(habit.Habit)
+	h := ctx.Locals("habit").(Habit)
 
 	_, err := c.habitService.AddActivity(ctx.Context(), h, time.Now().UTC())
 	if err != nil {
@@ -89,7 +88,7 @@ func (c Controller) create(ctx *fiber.Ctx) error {
 	}
 
 	userID := ctx.Locals("userID").(string)
-	h, err := c.habitService.Create(ctx.Context(), habit.CreateDTO{UserID: userID, Name: name})
+	h, err := c.habitService.Create(ctx.Context(), CreateDTO{UserID: userID, Name: name})
 	if err != nil {
 		c.logger.Error("failed to create habit", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
@@ -106,9 +105,9 @@ func (c Controller) middlewareFindHabit(ctx *fiber.Ctx) error {
 
 	userID := ctx.Locals("userID").(string)
 
-	h, err := c.habitService.Find(ctx.Context(), habit.FindDTO{HabitID: id, UserID: userID})
+	h, err := c.habitService.Find(ctx.Context(), FindDTO{HabitID: id, UserID: userID})
 	if err != nil {
-		if errors.Is(err, habit.NotFoundErr) {
+		if errors.Is(err, NotFoundErr) {
 			return ctx.SendStatus(http.StatusNotFound)
 		}
 

@@ -2,7 +2,9 @@ package token
 
 import "go.uber.org/fx"
 
-var Module = fx.Options(
+var Module = fx.Module(
+	"token",
+	fx.Provide(NewController),
 	fx.Provide(NewService),
 	fx.Provide(NewPostgresIDGenerator),
 	fx.Provide(NewAgeEncrypter),

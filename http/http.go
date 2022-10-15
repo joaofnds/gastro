@@ -1,19 +1,32 @@
 package http
 
 import (
-	"astro/http/fiber"
-	"astro/http/habits"
-	"astro/http/health"
-	"astro/http/token"
+	"astro/habit"
+	"astro/health"
+	astrofiber "astro/http/fiber"
+	"astro/token"
+
+	"github.com/gofiber/fiber/v2"
 
 	"go.uber.org/fx"
 )
 
 var Module = fx.Module(
 	"http",
-	fiber.Module,
-	health.Providers,
-	habits.Providers,
-	token.Providers,
-	RootProvider,
+	astrofiber.Module,
+	fx.Invoke(registerHandlers),
 )
+
+func registerHandlers(
+	app *fiber.App,
+	habitController *habit.Controller,
+	healthController *health.Controller,
+	tokenController *token.Controller,
+) {
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.Redirect("https://github.com/joaofnds/astro")
+	})
+	healthController.Register(app)
+	habitController.Register(app)
+	tokenController.Register(app)
+}
