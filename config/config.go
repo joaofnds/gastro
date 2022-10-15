@@ -32,7 +32,24 @@ type App struct {
 	Metrics  metrics.Config  `mapstructure:"metrics"`
 }
 
-func init() {
+func LoadConfig(logger *zap.Logger) error {
+	configFile := os.Getenv(path)
+	if configFile == "" {
+		logger.Warn("could not lookup config path, skipping cofing file load")
+		bindEnvs()
+		return nil
+	}
+
+	viper.SetConfigFile(configFile)
+	return viper.ReadInConfig()
+}
+
+func NewAppConfig() (App, error) {
+	var config App
+	return config, viper.UnmarshalExact(&config)
+}
+
+func bindEnvs() {
 	viper.MustBindEnv("env", "ENV")
 	viper.MustBindEnv("metrics.address", "METRICS_ADDRESS")
 	viper.MustBindEnv("http.port", "HTTP_PORT")
@@ -45,20 +62,4 @@ func init() {
 	viper.MustBindEnv("postgres.user", "POSTGRES_USER")
 	viper.MustBindEnv("postgres.password", "POSTGRES_PASSWORD")
 	viper.MustBindEnv("postgres.dbname", "POSTGRES_DBNAME")
-}
-
-func LoadConfig(logger *zap.Logger) error {
-	configFile := os.Getenv(path)
-	if configFile == "" {
-		logger.Warn("could not lookup config path, will skip config file load")
-		return nil
-	}
-
-	viper.SetConfigFile(configFile)
-	return viper.ReadInConfig()
-}
-
-func NewAppConfig() (App, error) {
-	var config App
-	return config, viper.UnmarshalExact(&config)
 }
