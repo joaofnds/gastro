@@ -1,3 +1,10 @@
+# [1.44.0](https://github.com/joaofnds/gastro/compare/v1.43.5...v1.44.0) (2022-10-15)
+
+
+### Features
+
+* add http config ([13403d8](https://github.com/joaofnds/gastro/commit/13403d83ec41d20951deea464007767b1c3704b8))
+
 ## [1.43.5](https://github.com/joaofnds/gastro/compare/v1.43.4...v1.43.5) (2022-10-15)
 
 ## [1.43.4](https://github.com/joaofnds/gastro/compare/v1.43.3...v1.43.4) (2022-10-15)
