@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"astro/metrics"
+	"astro/token"
 
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
@@ -17,7 +18,7 @@ var Module = fx.Options(
 	fx.Provide(NewAppConfig),
 	fx.Provide(func(app App) HTTP { return app.HTTP }),
 	fx.Provide(func(app App) Postgres { return app.Postgres }),
-	fx.Provide(func(app App) Token { return app.Token }),
+	fx.Provide(func(app App) token.Config { return app.Token }),
 	fx.Provide(func(app App) metrics.Config { return app.Metrics }),
 )
 
@@ -25,7 +26,7 @@ type App struct {
 	Env      string         `mapstructure:"env"`
 	HTTP     HTTP           `mapstructure:"http"`
 	Postgres Postgres       `mapstructure:"postgres"`
-	Token    Token          `mapstructure:"token"`
+	Token    token.Config   `mapstructure:"token"`
 	Metrics  metrics.Config `mapstructure:"metrics"`
 }
 

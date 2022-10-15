@@ -14,7 +14,7 @@ import (
 
 var _ = Describe("age encrypter", Ordered, func() {
 	var service token.Encrypter
-	var cfg config.Token
+	var tokenConfig token.Config
 
 	BeforeAll(func() {
 		fxtest.New(
@@ -23,7 +23,7 @@ var _ = Describe("age encrypter", Ordered, func() {
 			test.NopTokenInstrumentation,
 			config.Module,
 			token.Module,
-			fx.Populate(&cfg, &service),
+			fx.Populate(&tokenConfig, &service),
 		)
 	})
 
@@ -48,9 +48,9 @@ var _ = Describe("age encrypter", Ordered, func() {
 
 	Describe("with invalid public key", func() {
 		It("fails to create service", func() {
-			_, err := token.NewAgeEncrypter(config.Token{
+			_, err := token.NewAgeEncrypter(token.Config{
 				PublicKey:  "this is invalid",
-				PrivateKey: cfg.PrivateKey,
+				PrivateKey: tokenConfig.PrivateKey,
 			})
 
 			Expect(err).NotTo(BeNil())
@@ -60,8 +60,8 @@ var _ = Describe("age encrypter", Ordered, func() {
 
 	Describe("invalid private key", func() {
 		It("fails to create service", func() {
-			_, err := token.NewAgeEncrypter(config.Token{
-				PublicKey:  cfg.PublicKey,
+			_, err := token.NewAgeEncrypter(token.Config{
+				PublicKey:  tokenConfig.PublicKey,
 				PrivateKey: "this is invalid",
 			})
 

@@ -1,7 +1,6 @@
 package token
 
 import (
-	"astro/config"
 	"bytes"
 	"fmt"
 	"io"
@@ -14,13 +13,13 @@ type AgeEncrypter struct {
 	identity  age.Identity
 }
 
-func NewAgeEncrypter(tokenConfig config.Token) (*AgeEncrypter, error) {
-	recipient, err := age.ParseX25519Recipient(tokenConfig.PublicKey)
+func NewAgeEncrypter(config Config) (*AgeEncrypter, error) {
+	recipient, err := age.ParseX25519Recipient(config.PublicKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse recipient: %w", err)
 	}
 
-	identity, err := age.ParseX25519Identity(tokenConfig.PrivateKey)
+	identity, err := age.ParseX25519Identity(config.PrivateKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse identity: %w", err)
 	}
