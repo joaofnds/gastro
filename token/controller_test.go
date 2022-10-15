@@ -2,7 +2,7 @@ package token_test
 
 import (
 	"astro/config"
-	astrofiber "astro/http/fiber"
+	astrohttp "astro/http"
 	"astro/postgres"
 	"astro/test"
 	"astro/test/driver"
@@ -24,7 +24,7 @@ var _ = Describe("/token", Ordered, func() {
 	var api *driver.API
 
 	BeforeAll(func() {
-		var httpConfig config.HTTP
+		var httpConfig astrohttp.Config
 		app = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
@@ -32,7 +32,7 @@ var _ = Describe("/token", Ordered, func() {
 			test.NewPortAppConfig,
 			test.NopHTTPInstrumentation,
 			config.Module,
-			astrofiber.Module,
+			astrohttp.FiberModule,
 			postgres.Module,
 			token.Module,
 			fx.Invoke(func(app *fiber.App, controller *token.Controller) {

@@ -1,8 +1,8 @@
-package fiber_test
+package http_test
 
 import (
 	"astro/config"
-	"astro/http/fiber"
+	astrohttp "astro/http"
 	"astro/test"
 	"fmt"
 	"net/http"
@@ -29,7 +29,7 @@ var _ = Describe("fiber middlewares", func() {
 	)
 
 	BeforeEach(func() {
-		var httpConfig config.HTTP
+		var httpConfig astrohttp.Config
 
 		fxApp = fxtest.New(
 			GinkgoT(),
@@ -38,7 +38,7 @@ var _ = Describe("fiber middlewares", func() {
 			test.NopHTTPInstrumentation,
 			test.PanicHandler,
 			config.Module,
-			fiber.Module,
+			astrohttp.FiberModule,
 			fx.Populate(&httpConfig),
 		).RequireStart()
 

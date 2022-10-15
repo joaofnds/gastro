@@ -3,7 +3,7 @@ package habit_test
 import (
 	"astro/config"
 	"astro/habit"
-	astrofiber "astro/http/fiber"
+	astrohttp "astro/http"
 	"astro/postgres"
 	"astro/test"
 	"astro/test/driver"
@@ -31,7 +31,7 @@ var _ = Describe("/habits", func() {
 	)
 
 	BeforeEach(func() {
-		var httpConfig config.HTTP
+		var httpConfig astrohttp.Config
 		fxApp = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,
@@ -40,7 +40,7 @@ var _ = Describe("/habits", func() {
 			test.NopTokenInstrumentation,
 			test.NopHTTPInstrumentation,
 			config.Module,
-			astrofiber.Module,
+			astrohttp.FiberModule,
 			postgres.Module,
 			habit.Module,
 			transaction.Module,

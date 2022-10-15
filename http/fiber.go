@@ -1,7 +1,6 @@
-package fiber
+package http
 
 import (
-	"astro/config"
 	"context"
 	"fmt"
 	"time"
@@ -13,7 +12,7 @@ import (
 	"go.uber.org/fx"
 )
 
-var Module = fx.Module(
+var FiberModule = fx.Module(
 	"fiber",
 	fx.Provide(NewFiber),
 	fx.Invoke(HookFiber),
@@ -25,14 +24,14 @@ type Instrumentation interface {
 	Middleware(*fiber.Ctx) error
 }
 
-func NewFiber(httpConfig config.HTTP,instrumentation Instrumentation) *fiber.App {
+func NewFiber(config Config, instrumentation Instrumentation) *fiber.App {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 	})
 	app.Use(recover.New())
 	app.Use(limiter.New(limiter.Config{
-		Max:               httpConfig.Limiter.Requests,
-		Expiration:        httpConfig.Limiter.Expiration * time.Second,
+		Max:               config.Limiter.Requests,
+		Expiration:        config.Limiter.Expiration * time.Second,
 		LimiterMiddleware: limiter.SlidingWindow{},
 	}))
 	app.Use(instrumentation.Middleware)
@@ -40,11 +39,11 @@ func NewFiber(httpConfig config.HTTP,instrumentation Instrumentation) *fiber.App
 	return app
 }
 
-func HookFiber(lc fx.Lifecycle, app *fiber.App, httpConfig config.HTTP) {
+func HookFiber(lc fx.Lifecycle, app *fiber.App, config Config) {
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
 			go func() {
-				if err := app.Listen(fmt.Sprintf(":%d", httpConfig.Port)); err != nil {
+				if err := app.Listen(fmt.Sprintf(":%d", config.Port)); err != nil {
 					panic(err)
 				}
 			}()

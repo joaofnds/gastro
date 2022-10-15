@@ -1,7 +1,7 @@
 package test
 
 import (
-	astrofiber "astro/http/fiber"
+	"astro/http"
 
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/fx"
@@ -13,7 +13,7 @@ type nopHTTPInstrumentation struct{}
 
 type PromHabitInstrumentation struct{}
 
-func newNopHTTPInstrumentation() astrofiber.Instrumentation {
+func newNopHTTPInstrumentation() http.Instrumentation {
 	return &nopHTTPInstrumentation{}
 }
 

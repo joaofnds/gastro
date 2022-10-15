@@ -3,7 +3,7 @@ package health_test
 import (
 	"astro/config"
 	"astro/health"
-	astrofiber "astro/http/fiber"
+	astrohttp "astro/http"
 	"astro/postgres"
 	"astro/test"
 	testhealth "astro/test/health"
@@ -31,7 +31,7 @@ var _ = Describe("/health", func() {
 
 	Context("healty", func() {
 		BeforeEach(func() {
-			var httpConfig config.HTTP
+			var httpConfig astrohttp.Config
 			app = fxtest.New(
 				GinkgoT(),
 				test.NopLogger,
@@ -40,7 +40,7 @@ var _ = Describe("/health", func() {
 				config.Module,
 				postgres.Module,
 				health.Module,
-				astrofiber.Module,
+				astrohttp.FiberModule,
 				fx.Populate(&httpConfig),
 				fx.Invoke(func(app *fiber.App, healthController *health.Controller) {
 					healthController.Register(app)
@@ -66,7 +66,7 @@ var _ = Describe("/health", func() {
 
 	Context("unhealty", func() {
 		BeforeEach(func() {
-			var httpConfig config.HTTP
+			var httpConfig astrohttp.Config
 			app = fxtest.New(
 				GinkgoT(),
 				test.NopLogger,
@@ -76,7 +76,7 @@ var _ = Describe("/health", func() {
 				config.Module,
 				postgres.Module,
 				health.Module,
-				astrofiber.Module,
+				astrohttp.FiberModule,
 				fx.Populate(&httpConfig),
 				fx.Invoke(func(app *fiber.App, controller *health.Controller) {
 					controller.Register(app)

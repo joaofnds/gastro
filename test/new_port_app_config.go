@@ -1,7 +1,7 @@
 package test
 
 import (
-	"astro/config"
+	"astro/http"
 
 	"go.uber.org/fx"
 )
@@ -13,7 +13,7 @@ var (
 	NewPortAppConfig = fx.Decorate(newPortAppConfig)
 )
 
-func newPortAppConfig(httpConfig config.HTTP) config.HTTP {
+func newPortAppConfig(httpConfig http.Config) http.Config {
 	httpConfig.Port = ports[i] // if this fail we ran out of ports, just increase `preAllocPorts`
 	i++
 	return httpConfig
