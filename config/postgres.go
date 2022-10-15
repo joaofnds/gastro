@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type PostgresConfig struct {
+type Postgres struct {
 	Host     string `mapstructure:"host"`
 	Port     int    `mapstructure:"port"`
 	User     string `mapstructure:"user"`
@@ -22,13 +22,13 @@ func init() {
 	viper.MustBindEnv("postgres.dbname", "POSTGRES_DBNAME")
 }
 
-func (config PostgresConfig) ConnectionString() string {
+func (p Postgres) ConnectionString() string {
 	return fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		config.Host,
-		config.Port,
-		config.User,
-		config.Password,
-		config.DBName,
+		p.Host,
+		p.Port,
+		p.User,
+		p.Password,
+		p.DBName,
 	)
 }

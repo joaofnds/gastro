@@ -31,7 +31,7 @@ var _ = Describe("/habits", func() {
 	)
 
 	BeforeEach(func() {
-		var cfg config.AppConfig
+		var cfg config.App
 		fxApp = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,

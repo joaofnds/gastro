@@ -18,7 +18,7 @@ var Module = fx.Module(
 
 type Server = http.Server
 
-func NewServer(metricsConfig config.MetricsConfig) *Server {
+func NewServer(metricsConfig config.Metrics) *Server {
 	http.Handle("/metrics", promhttp.Handler())
 	return &http.Server{Addr: metricsConfig.Address}
 }

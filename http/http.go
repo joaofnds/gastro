@@ -19,8 +19,8 @@ var Module = fx.Module(
 
 func registerHandlers(
 	app *fiber.App,
-	habitController *habit.Controller,
 	healthController *health.Controller,
+	habitController *habit.Controller,
 	tokenController *token.Controller,
 ) {
 	app.Get("/", func(c *fiber.Ctx) error {

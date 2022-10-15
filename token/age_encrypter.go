@@ -14,7 +14,7 @@ type AgeEncrypter struct {
 	identity  age.Identity
 }
 
-func NewAgeEncrypter(tokenConfig config.TokenConfig) (*AgeEncrypter, error) {
+func NewAgeEncrypter(tokenConfig config.Token) (*AgeEncrypter, error) {
 	recipient, err := age.ParseX25519Recipient(tokenConfig.PublicKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse recipient: %w", err)

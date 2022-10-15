@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type TokenConfig struct {
+type Token struct {
 	PublicKey  string `mapstructure:"public_key"`
 	PrivateKey string `mapstructure:"private_key"`
 }

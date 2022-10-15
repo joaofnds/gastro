@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type MetricsConfig struct {
+type Metrics struct {
 	Address string `mapstructure:"address"`
 }
 

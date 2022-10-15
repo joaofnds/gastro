@@ -24,7 +24,7 @@ var _ = Describe("/token", Ordered, func() {
 	var api *driver.API
 
 	BeforeAll(func() {
-		var cfg config.AppConfig
+		var cfg config.App
 		app = fxtest.New(
 			GinkgoT(),
 			test.NopLogger,

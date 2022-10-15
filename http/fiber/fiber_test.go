@@ -29,7 +29,7 @@ var _ = Describe("fiber middlewares", func() {
 	)
 
 	BeforeEach(func() {
-		var cfg config.AppConfig
+		var cfg config.App
 
 		fxApp = fxtest.New(
 			GinkgoT(),

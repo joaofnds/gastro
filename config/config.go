@@ -8,22 +8,22 @@ import (
 	"go.uber.org/zap"
 )
 
-const configPath = "CONFIG_PATH"
+const path = "CONFIG_PATH"
 
 var Module = fx.Options(
 	fx.Invoke(LoadConfig),
 	fx.Provide(NewAppConfig),
-	fx.Provide(NewPostgresConfig),
-	fx.Provide(NewTokenConfig),
-	fx.Provide(NewMetricsConfig),
+	fx.Provide(func(app App) Postgres { return app.Postgres }),
+	fx.Provide(func(app App) Token { return app.Token }),
+	fx.Provide(func(app App) Metrics { return app.Metrics }),
 )
 
-type AppConfig struct {
-	Env      string         `mapstructure:"env"`
-	Port     int            `mapstructure:"port"`
-	Postgres PostgresConfig `mapstructure:"postgres"`
-	Token    TokenConfig    `mapstructure:"token"`
-	Metrics  MetricsConfig  `mapstructure:"metrics"`
+type App struct {
+	Env      string   `mapstructure:"env"`
+	Port     int      `mapstructure:"port"`
+	Postgres Postgres `mapstructure:"postgres"`
+	Token    Token    `mapstructure:"token"`
+	Metrics  Metrics  `mapstructure:"metrics"`
 }
 
 func init() {
@@ -32,7 +32,7 @@ func init() {
 }
 
 func LoadConfig(logger *zap.Logger) error {
-	configFile, ok := os.LookupEnv(configPath)
+	configFile, ok := os.LookupEnv(path)
 	if !ok || configFile == "" {
 		logger.Warn("could not lookup config path, will skip config file load")
 		return nil
@@ -42,16 +42,7 @@ func LoadConfig(logger *zap.Logger) error {
 	return viper.ReadInConfig()
 }
 
-func NewAppConfig() (AppConfig, error) {
-	var config AppConfig
-
-	if err := viper.UnmarshalExact(&config); err != nil {
-		return config, err
-	}
-
-	return config, nil
+func NewAppConfig() (App, error) {
+	var config App
+	return config, viper.UnmarshalExact(&config)
 }
-
-func NewPostgresConfig(appConfig AppConfig) PostgresConfig { return appConfig.Postgres }
-func NewTokenConfig(appConfig AppConfig) TokenConfig       { return appConfig.Token }
-func NewMetricsConfig(appConfig AppConfig) MetricsConfig   { return appConfig.Metrics }

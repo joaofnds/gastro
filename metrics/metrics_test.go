@@ -26,7 +26,7 @@ var _ = Describe("/", Ordered, func() {
 	var url string
 
 	BeforeAll(func() {
-		var metricsConfig config.MetricsConfig
+		var metricsConfig config.Metrics
 		fxtest.New(
 			GinkgoT(),
 			test.NopLogger,

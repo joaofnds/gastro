@@ -40,7 +40,7 @@ func NewFiber(instrumentation Instrumentation) *fiber.App {
 	return app
 }
 
-func HookFiber(lc fx.Lifecycle, app *fiber.App, config config.AppConfig) {
+func HookFiber(lc fx.Lifecycle, app *fiber.App, config config.App) {
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
 			go func() {

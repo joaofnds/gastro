@@ -31,7 +31,7 @@ var _ = Describe("/health", func() {
 
 	Context("healty", func() {
 		BeforeEach(func() {
-			var cfg config.AppConfig
+			var cfg config.App
 			app = fxtest.New(
 				GinkgoT(),
 				test.NopLogger,
@@ -66,7 +66,7 @@ var _ = Describe("/health", func() {
 
 	Context("unhealty", func() {
 		BeforeEach(func() {
-			var cfg config.AppConfig
+			var cfg config.App
 			app = fxtest.New(
 				GinkgoT(),
 				test.NopLogger,
