@@ -1,3 +1,5 @@
+## [1.44.1](https://github.com/joaofnds/gastro/compare/v1.44.0...v1.44.1) (2022-10-15)
+
 # [1.44.0](https://github.com/joaofnds/gastro/compare/v1.43.5...v1.44.0) (2022-10-15)
 
 
