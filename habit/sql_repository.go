@@ -3,6 +3,7 @@ package habit
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 )
 
@@ -91,6 +92,7 @@ func (repo *SQLRepository) FindActivity(ctx context.Context, find FindActivityDT
 		`,
 		find.UserID, find.HabitID, find.ActivityID,
 	)
+
 	if row.Err() != nil {
 		return Activity{}, row.Err()
 	}
@@ -101,6 +103,9 @@ func (repo *SQLRepository) FindActivity(ctx context.Context, find FindActivityDT
 	)
 	err := row.Scan(&id, &createdAt)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return Activity{}, NotFoundErr
+		}
 		return Activity{}, err
 	}
 

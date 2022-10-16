@@ -51,6 +51,13 @@ func (a API) AddActivity(token, id string) (*http.Response, error) {
 	)
 }
 
+func (a API) DeleteActivity(token, habitID, activityID string) (*http.Response, error) {
+	return req.Delete(
+		a.baseURL+"/habits/"+habitID+"/"+activityID,
+		map[string]string{"Authorization": token},
+	)
+}
+
 func (a API) CreateToken() (*http.Response, error) {
 	return req.Post(
 		a.baseURL+"/token",

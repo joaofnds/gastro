@@ -32,6 +32,7 @@ func (c Controller) Register(app *fiber.App) {
 	habits := app.Group("/habits", c.middlewareDecodeToken)
 	habits.Get("/", c.list)
 	habits.Post("/", c.create)
+	habits.Delete("/:habitID/:activityID", c.deleteActivity)
 
 	habit := habits.Group("/:id", c.middlewareFindHabit)
 	habit.Get("/", c.get)
@@ -63,6 +64,29 @@ func (c Controller) delete(ctx *fiber.Ctx) error {
 	err := c.habitService.Delete(ctx.Context(), FindDTO{HabitID: h.ID, UserID: userID})
 	if err != nil {
 		c.logger.Error("failed to delete", zap.Error(err))
+		return ctx.SendStatus(http.StatusInternalServerError)
+	}
+
+	return ctx.SendStatus(http.StatusOK)
+}
+
+func (c Controller) deleteActivity(ctx *fiber.Ctx) error {
+	habitID := ctx.Params("habitID")
+	activityID := ctx.Params("activityID")
+	userID := ctx.Locals("userID").(string)
+
+	find := FindActivityDTO{HabitID: habitID, ActivityID: activityID, UserID: userID}
+	activity, err := c.habitService.FindActivity(ctx.Context(), find)
+	if err != nil {
+		if errors.Is(err, NotFoundErr) {
+			return ctx.SendStatus(http.StatusNotFound)
+		}
+		return ctx.SendStatus(http.StatusBadRequest)
+	}
+
+	err = c.habitService.DeleteActivity(ctx.Context(), activity)
+	if err != nil {
+		c.logger.Error("failed to delete activity", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
 

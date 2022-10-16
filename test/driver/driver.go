@@ -91,6 +91,19 @@ func (d *Driver) AddActivity(id string) error {
 	return nil
 }
 
+func (d *Driver) DeleteActivity(habitID, activityID string) error {
+	res, err := d.api.DeleteActivity(d.Token, habitID, activityID)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != 200 {
+		return fmt.Errorf("failed to delete activity")
+	}
+
+	return nil
+}
+
 func (d *Driver) CreateToken() (string, error) {
 	res, err := d.api.CreateToken()
 	if err != nil {

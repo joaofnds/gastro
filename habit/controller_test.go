@@ -24,10 +24,12 @@ import (
 
 var _ = Describe("/habits", func() {
 	var (
-		fxApp   *fxtest.App
-		app     *driver.Driver
-		api     *driver.API
-		uuidLen = 36
+		fxApp         *fxtest.App
+		app           *driver.Driver
+		api           *driver.API
+		uuidLen       = 36
+		badHabitID    = "76767d2e-57f8-41c5-b34f-7b845a084d63"
+		badActivityID = "76767d2e-57f8-41c5-b34f-7b845a084d64"
 	)
 
 	BeforeEach(func() {
@@ -188,6 +190,51 @@ var _ = Describe("/habits", func() {
 				res := Must2(api.AddActivity(otherUser, defaultUserHabit.ID))
 
 				Expect(res.StatusCode).To(Equal(http.StatusNotFound))
+			})
+
+			Describe("activity delete", func() {
+				It("requires auth", func() {
+					res := Must2(api.DeleteActivity("bad token", "habit id", "activity id"))
+					Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
+				})
+
+				It("is not returned", func() {
+					habit := Must2(app.Create("read"))
+					Must(app.AddActivity(habit.ID))
+					habit = Must2(app.Get(habit.ID))
+					Expect(habit.Activities).To(HaveLen(1))
+
+					Must(app.DeleteActivity(habit.ID, habit.Activities[0].ID))
+
+					habit = Must2(app.Get(habit.ID))
+					Expect(habit.Activities).To(HaveLen(0))
+				})
+
+				It("returns 404 when habit not found", func() {
+					habit := Must2(app.Create("read"))
+					Must(app.AddActivity(habit.ID))
+					habit = Must2(app.Get(habit.ID))
+					Expect(habit.Activities).To(HaveLen(1))
+
+					res := Must2(api.DeleteActivity(app.Token, badHabitID, habit.Activities[0].ID))
+					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
+				})
+
+				It("returns 404 when activity not found", func() {
+					h := Must2(app.Create("read"))
+					res := Must2(api.DeleteActivity(app.Token, h.ID, badActivityID))
+					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
+				})
+
+				It("returns 400 when given a bad habit id", func() {
+					res := Must2(api.DeleteActivity(app.Token, "not an uuid", "cc4f532a-4076-4dba-ac73-f003ee59ea07"))
+					Expect(res.StatusCode).To(Equal(http.StatusBadRequest))
+				})
+
+				It("returns 400 when given a bad activity id", func() {
+					res := Must2(api.DeleteActivity(app.Token, "cc4f532a-4076-4dba-ac73-f003ee59ea07", "not an uuid"))
+					Expect(res.StatusCode).To(Equal(http.StatusBadRequest))
+				})
 			})
 		})
 
