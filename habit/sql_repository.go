@@ -75,6 +75,11 @@ func (repo *SQLRepository) AddActivity(ctx context.Context, habit Habit, time ti
 	return Activity{id, time}, row.Err()
 }
 
+func (repo *SQLRepository) DeleteActivity(ctx context.Context, activity Activity) error {
+	_, err := repo.DB.ExecContext(ctx, "DELETE FROM activities WHERE id = $1", activity.ID)
+	return err
+}
+
 func (repo *SQLRepository) List(ctx context.Context, userID string) ([]Habit, error) {
 	rows, err := repo.DB.QueryContext(ctx, `
 		SELECT

@@ -158,6 +158,21 @@ var _ = Describe("habit service", func() {
 		})
 	})
 
+	Describe("delete activity", func() {
+		It("deletes the activity", func() {
+			ctx := context.Background()
+			hab := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
+			act := Must2(habitService.AddActivity(ctx, hab, time.Now()))
+			hab = Must2(habitService.Find(ctx, habit.FindDTO{hab.ID, userID}))
+			Expect(hab.Activities).To(HaveLen(1))
+
+			Must(habitService.DeleteActivity(ctx, act))
+
+			hab = Must2(habitService.Find(ctx, habit.FindDTO{hab.ID, userID}))
+			Expect(hab.Activities).To(HaveLen(0))
+		})
+	})
+
 	It("removed habits do not appear on habits listing", func() {
 		ctx := context.Background()
 		h := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))

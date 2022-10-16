@@ -31,6 +31,10 @@ func (service *Service) AddActivity(ctx context.Context, habit Habit, date time.
 	return service.repo.AddActivity(ctx, habit, date.Truncate(time.Second))
 }
 
+func (service *Service) DeleteActivity(ctx context.Context, activity Activity) error {
+	return service.repo.DeleteActivity(ctx, activity)
+}
+
 func (service *Service) Find(ctx context.Context, find FindDTO) (Habit, error) {
 	habit, err := service.repo.Find(ctx, find)
 	if err != nil {
