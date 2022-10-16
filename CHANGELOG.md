@@ -1,3 +1,12 @@
+# [1.46.0](https://github.com/joaofnds/gastro/compare/v1.45.0...v1.46.0) (2022-10-16)
+
+
+### Features
+
+* add DeleteActivity ([c365cf6](https://github.com/joaofnds/gastro/commit/c365cf6ab4be3de65ca3476b6aa9b6f9a11db4d5))
+* add endpoint to delete an activity ([3121b56](https://github.com/joaofnds/gastro/commit/3121b56c8fab71120bfd8111b1c754477d572851))
+* add FindActivity ([c89d3cb](https://github.com/joaofnds/gastro/commit/c89d3cb4b2ce11f1408e49fa37a79876077d8d61))
+
 # [1.45.0](https://github.com/joaofnds/gastro/compare/v1.44.4...v1.45.0) (2022-10-15)
 
 
