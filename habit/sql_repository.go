@@ -75,6 +75,38 @@ func (repo *SQLRepository) AddActivity(ctx context.Context, habit Habit, time ti
 	return Activity{id, time}, row.Err()
 }
 
+func (repo *SQLRepository) FindActivity(ctx context.Context, find FindActivityDTO) (Activity, error) {
+	row := repo.DB.QueryRowContext(
+		ctx,
+		`
+			SELECT
+				activities.id, activities.created_at
+			FROM
+				activities
+				INNER JOIN habits ON habits.id = activities.habit_id
+			WHERE
+				habits.user_id = $1
+				AND habits.id = $2
+				AND activities.id = $3
+		`,
+		find.UserID, find.HabitID, find.ActivityID,
+	)
+	if row.Err() != nil {
+		return Activity{}, row.Err()
+	}
+
+	var (
+		id        string
+		createdAt time.Time
+	)
+	err := row.Scan(&id, &createdAt)
+	if err != nil {
+		return Activity{}, err
+	}
+
+	return Activity{id, createdAt.UTC()}, row.Err()
+}
+
 func (repo *SQLRepository) DeleteActivity(ctx context.Context, activity Activity) error {
 	_, err := repo.DB.ExecContext(ctx, "DELETE FROM activities WHERE id = $1", activity.ID)
 	return err

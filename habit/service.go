@@ -31,6 +31,10 @@ func (service *Service) AddActivity(ctx context.Context, habit Habit, date time.
 	return service.repo.AddActivity(ctx, habit, date.Truncate(time.Second))
 }
 
+func (service *Service) FindActivity(ctx context.Context, find FindActivityDTO) (Activity, error) {
+	return service.repo.FindActivity(ctx, find)
+}
+
 func (service *Service) DeleteActivity(ctx context.Context, activity Activity) error {
 	return service.repo.DeleteActivity(ctx, activity)
 }
