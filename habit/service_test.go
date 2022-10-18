@@ -139,23 +139,23 @@ var _ = Describe("habit service", func() {
 			Expect(h.Activities).To(HaveLen(1))
 		})
 
-		It("sets the provided timestamp truncated to the second", func() {
+		It("sets the provided timestamp in UTC truncated to the second", func() {
 			ctx := context.Background()
 			h := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
 
-			date := time.Now().UTC()
+			date := time.Now()
 			Must2(habitService.AddActivity(ctx, h, date))
 
 			h = Must2(habitService.Find(ctx, habit.FindDTO{HabitID: h.ID, UserID: userID}))
-			Expect(h.Activities[0].CreatedAt.UTC()).To(Equal(date.Truncate(time.Second)))
+			Expect(h.Activities[0].CreatedAt).To(Equal(date.UTC().Truncate(time.Second)))
 		})
 	})
 
 	Describe("find activity", func() {
-		It("find the activity", func() {
+		It("finds the activity", func() {
 			ctx := context.Background()
 			hab := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
-			act := Must2(habitService.AddActivity(ctx, hab, time.Now().UTC()))
+			act := Must2(habitService.AddActivity(ctx, hab, time.Now()))
 
 			foundAct := Must2(habitService.FindActivity(ctx, habit.FindActivityDTO{hab.ID, act.ID, userID}))
 

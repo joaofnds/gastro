@@ -28,7 +28,7 @@ func (service *Service) Create(ctx context.Context, create CreateDTO) (Habit, er
 }
 
 func (service *Service) AddActivity(ctx context.Context, habit Habit, date time.Time) (Activity, error) {
-	return service.repo.AddActivity(ctx, habit, date.Truncate(time.Second))
+	return service.repo.AddActivity(ctx, habit, date.UTC().Truncate(time.Second))
 }
 
 func (service *Service) FindActivity(ctx context.Context, find FindActivityDTO) (Activity, error) {

@@ -188,7 +188,7 @@ func scanRows(rows *sql.Rows) ([]Habit, error) {
 		}
 
 		if activityID.Valid {
-			activity := Activity{activityID.String, activityCreatedAt.Time}
+			activity := Activity{activityID.String, activityCreatedAt.Time.UTC()}
 			habit.Activities = append(habit.Activities, activity)
 		}
 	}
