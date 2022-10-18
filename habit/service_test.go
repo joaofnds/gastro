@@ -99,13 +99,6 @@ var _ = Describe("habit service", func() {
 			Expect(habitFound).To(Equal(habitCreated))
 		})
 
-		It("has no activities", func() {
-			ctx := context.Background()
-			habit := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
-
-			Expect(habit.Activities).To(HaveLen(0))
-		})
-
 		It("appear on habits listing", func() {
 			ctx := context.Background()
 			habit := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
