@@ -128,7 +128,7 @@ var _ = Describe("habit service", func() {
 		It("returns NotFoundErr when not found", func() {
 			ctx := context.Background()
 			_, err := habitService.Find(ctx, habit.FindDTO{HabitID: badHabitID, UserID: userID})
-			Expect(err).To(MatchError(habit.NotFoundErr))
+			Expect(err).To(MatchError(habit.ErrNotFound))
 		})
 	})
 
@@ -203,6 +203,6 @@ var _ = Describe("habit service", func() {
 		h := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
 		err := habitService.Delete(ctx, habit.FindDTO{HabitID: h.ID, UserID: otherUserID})
 
-		Expect(err).To(MatchError(habit.NotFoundErr))
+		Expect(err).To(MatchError(habit.ErrNotFound))
 	})
 })

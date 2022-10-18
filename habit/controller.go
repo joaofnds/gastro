@@ -78,7 +78,7 @@ func (c Controller) deleteActivity(ctx *fiber.Ctx) error {
 	find := FindActivityDTO{HabitID: habitID, ActivityID: activityID, UserID: userID}
 	activity, err := c.habitService.FindActivity(ctx.Context(), find)
 	if err != nil {
-		if errors.Is(err, NotFoundErr) {
+		if errors.Is(err, ErrNotFound) {
 			return ctx.SendStatus(http.StatusNotFound)
 		}
 		return ctx.SendStatus(http.StatusBadRequest)
@@ -131,7 +131,7 @@ func (c Controller) middlewareFindHabit(ctx *fiber.Ctx) error {
 
 	h, err := c.habitService.Find(ctx.Context(), FindDTO{HabitID: id, UserID: userID})
 	if err != nil {
-		if errors.Is(err, NotFoundErr) {
+		if errors.Is(err, ErrNotFound) {
 			return ctx.SendStatus(http.StatusNotFound)
 		}
 

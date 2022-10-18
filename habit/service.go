@@ -42,10 +42,10 @@ func (service *Service) DeleteActivity(ctx context.Context, activity Activity) e
 func (service *Service) Find(ctx context.Context, find FindDTO) (Habit, error) {
 	habit, err := service.repo.Find(ctx, find)
 	if err != nil {
-		if errors.Is(err, NotFoundErr) {
+		if errors.Is(err, ErrNotFound) {
 			return habit, err
 		} else {
-			return habit, RepositoryErr
+			return habit, ErrRepository
 		}
 	}
 

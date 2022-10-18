@@ -104,7 +104,7 @@ func (repo *SQLRepository) FindActivity(ctx context.Context, find FindActivityDT
 	err := row.Scan(&id, &createdAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return Activity{}, NotFoundErr
+			return Activity{}, ErrNotFound
 		}
 		return Activity{}, err
 	}
@@ -154,7 +154,7 @@ func (repo *SQLRepository) Delete(ctx context.Context, find FindDTO) error {
 		return err
 	}
 	if rows == 0 {
-		return NotFoundErr
+		return ErrNotFound
 	}
 	return err
 }
@@ -216,7 +216,7 @@ func (repo *SQLRepository) findOne(ctx context.Context, query string, args ...an
 	}
 
 	if len(habits) == 0 {
-		return Habit{}, NotFoundErr
+		return Habit{}, ErrNotFound
 	}
 
 	return habits[0], err

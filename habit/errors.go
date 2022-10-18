@@ -3,6 +3,6 @@ package habit
 import "errors"
 
 var (
-	NotFoundErr   = errors.New("habit not found")
-	RepositoryErr = errors.New("repository error")
+	ErrNotFound   = errors.New("habit not found")
+	ErrRepository = errors.New("repository error")
 )
