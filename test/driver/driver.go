@@ -79,7 +79,20 @@ func (d *Driver) Get(id string) (habit.Habit, error) {
 }
 
 func (d *Driver) AddActivity(id string) error {
-	res, err := d.api.AddActivity(d.Token, id)
+	res, err := d.api.AddActivity(d.Token, id, "")
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != 201 {
+		return fmt.Errorf("failed to add activity")
+	}
+
+	return nil
+}
+
+func (d *Driver) AddActivityWithDesc(id, desc string) error {
+	res, err := d.api.AddActivity(d.Token, id, desc)
 	if err != nil {
 		return err
 	}

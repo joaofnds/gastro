@@ -48,6 +48,7 @@ func (repo *SQLRepository) Find(ctx context.Context, find FindDTO) (Habit, error
 			habits.user_id,
 			habits.name,
 			activities.id,
+			activities.description,
 			activities.created_at
 		FROM habits
 			LEFT JOIN activities ON activities.habit_id = habits.id
@@ -57,11 +58,11 @@ func (repo *SQLRepository) Find(ctx context.Context, find FindDTO) (Habit, error
 	)
 }
 
-func (repo *SQLRepository) AddActivity(ctx context.Context, habit Habit, time time.Time) (Activity, error) {
+func (repo *SQLRepository) AddActivity(ctx context.Context, habit Habit, dto AddActivityDTO) (Activity, error) {
 	row := repo.DB.QueryRowContext(
 		ctx,
-		"INSERT INTO activities(habit_id, created_at) VALUES ($1, $2) RETURNING id",
-		habit.ID, time,
+		"INSERT INTO activities(habit_id, description, created_at) VALUES ($1, $2, $3) RETURNING id",
+		habit.ID, dto.Desc, dto.Time,
 	)
 	if row.Err() != nil {
 		return Activity{}, row.Err()
@@ -73,7 +74,7 @@ func (repo *SQLRepository) AddActivity(ctx context.Context, habit Habit, time ti
 		return Activity{}, err
 	}
 
-	return Activity{id, time}, row.Err()
+	return Activity{ID: id, Desc: dto.Desc, CreatedAt: dto.Time}, row.Err()
 }
 
 func (repo *SQLRepository) FindActivity(ctx context.Context, find FindActivityDTO) (Activity, error) {
@@ -81,7 +82,7 @@ func (repo *SQLRepository) FindActivity(ctx context.Context, find FindActivityDT
 		ctx,
 		`
 			SELECT
-				activities.id, activities.created_at
+				activities.id, activities.description, activities.created_at
 			FROM
 				activities
 				INNER JOIN habits ON habits.id = activities.habit_id
@@ -99,9 +100,10 @@ func (repo *SQLRepository) FindActivity(ctx context.Context, find FindActivityDT
 
 	var (
 		id        string
+		desc      string
 		createdAt time.Time
 	)
-	err := row.Scan(&id, &createdAt)
+	err := row.Scan(&id, &desc, &createdAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return Activity{}, ErrNotFound
@@ -109,7 +111,7 @@ func (repo *SQLRepository) FindActivity(ctx context.Context, find FindActivityDT
 		return Activity{}, err
 	}
 
-	return Activity{id, createdAt.UTC()}, row.Err()
+	return Activity{ID: id, Desc: desc, CreatedAt: createdAt.UTC()}, row.Err()
 }
 
 func (repo *SQLRepository) DeleteActivity(ctx context.Context, activity Activity) error {
@@ -124,6 +126,7 @@ func (repo *SQLRepository) List(ctx context.Context, userID string) ([]Habit, er
 			habits.user_id,
 			habits.name,
 			activities.id,
+			activities.description,
 			activities.created_at
 		FROM habits
 			LEFT JOIN activities ON activities.habit_id = habits.id
@@ -173,10 +176,11 @@ func scanRows(rows *sql.Rows) ([]Habit, error) {
 			userID            string
 			name              string
 			activityID        sql.NullString
+			activityDesc      sql.NullString
 			activityCreatedAt sql.NullTime
 		)
 
-		err := rows.Scan(&id, &userID, &name, &activityID, &activityCreatedAt)
+		err := rows.Scan(&id, &userID, &name, &activityID, &activityDesc, &activityCreatedAt)
 		if err != nil {
 			return []Habit{}, err
 		}
@@ -188,7 +192,11 @@ func scanRows(rows *sql.Rows) ([]Habit, error) {
 		}
 
 		if activityID.Valid {
-			activity := Activity{activityID.String, activityCreatedAt.Time.UTC()}
+			activity := Activity{
+				ID:        activityID.String,
+				Desc:      activityDesc.String,
+				CreatedAt: activityCreatedAt.Time.UTC(),
+			}
 			habit.Activities = append(habit.Activities, activity)
 		}
 	}

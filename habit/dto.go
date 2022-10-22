@@ -1,5 +1,7 @@
 package habit
 
+import "time"
+
 type FindDTO struct {
 	HabitID string
 	UserID  string
@@ -11,7 +13,12 @@ type CreateDTO struct {
 }
 
 type FindActivityDTO struct {
-	HabitID string
+	HabitID    string
 	ActivityID string
-	UserID  string
+	UserID     string
+}
+
+type AddActivityDTO struct {
+	Desc string
+	Time time.Time
 }

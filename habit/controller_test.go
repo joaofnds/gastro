@@ -169,31 +169,42 @@ var _ = Describe("/habits", func() {
 		Describe("activities", func() {
 			It("requires token", func() {
 				h := Must2(app.Create("read"))
-				res := Must2(api.AddActivity("", h.ID))
+				res := Must2(api.AddActivity("token", h.ID, "desc"))
 				Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
 			})
 
-			It("POST to add activity", func() {
-				h := Must2(app.Create("read"))
-				Must(app.AddActivity(h.ID))
-				Must(app.AddActivity(h.ID))
-				Must(app.AddActivity(h.ID))
+			Describe("create", func() {
+				It("returns created activites on get", func() {
+					h := Must2(app.Create("read"))
+					Must(app.AddActivity(h.ID))
+					Must(app.AddActivity(h.ID))
+					Must(app.AddActivity(h.ID))
 
-				habit := Must2(app.Get(h.ID))
-				Expect(habit.Activities).To(HaveLen(3))
-			})
+					habit := Must2(app.Get(h.ID))
+					Expect(habit.Activities).To(HaveLen(3))
+				})
 
-			It("cannot create activities for other user's habits", func() {
-				otherUser := Must2(app.CreateToken())
-				defaultUserHabit := Must2(app.Create("read"))
+				It("cannot create activities for other user's habits", func() {
+					otherUser := Must2(app.CreateToken())
+					defaultUserHabit := Must2(app.Create("read"))
 
-				res := Must2(api.AddActivity(otherUser, defaultUserHabit.ID))
+					res := Must2(api.AddActivity(otherUser, defaultUserHabit.ID, "desc"))
 
-				Expect(res.StatusCode).To(Equal(http.StatusNotFound))
+					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
+				})
+
+				It("contains a description", func() {
+					h := Must2(app.Create("read"))
+					Must(app.AddActivityWithDesc(h.ID, "my description"))
+
+					habit := Must2(app.Get(h.ID))
+
+					Expect(habit.Activities[0].Desc).To(Equal("my description"))
+				})
 			})
 
 			Describe("activity delete", func() {
-				It("requires auth", func() {
+				It("requires token", func() {
 					res := Must2(api.DeleteActivity("bad token", "habit id", "activity id"))
 					Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
 				})

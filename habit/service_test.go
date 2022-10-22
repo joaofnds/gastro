@@ -126,28 +126,46 @@ var _ = Describe("habit service", func() {
 	})
 
 	Describe("add activity", func() {
+		It("creates an uuid", func() {
+			ctx := context.Background()
+			hab := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
+			act := Must2(habitService.AddActivity(ctx, hab, habit.AddActivityDTO{Time: time.Now()}))
+			Expect(habit.IsUUID(act.ID)).To(BeTrue())
+		})
+
 		It("persists the activity to the habit", func() {
 			ctx := context.Background()
-			h := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
+			hab := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
 
-			h = Must2(habitService.Find(ctx, habit.FindDTO{HabitID: h.ID, UserID: userID}))
-			Expect(h.Activities).To(HaveLen(0))
+			hab = Must2(habitService.Find(ctx, habit.FindDTO{HabitID: hab.ID, UserID: userID}))
+			Expect(hab.Activities).To(HaveLen(0))
 
-			Must2(habitService.AddActivity(ctx, h, time.Now()))
+			Must2(habitService.AddActivity(ctx, hab, habit.AddActivityDTO{Time: time.Now()}))
 
-			h = Must2(habitService.Find(ctx, habit.FindDTO{HabitID: h.ID, UserID: userID}))
-			Expect(h.Activities).To(HaveLen(1))
+			hab = Must2(habitService.Find(ctx, habit.FindDTO{HabitID: hab.ID, UserID: userID}))
+			Expect(hab.Activities).To(HaveLen(1))
 		})
 
 		It("sets the provided timestamp in UTC truncated to the second", func() {
 			ctx := context.Background()
-			h := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
+			hab := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
 
 			date := time.Now()
-			Must2(habitService.AddActivity(ctx, h, date))
+			act := Must2(habitService.AddActivity(ctx, hab, habit.AddActivityDTO{Time: date}))
 
-			h = Must2(habitService.Find(ctx, habit.FindDTO{HabitID: h.ID, UserID: userID}))
-			Expect(h.Activities[0].CreatedAt).To(Equal(date.UTC().Truncate(time.Second)))
+			found := Must2(habitService.FindActivity(ctx, habit.FindActivityDTO{hab.ID, act.ID, userID}))
+			Expect(found.CreatedAt).To(Equal(date.UTC().Truncate(time.Second)))
+		})
+
+		It("sets the description", func() {
+			ctx := context.Background()
+			hab := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
+			dto := habit.AddActivityDTO{Desc: "my description", Time: time.Now()}
+			act := Must2(habitService.AddActivity(ctx, hab, dto))
+
+			found := Must2(habitService.FindActivity(ctx, habit.FindActivityDTO{hab.ID, act.ID, userID}))
+
+			Expect(found.Desc).To(Equal(dto.Desc))
 		})
 	})
 
@@ -155,11 +173,9 @@ var _ = Describe("habit service", func() {
 		It("finds the activity", func() {
 			ctx := context.Background()
 			hab := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
-			act := Must2(habitService.AddActivity(ctx, hab, time.Now()))
+			act := Must2(habitService.AddActivity(ctx, hab, habit.AddActivityDTO{Desc: "foo", Time: time.Now()}))
 
-			foundAct := Must2(habitService.FindActivity(ctx, habit.FindActivityDTO{hab.ID, act.ID, userID}))
-
-			Expect(foundAct).To(Equal(act))
+			Must2(habitService.FindActivity(ctx, habit.FindActivityDTO{hab.ID, act.ID, userID}))
 		})
 	})
 
@@ -167,7 +183,7 @@ var _ = Describe("habit service", func() {
 		It("deletes the activity", func() {
 			ctx := context.Background()
 			hab := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
-			act := Must2(habitService.AddActivity(ctx, hab, time.Now()))
+			act := Must2(habitService.AddActivity(ctx, hab, habit.AddActivityDTO{Time: time.Now()}))
 			hab = Must2(habitService.Find(ctx, habit.FindDTO{hab.ID, userID}))
 			Expect(hab.Activities).To(HaveLen(1))
 

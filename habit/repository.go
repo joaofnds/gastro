@@ -2,7 +2,6 @@ package habit
 
 import (
 	"context"
-	"time"
 )
 
 type Repository interface {
@@ -11,7 +10,7 @@ type Repository interface {
 	Find(ctx context.Context, find FindDTO) (Habit, error)
 	Delete(ctx context.Context, find FindDTO) error
 	DeleteAll(ctx context.Context) error
-	AddActivity(ctx context.Context, habit Habit, time time.Time) (Activity, error)
+	AddActivity(ctx context.Context, habit Habit, dto AddActivityDTO) (Activity, error)
 	FindActivity(ctx context.Context, find FindActivityDTO) (Activity, error)
 	DeleteActivity(ctx context.Context, activity Activity) error
 }

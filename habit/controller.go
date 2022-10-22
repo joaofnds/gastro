@@ -96,7 +96,14 @@ func (c Controller) deleteActivity(ctx *fiber.Ctx) error {
 func (c Controller) addActivity(ctx *fiber.Ctx) error {
 	h := ctx.Locals("habit").(Habit)
 
-	_, err := c.habitService.AddActivity(ctx.Context(), h, time.Now().UTC())
+	body := new(AddActivityPayload)
+	if err := ctx.BodyParser(body); err != nil {
+		println(err.Error())
+		return ctx.Status(http.StatusBadRequest).SendString(err.Error())
+	}
+
+	dto := AddActivityDTO{Desc: body.Description, Time: time.Now().UTC()}
+	_, err := c.habitService.AddActivity(ctx.Context(), h, dto)
 	if err != nil {
 		c.logger.Error("failed to add activity", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
@@ -157,4 +164,8 @@ func (c Controller) middlewareDecodeToken(ctx *fiber.Ctx) error {
 
 	ctx.Locals("userID", string(id))
 	return ctx.Next()
+}
+
+type AddActivityPayload struct {
+	Description string `json:"description"`
 }
