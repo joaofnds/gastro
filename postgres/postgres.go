@@ -83,7 +83,7 @@ func createActivitiesTable(ctx context.Context, db *sql.DB) error {
 		CREATE TABLE IF NOT EXISTS activities (
 			id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 			habit_id    UUID NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
-			description VARCHAR NOT NULL,
+			description VARCHAR NOT NULL DEFAULT '',
 			created_at  TIMESTAMP NOT NULL DEFAULT NOW()
 		);
 		CREATE INDEX IF NOT EXISTS idx_activity_habit ON activities(habit_id);
