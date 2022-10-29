@@ -104,6 +104,19 @@ func (d *Driver) AddActivityWithDesc(id, desc string) error {
 	return nil
 }
 
+func (d *Driver) UpdateActivityDesc(habitID, activityID, desc string) error {
+	res, err := d.api.UpdateActivity(d.Token, habitID, activityID, desc)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != 200 {
+		return fmt.Errorf("failed to update activity")
+	}
+
+	return nil
+}
+
 func (d *Driver) DeleteActivity(habitID, activityID string) error {
 	res, err := d.api.DeleteActivity(d.Token, habitID, activityID)
 	if err != nil {

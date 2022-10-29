@@ -53,6 +53,14 @@ func (a API) AddActivity(token, id, desc string) (*http.Response, error) {
 	)
 }
 
+func (a API) UpdateActivity(token, habitID, activityID, desc string) (*http.Response, error) {
+	return req.Patch(
+		a.baseURL+"/habits/"+habitID+"/"+activityID,
+		map[string]string{"Authorization": token, "Content-Type": "application/json"},
+		strings.NewReader(fmt.Sprintf(`{"description":%q}`, desc)),
+	)
+}
+
 func (a API) DeleteActivity(token, habitID, activityID string) (*http.Response, error) {
 	return req.Delete(
 		a.baseURL+"/habits/"+habitID+"/"+activityID,

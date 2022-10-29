@@ -33,6 +33,7 @@ func (c Controller) Register(app *fiber.App) {
 	habits.Get("/", c.list)
 	habits.Post("/", c.create)
 	habits.Delete("/:habitID/:activityID", c.deleteActivity)
+	habits.Patch("/:habitID/:activityID", c.middlewareFindActivity, c.updateActivity)
 
 	habit := habits.Group("/:id", c.middlewareFindHabit)
 	habit.Get("/", c.get)
@@ -98,18 +99,33 @@ func (c Controller) addActivity(ctx *fiber.Ctx) error {
 
 	body := new(AddActivityPayload)
 	if err := ctx.BodyParser(body); err != nil {
-		println(err.Error())
 		return ctx.Status(http.StatusBadRequest).SendString(err.Error())
 	}
 
 	dto := AddActivityDTO{Desc: body.Description, Time: time.Now().UTC()}
-	_, err := c.habitService.AddActivity(ctx.Context(), h, dto)
-	if err != nil {
+	if _, err := c.habitService.AddActivity(ctx.Context(), h, dto); err != nil {
 		c.logger.Error("failed to add activity", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
 
 	return ctx.SendStatus(http.StatusCreated)
+}
+
+func (c Controller) updateActivity(ctx *fiber.Ctx) error {
+	act := ctx.Locals("activity").(Activity)
+
+	body := new(AddActivityPayload)
+	if err := ctx.BodyParser(body); err != nil {
+		return ctx.Status(http.StatusBadRequest).SendString(err.Error())
+	}
+
+	dto := UpdateActivityDTO{ActivityID: act.ID, Desc: body.Description}
+	if _, err := c.habitService.UpdateActivity(ctx.Context(), dto); err != nil {
+		c.logger.Error("failed to update activity", zap.Error(err))
+		return ctx.SendStatus(http.StatusInternalServerError)
+	}
+
+	return ctx.SendStatus(http.StatusOK)
 }
 
 func (c Controller) create(ctx *fiber.Ctx) error {
@@ -147,6 +163,25 @@ func (c Controller) middlewareFindHabit(ctx *fiber.Ctx) error {
 	}
 
 	ctx.Locals("habit", h)
+
+	return ctx.Next()
+}
+
+func (c Controller) middlewareFindActivity(ctx *fiber.Ctx) error {
+	habitID := ctx.Params("habitID")
+	activityID := ctx.Params("activityID")
+	userID := ctx.Locals("userID").(string)
+
+	find := FindActivityDTO{HabitID: habitID, ActivityID: activityID, UserID: userID}
+	activity, err := c.habitService.FindActivity(ctx.Context(), find)
+	if err != nil {
+		if errors.Is(err, ErrNotFound) {
+			return ctx.SendStatus(http.StatusNotFound)
+		}
+		return ctx.SendStatus(http.StatusBadRequest)
+	}
+
+	ctx.Locals("activity", activity)
 
 	return ctx.Next()
 }

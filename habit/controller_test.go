@@ -203,6 +203,39 @@ var _ = Describe("/habits", func() {
 				})
 			})
 
+			Describe("update", func() {
+				It("updates the description", func() {
+					hab := Must2(app.Create("read"))
+					Must(app.AddActivityWithDesc(hab.ID, "old"))
+
+					activity := Must2(app.Get(hab.ID)).Activities[0]
+					Must(app.UpdateActivityDesc(hab.ID, activity.ID, "new"))
+
+					habit := Must2(app.Get(hab.ID))
+					Expect(habit.Activities[0].Desc).To(Equal("new"))
+				})
+
+				It("requires token", func() {
+					hab := Must2(app.Create("read"))
+					Must(app.AddActivityWithDesc(hab.ID, "old"))
+					activity := Must2(app.Get(hab.ID)).Activities[0]
+
+					res := Must2(api.UpdateActivity("bad token", hab.ID, activity.ID, "new"))
+					Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
+				})
+
+				It("cannot update activities for other user's activities", func() {
+					otherUser := Must2(app.CreateToken())
+					defaultUserHabit := Must2(app.Create("read"))
+					Must(app.AddActivityWithDesc(defaultUserHabit.ID, "old"))
+					defaultUserActivity := Must2(app.Get(defaultUserHabit.ID)).Activities[0]
+
+					res := Must2(api.UpdateActivity(otherUser, defaultUserHabit.ID, defaultUserActivity.ID, "new"))
+
+					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
+				})
+			})
+
 			Describe("activity delete", func() {
 				It("requires token", func() {
 					res := Must2(api.DeleteActivity("bad token", "habit id", "activity id"))

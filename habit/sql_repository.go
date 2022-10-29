@@ -103,6 +103,37 @@ func (repo *SQLRepository) FindActivity(ctx context.Context, find FindActivityDT
 		desc      string
 		createdAt time.Time
 	)
+	if err := row.Scan(&id, &desc, &createdAt); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return Activity{}, ErrNotFound
+		}
+		return Activity{}, err
+	}
+
+	return Activity{ID: id, Desc: desc, CreatedAt: createdAt.UTC()}, row.Err()
+}
+
+func (repo *SQLRepository) UpdateActivity(ctx context.Context, dto UpdateActivityDTO) (Activity, error) {
+	row := repo.DB.QueryRowContext(
+		ctx,
+		`
+			UPDATE activities
+			SET description = $1
+			WHERE activities.id = $2
+			RETURNING id, description, created_at
+		`,
+		dto.Desc, dto.ActivityID,
+	)
+
+	if row.Err() != nil {
+		return Activity{}, row.Err()
+	}
+
+	var (
+		id        string
+		desc      string
+		createdAt time.Time
+	)
 	err := row.Scan(&id, &desc, &createdAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

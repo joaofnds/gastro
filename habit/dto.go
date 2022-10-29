@@ -22,3 +22,8 @@ type AddActivityDTO struct {
 	Desc string
 	Time time.Time
 }
+
+type UpdateActivityDTO struct {
+	ActivityID string
+	Desc       string
+}

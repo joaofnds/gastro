@@ -32,6 +32,10 @@ func (service *Service) AddActivity(ctx context.Context, habit Habit, dto AddAct
 	return service.repo.AddActivity(ctx, habit, dto)
 }
 
+func (service *Service) UpdateActivity(ctx context.Context, dto UpdateActivityDTO) (Activity, error) {
+	return service.repo.UpdateActivity(ctx, dto)
+}
+
 func (service *Service) FindActivity(ctx context.Context, find FindActivityDTO) (Activity, error) {
 	return service.repo.FindActivity(ctx, find)
 }

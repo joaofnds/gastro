@@ -11,6 +11,7 @@ type Repository interface {
 	Delete(ctx context.Context, find FindDTO) error
 	DeleteAll(ctx context.Context) error
 	AddActivity(ctx context.Context, habit Habit, dto AddActivityDTO) (Activity, error)
+	UpdateActivity(ctx context.Context, dto UpdateActivityDTO) (Activity, error)
 	FindActivity(ctx context.Context, find FindActivityDTO) (Activity, error)
 	DeleteActivity(ctx context.Context, activity Activity) error
 }

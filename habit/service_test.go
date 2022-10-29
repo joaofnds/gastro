@@ -179,6 +179,18 @@ var _ = Describe("habit service", func() {
 		})
 	})
 
+	Describe("update activity", func() {
+		It("updates activity description", func() {
+			ctx := context.Background()
+			hab := Must2(habitService.Create(ctx, habit.CreateDTO{"read", userID}))
+			act := Must2(habitService.AddActivity(ctx, hab, habit.AddActivityDTO{Desc: "old", Time: time.Now()}))
+			Must2(habitService.UpdateActivity(ctx, habit.UpdateActivityDTO{ActivityID: act.ID, Desc: "new"}))
+
+			act = Must2(habitService.FindActivity(ctx, habit.FindActivityDTO{hab.ID, act.ID, userID}))
+			Expect(act.Desc).To(Equal("new"))
+		})
+	})
+
 	Describe("delete activity", func() {
 		It("deletes the activity", func() {
 			ctx := context.Background()
