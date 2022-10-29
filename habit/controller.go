@@ -35,12 +35,12 @@ func (c Controller) Register(app *fiber.App) {
 
 	habit := habits.Group("/:habitID", c.middlewareFindHabit)
 	habit.Get("/", c.get)
-	habit.Post("/", c.addActivity)
 	habit.Delete("/", c.delete)
+	habit.Post("/", c.addActivity)
 
 	activity := habit.Group(":activityID", c.middlewareFindActivity)
-	activity.Delete("/", c.deleteActivity)
 	activity.Patch("/", c.updateActivity)
+	activity.Delete("/", c.deleteActivity)
 }
 
 func (c Controller) list(ctx *fiber.Ctx) error {
@@ -64,7 +64,7 @@ func (c Controller) delete(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("userID").(string)
 	h := ctx.Locals("habit").(Habit)
 
-	err := c.habitService.Delete(ctx.Context(), FindDTO{HabitID: h.ID, UserID: userID})
+	err := c.habitService.Delete(ctx.Context(), FindHabitDTO{HabitID: h.ID, UserID: userID})
 	if err != nil {
 		c.logger.Error("failed to delete", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
@@ -125,7 +125,7 @@ func (c Controller) create(ctx *fiber.Ctx) error {
 	}
 
 	userID := ctx.Locals("userID").(string)
-	h, err := c.habitService.Create(ctx.Context(), CreateDTO{UserID: userID, Name: name})
+	h, err := c.habitService.Create(ctx.Context(), CreateHabitDTO{UserID: userID, Name: name})
 	if err != nil {
 		c.logger.Error("failed to create habit", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
@@ -142,7 +142,7 @@ func (c Controller) middlewareFindHabit(ctx *fiber.Ctx) error {
 
 	userID := ctx.Locals("userID").(string)
 
-	h, err := c.habitService.Find(ctx.Context(), FindDTO{HabitID: id, UserID: userID})
+	h, err := c.habitService.Find(ctx.Context(), FindHabitDTO{HabitID: id, UserID: userID})
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
 			return ctx.SendStatus(http.StatusNotFound)

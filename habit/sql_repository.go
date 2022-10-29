@@ -21,7 +21,7 @@ func NewSQLRepository(db *sql.DB) *SQLRepository {
 	return &SQLRepository{db}
 }
 
-func (repo *SQLRepository) Create(ctx context.Context, create CreateDTO) (Habit, error) {
+func (repo *SQLRepository) Create(ctx context.Context, create CreateHabitDTO) (Habit, error) {
 	row := repo.DB.QueryRowContext(
 		ctx,
 		"INSERT INTO habits(user_id, name) VALUES ($1, $2) RETURNING id",
@@ -41,7 +41,7 @@ func (repo *SQLRepository) Create(ctx context.Context, create CreateDTO) (Habit,
 	return h, row.Err()
 }
 
-func (repo *SQLRepository) Find(ctx context.Context, find FindDTO) (Habit, error) {
+func (repo *SQLRepository) Find(ctx context.Context, find FindHabitDTO) (Habit, error) {
 	return repo.findOne(ctx, `
 		SELECT
 			habits.id,
@@ -173,7 +173,7 @@ func (repo *SQLRepository) List(ctx context.Context, userID string) ([]Habit, er
 	return scanRows(rows)
 }
 
-func (repo *SQLRepository) Delete(ctx context.Context, find FindDTO) error {
+func (repo *SQLRepository) Delete(ctx context.Context, find FindHabitDTO) error {
 	r, err := repo.DB.ExecContext(
 		ctx,
 		"DELETE FROM habits WHERE id = $1 AND user_id = $2",

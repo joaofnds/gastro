@@ -15,7 +15,7 @@ func NewService(sqlRepo Repository, instrumentation Instrumentation) *Service {
 	return &Service{sqlRepo, instrumentation}
 }
 
-func (service *Service) Create(ctx context.Context, create CreateDTO) (Habit, error) {
+func (service *Service) Create(ctx context.Context, create CreateHabitDTO) (Habit, error) {
 	habit, err := service.repo.Create(ctx, create)
 
 	if err != nil {
@@ -44,7 +44,7 @@ func (service *Service) DeleteActivity(ctx context.Context, activity Activity) e
 	return service.repo.DeleteActivity(ctx, activity)
 }
 
-func (service *Service) Find(ctx context.Context, find FindDTO) (Habit, error) {
+func (service *Service) Find(ctx context.Context, find FindHabitDTO) (Habit, error) {
 	habit, err := service.repo.Find(ctx, find)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
@@ -61,7 +61,7 @@ func (service *Service) List(ctx context.Context, userID string) ([]Habit, error
 	return service.repo.List(ctx, userID)
 }
 
-func (service *Service) Delete(ctx context.Context, find FindDTO) error {
+func (service *Service) Delete(ctx context.Context, find FindHabitDTO) error {
 	return service.repo.Delete(ctx, find)
 }
 

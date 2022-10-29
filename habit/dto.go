@@ -2,12 +2,12 @@ package habit
 
 import "time"
 
-type FindDTO struct {
+type FindHabitDTO struct {
 	HabitID string
 	UserID  string
 }
 
-type CreateDTO struct {
+type CreateHabitDTO struct {
 	Name   string
 	UserID string
 }
