@@ -88,7 +88,7 @@ var _ = Describe("/health", func() {
 
 		AfterEach(func() { app.RequireStop() })
 
-		It("returns status OK", func() {
+		It("returns status service unavailable", func() {
 			res := Must2(http.Get(url))
 			Expect(res.StatusCode).To(Equal(http.StatusServiceUnavailable))
 		})
