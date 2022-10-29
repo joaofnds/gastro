@@ -67,55 +67,54 @@ var _ = Describe("habit service", func() {
 		Describe("attributes", func() {
 			It("Has an ID", func() {
 				ctx := context.Background()
-				habit := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
-				Expect(habit.ID).To(HaveLen(uuidLen))
+				hab := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
+				Expect(hab.ID).To(HaveLen(uuidLen))
 			})
 
 			It("Has user ID", func() {
 				ctx := context.Background()
-				habit := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
-				Expect(habit.UserID).To(Equal(userID))
+				hab := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
+				Expect(hab.UserID).To(Equal(userID))
 			})
 
 			It("Has a name", func() {
 				ctx := context.Background()
-				habit := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
-				Expect(habit.Name).To(Equal("read"))
+				hab := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
+				Expect(hab.Name).To(Equal("read"))
 			})
 
 			It("Has empty activities", func() {
 				ctx := context.Background()
-				habit := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
-				Expect(habit.Activities).To(HaveLen(0))
+				hab := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
+				Expect(hab.Activities).To(HaveLen(0))
 			})
 		})
 
 		It("can be found by id", func() {
 			ctx := context.Background()
-			habitCreated := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
+			created := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
+			found := Must2(habitService.Find(ctx, habit.FindHabitDTO{HabitID: created.ID, UserID: userID}))
 
-			habitFound := Must2(habitService.Find(ctx, habit.FindHabitDTO{HabitID: habitCreated.ID, UserID: userID}))
-
-			Expect(habitFound).To(Equal(habitCreated))
+			Expect(found).To(Equal(created))
 		})
 
 		It("appear on habits listing", func() {
 			ctx := context.Background()
-			habit := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
+			hab := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
 
-			habits := Must2(habitService.List(ctx, userID))
-			Expect(habits).To(HaveLen(1))
-			Expect(habits[0]).To(Equal(habit))
+			habitList := Must2(habitService.List(ctx, userID))
+			Expect(habitList).To(HaveLen(1))
+			Expect(habitList[0]).To(Equal(hab))
 		})
 	})
 
 	Describe("Find", func() {
 		It("finds the habit", func() {
 			ctx := context.Background()
-			habitCreated := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
+			created := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
 
-			habitFound := Must2(habitService.Find(ctx, habit.FindHabitDTO{HabitID: habitCreated.ID, UserID: userID}))
-			Expect(habitFound).To(Equal(habitCreated))
+			found := Must2(habitService.Find(ctx, habit.FindHabitDTO{HabitID: created.ID, UserID: userID}))
+			Expect(found).To(Equal(created))
 		})
 
 		It("returns NotFoundErr when not found", func() {
@@ -208,11 +207,11 @@ var _ = Describe("habit service", func() {
 
 	It("removed habits do not appear on habits listing", func() {
 		ctx := context.Background()
-		h := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
+		hab := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
 
 		Expect(Must2(habitService.List(ctx, userID))).To(HaveLen(1))
 
-		Must(habitService.Delete(ctx, habit.FindHabitDTO{HabitID: h.ID, UserID: userID}))
+		Must(habitService.Delete(ctx, habit.FindHabitDTO{HabitID: hab.ID, UserID: userID}))
 
 		Expect(Must2(habitService.List(ctx, userID))).To(HaveLen(0))
 	})
@@ -221,8 +220,8 @@ var _ = Describe("habit service", func() {
 		ctx := context.Background()
 		otherUserID := "6e334403-1eac-4cf3-bbaf-a9ef4486477a"
 
-		h := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
-		err := habitService.Delete(ctx, habit.FindHabitDTO{HabitID: h.ID, UserID: otherUserID})
+		hab := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"read", userID}))
+		err := habitService.Delete(ctx, habit.FindHabitDTO{HabitID: hab.ID, UserID: otherUserID})
 
 		Expect(err).To(MatchError(habit.ErrNotFound))
 	})
