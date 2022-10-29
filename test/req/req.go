@@ -15,6 +15,10 @@ func Post(url string, headers Headers, body io.Reader) (*http.Response, error) {
 	return Default.Post(url, headers, body)
 }
 
+func Patch(url string, headers Headers, body io.Reader) (*http.Response, error) {
+	return Default.Patch(url, headers, body)
+}
+
 func Delete(url string, headers Headers) (*http.Response, error) {
 	return Default.Delete(url, headers)
 }
@@ -33,6 +37,10 @@ func (r *Req) Get(url string, headers Headers) (*http.Response, error) {
 
 func (r *Req) Post(url string, headers Headers, body io.Reader) (*http.Response, error) {
 	return r.req(http.MethodPost, url, headers, body)
+}
+
+func (r *Req) Patch(url string, headers Headers, body io.Reader) (*http.Response, error) {
+	return r.req(http.MethodPatch, url, headers, body)
 }
 
 func (r *Req) Delete(url string, headers Headers) (*http.Response, error) {
