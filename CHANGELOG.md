@@ -1,3 +1,10 @@
+# [1.48.0](https://github.com/joaofnds/gastro/compare/v1.47.0...v1.48.0) (2022-10-29)
+
+
+### Features
+
+* add activity description edit ([3757c8a](https://github.com/joaofnds/gastro/commit/3757c8a5f4addd9a99b70ed2ed56179e8b8852d4))
+
 # [1.47.0](https://github.com/joaofnds/gastro/compare/v1.46.1...v1.47.0) (2022-10-22)
 
 
