@@ -32,13 +32,15 @@ func (c Controller) Register(app *fiber.App) {
 	habits := app.Group("/habits", c.middlewareDecodeToken)
 	habits.Get("/", c.list)
 	habits.Post("/", c.create)
-	habits.Delete("/:habitID/:activityID", c.deleteActivity)
-	habits.Patch("/:habitID/:activityID", c.middlewareFindActivity, c.updateActivity)
 
-	habit := habits.Group("/:id", c.middlewareFindHabit)
+	habit := habits.Group("/:habitID", c.middlewareFindHabit)
 	habit.Get("/", c.get)
 	habit.Post("/", c.addActivity)
 	habit.Delete("/", c.delete)
+
+	activity := habit.Group(":activityID", c.middlewareFindActivity)
+	activity.Delete("/", c.deleteActivity)
+	activity.Patch("/", c.updateActivity)
 }
 
 func (c Controller) list(ctx *fiber.Ctx) error {
@@ -71,33 +73,10 @@ func (c Controller) delete(ctx *fiber.Ctx) error {
 	return ctx.SendStatus(http.StatusOK)
 }
 
-func (c Controller) deleteActivity(ctx *fiber.Ctx) error {
-	habitID := ctx.Params("habitID")
-	activityID := ctx.Params("activityID")
-	userID := ctx.Locals("userID").(string)
-
-	find := FindActivityDTO{HabitID: habitID, ActivityID: activityID, UserID: userID}
-	activity, err := c.habitService.FindActivity(ctx.Context(), find)
-	if err != nil {
-		if errors.Is(err, ErrNotFound) {
-			return ctx.SendStatus(http.StatusNotFound)
-		}
-		return ctx.SendStatus(http.StatusBadRequest)
-	}
-
-	err = c.habitService.DeleteActivity(ctx.Context(), activity)
-	if err != nil {
-		c.logger.Error("failed to delete activity", zap.Error(err))
-		return ctx.SendStatus(http.StatusInternalServerError)
-	}
-
-	return ctx.SendStatus(http.StatusOK)
-}
-
 func (c Controller) addActivity(ctx *fiber.Ctx) error {
 	h := ctx.Locals("habit").(Habit)
 
-	body := new(AddActivityPayload)
+	body := new(DescriptionPayload)
 	if err := ctx.BodyParser(body); err != nil {
 		return ctx.Status(http.StatusBadRequest).SendString(err.Error())
 	}
@@ -114,7 +93,7 @@ func (c Controller) addActivity(ctx *fiber.Ctx) error {
 func (c Controller) updateActivity(ctx *fiber.Ctx) error {
 	act := ctx.Locals("activity").(Activity)
 
-	body := new(AddActivityPayload)
+	body := new(DescriptionPayload)
 	if err := ctx.BodyParser(body); err != nil {
 		return ctx.Status(http.StatusBadRequest).SendString(err.Error())
 	}
@@ -122,6 +101,17 @@ func (c Controller) updateActivity(ctx *fiber.Ctx) error {
 	dto := UpdateActivityDTO{ActivityID: act.ID, Desc: body.Description}
 	if _, err := c.habitService.UpdateActivity(ctx.Context(), dto); err != nil {
 		c.logger.Error("failed to update activity", zap.Error(err))
+		return ctx.SendStatus(http.StatusInternalServerError)
+	}
+
+	return ctx.SendStatus(http.StatusOK)
+}
+
+func (c Controller) deleteActivity(ctx *fiber.Ctx) error {
+	activity := ctx.Locals("activity").(Activity)
+
+	if err := c.habitService.DeleteActivity(ctx.Context(), activity); err != nil {
+		c.logger.Error("failed to delete activity", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
 
@@ -145,7 +135,7 @@ func (c Controller) create(ctx *fiber.Ctx) error {
 }
 
 func (c Controller) middlewareFindHabit(ctx *fiber.Ctx) error {
-	id := ctx.Params("id")
+	id := ctx.Params("habitID")
 	if !IsUUID(id) {
 		return ctx.SendStatus(http.StatusNotFound)
 	}
@@ -168,9 +158,13 @@ func (c Controller) middlewareFindHabit(ctx *fiber.Ctx) error {
 }
 
 func (c Controller) middlewareFindActivity(ctx *fiber.Ctx) error {
+	userID := ctx.Locals("userID").(string)
 	habitID := ctx.Params("habitID")
 	activityID := ctx.Params("activityID")
-	userID := ctx.Locals("userID").(string)
+
+	if !IsUUID(habitID) || !IsUUID(activityID) {
+		return ctx.SendStatus(http.StatusNotFound)
+	}
 
 	find := FindActivityDTO{HabitID: habitID, ActivityID: activityID, UserID: userID}
 	activity, err := c.habitService.FindActivity(ctx.Context(), find)
@@ -201,6 +195,6 @@ func (c Controller) middlewareDecodeToken(ctx *fiber.Ctx) error {
 	return ctx.Next()
 }
 
-type AddActivityPayload struct {
+type DescriptionPayload struct {
 	Description string `json:"description"`
 }

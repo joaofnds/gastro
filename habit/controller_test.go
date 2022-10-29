@@ -270,14 +270,14 @@ var _ = Describe("/habits", func() {
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 
-				It("returns 400 when given a bad habit id", func() {
+				It("returns 404 when given a bad habit id", func() {
 					res := Must2(api.DeleteActivity(app.Token, "not an uuid", "cc4f532a-4076-4dba-ac73-f003ee59ea07"))
-					Expect(res.StatusCode).To(Equal(http.StatusBadRequest))
+					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 
-				It("returns 400 when given a bad activity id", func() {
+				It("returns 404 when given a bad activity id", func() {
 					res := Must2(api.DeleteActivity(app.Token, "cc4f532a-4076-4dba-ac73-f003ee59ea07", "not an uuid"))
-					Expect(res.StatusCode).To(Equal(http.StatusBadRequest))
+					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 			})
 		})
