@@ -124,6 +124,36 @@ var _ = Describe("habit service", func() {
 		})
 	})
 
+	Describe("edit", func() {
+		It("changes the name of the habit", func() {
+			ctx := context.Background()
+
+			created := Must2(habitService.Create(ctx, habit.CreateHabitDTO{"old", userID}))
+			Must(habitService.Update(ctx, habit.UpdateHabitDTO{"new", created.ID}))
+			found := Must2(habitService.Find(ctx, habit.FindHabitDTO{HabitID: created.ID, UserID: userID}))
+
+			Expect(found.Name).To(Equal("new"))
+		})
+
+		Describe("with invalid uuid", func() {
+			It("returns repo err", func() {
+				ctx := context.Background()
+				err := habitService.Update(ctx, habit.UpdateHabitDTO{"new", "invalid uuid"})
+
+				Expect(err).To(MatchError(habit.ErrRepository))
+			})
+		})
+
+		Describe("when not found", func() {
+			It("returns habit not found err", func() {
+				ctx := context.Background()
+				err := habitService.Update(ctx, habit.UpdateHabitDTO{"new", badHabitID})
+
+				Expect(err).To(MatchError(habit.ErrNotFound))
+			})
+		})
+	})
+
 	Describe("add activity", func() {
 		It("creates an uuid", func() {
 			ctx := context.Background()

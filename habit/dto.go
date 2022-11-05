@@ -12,6 +12,11 @@ type CreateHabitDTO struct {
 	UserID string
 }
 
+type UpdateHabitDTO struct {
+	Name    string
+	HabitID string
+}
+
 type FindActivityDTO struct {
 	HabitID    string
 	ActivityID string

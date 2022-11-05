@@ -58,6 +58,27 @@ func (repo *SQLRepository) Find(ctx context.Context, find FindHabitDTO) (Habit, 
 	)
 }
 
+func (repo *SQLRepository) Update(ctx context.Context, dto UpdateHabitDTO) error {
+	result, err := repo.DB.ExecContext(
+		ctx, `
+    UPDATE habits
+    SET name = $1
+    WHERE id = $2`,
+		dto.Name, dto.HabitID,
+	)
+	if err != nil {
+		return err
+	}
+	n, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
 func (repo *SQLRepository) AddActivity(ctx context.Context, habit Habit, dto AddActivityDTO) (Activity, error) {
 	row := repo.DB.QueryRowContext(
 		ctx,

@@ -27,6 +27,11 @@ func (service *Service) Create(ctx context.Context, create CreateHabitDTO) (Habi
 	return habit, err
 }
 
+func (service *Service) Update(ctx context.Context, dto UpdateHabitDTO) error {
+	err := service.repo.Update(ctx, dto)
+	return service.switchErr(err)
+}
+
 func (service *Service) AddActivity(ctx context.Context, habit Habit, dto AddActivityDTO) (Activity, error) {
 	dto.Time = dto.Time.UTC().Truncate(time.Second)
 	return service.repo.AddActivity(ctx, habit, dto)
@@ -46,15 +51,7 @@ func (service *Service) DeleteActivity(ctx context.Context, activity Activity) e
 
 func (service *Service) Find(ctx context.Context, find FindHabitDTO) (Habit, error) {
 	habit, err := service.repo.Find(ctx, find)
-	if err != nil {
-		if errors.Is(err, ErrNotFound) {
-			return habit, err
-		} else {
-			return habit, ErrRepository
-		}
-	}
-
-	return habit, nil
+	return habit, service.switchErr(err)
 }
 
 func (service *Service) List(ctx context.Context, userID string) ([]Habit, error) {
@@ -67,4 +64,16 @@ func (service *Service) Delete(ctx context.Context, find FindHabitDTO) error {
 
 func (service *Service) DeleteAll(ctx context.Context) error {
 	return service.repo.DeleteAll(ctx)
+}
+
+func (service *Service) switchErr(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	if errors.Is(err, ErrNotFound) {
+		return err
+	}
+
+	return ErrRepository
 }
