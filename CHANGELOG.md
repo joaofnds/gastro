@@ -1,3 +1,11 @@
+# [1.49.0](https://github.com/joaofnds/gastro/compare/v1.48.1...v1.49.0) (2022-11-05)
+
+
+### Features
+
+* **habit:** add internal name edit ([a1440b1](https://github.com/joaofnds/gastro/commit/a1440b16c471fea0292f6ca6ad0623b8754448a3))
+* **habit:** expose name edit via http ([c8258d4](https://github.com/joaofnds/gastro/commit/c8258d4d61244a3fa934badbbef299ea07449fe4))
+
 ## [1.48.1](https://github.com/joaofnds/gastro/compare/v1.48.0...v1.48.1) (2022-10-29)
 
 # [1.48.0](https://github.com/joaofnds/gastro/compare/v1.47.0...v1.48.0) (2022-10-29)
