@@ -35,8 +35,9 @@ func (c Controller) Register(app *fiber.App) {
 
 	habit := habits.Group("/:habitID", c.middlewareFindHabit)
 	habit.Get("/", c.get)
-	habit.Delete("/", c.delete)
 	habit.Post("/", c.addActivity)
+	habit.Patch("/", c.update)
+	habit.Delete("/", c.delete)
 
 	activity := habit.Group(":activityID", c.middlewareFindActivity)
 	activity.Patch("/", c.updateActivity)
@@ -58,6 +59,25 @@ func (c Controller) list(ctx *fiber.Ctx) error {
 func (Controller) get(ctx *fiber.Ctx) error {
 	h := ctx.Locals("habit")
 	return ctx.Status(http.StatusOK).JSON(h)
+}
+
+func (c Controller) update(ctx *fiber.Ctx) error {
+	h := ctx.Locals("habit").(Habit)
+
+	body := new(NamePayload)
+	if err := ctx.BodyParser(body); err != nil {
+		c.logger.Warn("failed to parse body", zap.Error(err))
+		return ctx.Status(http.StatusBadRequest).SendString(err.Error())
+	}
+
+	dto := UpdateHabitDTO{Name: body.Name, HabitID: h.ID}
+	err := c.habitService.Update(ctx.Context(), dto)
+	if err != nil {
+		c.logger.Error("failed to update", zap.Error(err))
+		return ctx.SendStatus(http.StatusInternalServerError)
+	}
+
+	return ctx.SendStatus(http.StatusOK)
 }
 
 func (c Controller) delete(ctx *fiber.Ctx) error {
@@ -197,4 +217,8 @@ func (c Controller) middlewareDecodeToken(ctx *fiber.Ctx) error {
 
 type DescriptionPayload struct {
 	Description string `json:"description"`
+}
+
+type NamePayload struct {
+	Name string `json:"name"`
 }

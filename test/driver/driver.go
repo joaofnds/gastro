@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 )
 
 type Driver struct {
@@ -57,6 +58,20 @@ func (d *Driver) Create(name string) (habit.Habit, error) {
 
 	err = json.Unmarshal(body, &habit)
 	return habit, err
+}
+
+func (d *Driver) Update(habitID, name string) error {
+	res, err := d.api.Update(d.Token, habitID, name)
+
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to update habit, %d != 200", res.StatusCode)
+	}
+
+	return nil
 }
 
 func (d *Driver) Get(id string) (habit.Habit, error) {

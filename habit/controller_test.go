@@ -135,6 +135,38 @@ var _ = Describe("/habits", func() {
 			})
 		})
 
+		Describe("update", func() {
+			It("return OK", func() {
+				hab := Must2(app.Create("read"))
+				Must(app.Update(hab.ID, "read"))
+
+				res := Must2(api.Get(app.Token, hab.ID))
+				Expect(res.StatusCode).To(Equal(http.StatusOK))
+			})
+
+			It("changes the name", func() {
+				hab := Must2(app.Create("old"))
+				Must(app.Update(hab.ID, "new"))
+				found := Must2(app.Get(hab.ID))
+
+				Expect(found.Name).To(Equal("new"))
+			})
+
+			Describe("with invalid id", func() {
+				It("returns not found", func() {
+					res := Must2(api.Update(app.Token, "invalid uuid", "name"))
+					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
+				})
+			})
+
+			Describe("with habit id that does nto exist", func() {
+				It("returns not found", func() {
+					res := Must2(api.Update(app.Token, badHabitID, "name"))
+					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
+				})
+			})
+		})
+
 		Describe("after deleting the habit", func() {
 			It("has status 404", func() {
 				h := Must2(app.Create("read"))

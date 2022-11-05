@@ -31,6 +31,14 @@ func (a API) Create(token, name string) (*http.Response, error) {
 	)
 }
 
+func (a API) Update(token, habitID, name string) (*http.Response, error) {
+	return req.Patch(
+		a.baseURL+"/habits/"+habitID,
+		map[string]string{"Content-Type": "application/json", "Authorization": token},
+		strings.NewReader(fmt.Sprintf(`{"name":%q}`, name)),
+	)
+}
+
 func (a API) Get(token, id string) (*http.Response, error) {
 	return req.Get(
 		a.baseURL+"/habits/"+id,
