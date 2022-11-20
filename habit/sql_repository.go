@@ -172,26 +172,175 @@ func (repo *SQLRepository) DeleteActivity(ctx context.Context, activity Activity
 }
 
 func (repo *SQLRepository) List(ctx context.Context, userID string) ([]Habit, error) {
+	habits, err := repo.userHabits(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return toList(habits), nil
+}
+
+func (repo *SQLRepository) CreateGroup(ctx context.Context, dto CreateGroupDTO) (Group, error) {
+	row := repo.DB.QueryRowContext(
+		ctx,
+		"INSERT INTO groups(name, user_id) VALUES($1, $2) RETURNING id",
+		dto.Name, dto.UserID,
+	)
+
+	if row.Err() != nil {
+		return Group{}, row.Err()
+	}
+
+	var id string
+	if err := row.Scan(&id); err != nil {
+		return Group{}, err
+	}
+
+	return Group{ID: id, Name: dto.Name}, nil
+}
+
+func (repo *SQLRepository) AddToGroup(ctx context.Context, habit Habit, group Group) error {
+	_, err := repo.DB.ExecContext(
+		ctx,
+		"INSERT INTO groups_habits (group_id, habit_id, user_id) VALUES ($1, $2, $3)",
+		group.ID, habit.ID, habit.UserID,
+	)
+	return err
+}
+
+func (repo *SQLRepository) RemoveFromGroup(ctx context.Context, habit Habit, group Group) error {
+	_, err := repo.DB.ExecContext(
+		ctx,
+		"DELETE FROM groups_habits WHERE group_id = $1 AND habit_id = $2 AND user_id = $3",
+		group.ID, habit.ID, habit.UserID,
+	)
+	return err
+}
+
+func (repo *SQLRepository) GroupsAndHabits(ctx context.Context, userID string) ([]Group, []Habit, error) {
+	habits, err := repo.userHabits(ctx, userID)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	rows, err := repo.DB.QueryContext(ctx, `
 		SELECT
+		    groups.id,
+		    groups.name,
+			groups_habits.habit_id
+		FROM groups
+			LEFT JOIN groups_habits ON groups.id = groups_habits.group_id and groups.user_id = groups_habits.user_id
+		WHERE
+		    groups.user_id = $1
+	`, userID)
+
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	var (
+		groupID   string
+		groupName string
+		habitID   sql.NullString
+	)
+
+	groups := map[string]*Group{}
+
+	for rows.Next() {
+		if err := rows.Scan(&groupID, &groupName, &habitID); err != nil {
+			return nil, nil, err
+		}
+
+		group, ok := groups[groupID]
+		if !ok {
+			group = &Group{ID: groupID, Name: groupName}
+			groups[groupID] = group
+		}
+
+		if habitID.Valid {
+			habit := habits[habitID.String]
+			group.Habits = append(group.Habits, *habit)
+			delete(habits, habit.ID)
+		}
+	}
+
+	return toList(groups), toList(habits), nil
+}
+
+func (repo *SQLRepository) FindGroup(ctx context.Context, dto FindGroupDTO) (Group, error) {
+	rows, err := repo.DB.QueryContext(ctx, `
+		SELECT
+		    groups.id,
+		    groups.name,
+		    groups.user_id,
 			habits.id,
-			habits.user_id,
 			habits.name,
 			activities.id,
 			activities.description,
 			activities.created_at
-		FROM habits
-			LEFT JOIN activities ON activities.habit_id = habits.id
-		WHERE habits.user_id = $1`,
-		userID,
-	)
+		FROM groups
+			LEFT JOIN groups_habits ON groups.id = groups_habits.group_id AND groups.user_id = groups_habits.user_id
+			LEFT JOIN habits ON groups_habits.habit_id = habits.id AND groups_habits.user_id = habits.user_id
+			LEFT JOIN activities ON habits.id = activities.habit_id
+		WHERE groups.id = $1 AND groups.user_id = $2
+	`, dto.GroupID, dto.UserID)
+
 	if err != nil {
-		return []Habit{}, err
+		return Group{}, err
 	}
 
 	defer rows.Close()
 
-	return scanRows(rows)
+	groups := map[string]*Group{}
+	habits := map[string]Habit{}
+
+	for rows.Next() {
+		var (
+			groupID           string
+			groupName         string
+			userID            string
+			habitID           sql.NullString
+			name              sql.NullString
+			activityID        sql.NullString
+			activityDesc      sql.NullString
+			activityCreatedAt sql.NullTime
+		)
+
+		err := rows.Scan(&groupID, &groupName, &userID, &habitID, &name, &activityID, &activityDesc, &activityCreatedAt)
+		if err != nil {
+			return Group{}, err
+		}
+		group, ok := groups[groupID]
+		if !ok {
+			group = &Group{ID: groupID, Name: groupName}
+			groups[groupID] = group
+		}
+
+		if habitID.Valid {
+			habit, ok := habits[habitID.String]
+			if !ok {
+				habit = Habit{ID: habitID.String, UserID: userID, Name: name.String, Activities: []Activity{}}
+				habits[habitID.String] = habit
+			}
+
+			group.Habits = append(group.Habits, habit)
+
+			if activityID.Valid {
+				activity := Activity{
+					ID:        activityID.String,
+					Desc:      activityDesc.String,
+					CreatedAt: activityCreatedAt.Time.UTC(),
+				}
+				habit.Activities = append(habit.Activities, activity)
+			}
+		}
+	}
+
+	if len(groups) != 1 {
+		return Group{}, ErrNotFound
+	}
+
+	return *groups[dto.GroupID], nil
 }
 
 func (repo *SQLRepository) Delete(ctx context.Context, find FindHabitDTO) error {
@@ -219,7 +368,35 @@ func (repo *SQLRepository) DeleteAll(ctx context.Context) error {
 	return err
 }
 
-func scanRows(rows *sql.Rows) ([]Habit, error) {
+func (repo *SQLRepository) userHabits(ctx context.Context, userID string) (map[string]*Habit, error) {
+	rows, err := repo.DB.QueryContext(ctx, `
+		SELECT
+			habits.id,
+			habits.user_id,
+			habits.name,
+			activities.id,
+			activities.description,
+			activities.created_at
+		FROM habits
+			LEFT JOIN activities ON activities.habit_id = habits.id
+		WHERE habits.user_id = $1`,
+		userID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	habits, err := scanHabits(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return habits, nil
+}
+
+func scanHabits(rows *sql.Rows) (map[string]*Habit, error) {
 	m := map[string]*Habit{}
 
 	for rows.Next() {
@@ -234,7 +411,7 @@ func scanRows(rows *sql.Rows) ([]Habit, error) {
 
 		err := rows.Scan(&id, &userID, &name, &activityID, &activityDesc, &activityCreatedAt)
 		if err != nil {
-			return []Habit{}, err
+			return nil, err
 		}
 
 		habit, ok := m[id]
@@ -253,13 +430,17 @@ func scanRows(rows *sql.Rows) ([]Habit, error) {
 		}
 	}
 
-	habits := make([]Habit, len(m))
+	return m, nil
+}
+
+func toList[T Habit | Group](m map[string]*T) []T {
+	result := make([]T, len(m))
 	var i int
 	for _, h := range m {
-		habits[i] = *h
+		result[i] = *h
 		i++
 	}
-	return habits, nil
+	return result
 }
 
 func (repo *SQLRepository) findOne(ctx context.Context, query string, args ...any) (Habit, error) {
@@ -270,14 +451,16 @@ func (repo *SQLRepository) findOne(ctx context.Context, query string, args ...an
 
 	defer rows.Close()
 
-	habits, err := scanRows(rows)
+	habitMap, err := scanHabits(rows)
 	if err != nil {
 		return Habit{}, err
 	}
+
+	habits := toList(habitMap)
 
 	if len(habits) == 0 {
 		return Habit{}, ErrNotFound
 	}
 
-	return habits[0], err
+	return habits[0], nil
 }

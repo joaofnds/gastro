@@ -33,21 +33,28 @@ func HookConnection(lifecycle fx.Lifecycle, db *sql.DB, logger *zap.Logger) {
 
 			logger.Info("successfully pinged db")
 
-			err = enableUUIDExtension(ctx, db)
-			if err != nil {
+			if err = enableUUIDExtension(ctx, db); err != nil {
 				logger.Error("failed to enable uuid extension", zap.Error(err))
 				return err
 			}
 
-			err = createHabitsTable(ctx, db)
-			if err != nil {
+			if err = createHabitsTable(ctx, db); err != nil {
 				logger.Error("failed to create habits table", zap.Error(err))
 				return err
 			}
 
-			err = createActivitiesTable(ctx, db)
-			if err != nil {
+			if err = createActivitiesTable(ctx, db); err != nil {
 				logger.Error("failed to create activities table", zap.Error(err))
+				return err
+			}
+
+			if err = createGroupsTable(ctx, db); err != nil {
+				logger.Error("failed to create groups table", zap.Error(err))
+				return err
+			}
+
+			if err = createGroupsHabitsJoinTable(ctx, db); err != nil {
+				logger.Error("failed to create groups-habits join table", zap.Error(err))
 				return err
 			}
 
@@ -88,6 +95,32 @@ func createActivitiesTable(ctx context.Context, db *sql.DB) error {
 		);
 		CREATE INDEX IF NOT EXISTS idx_activity_habit ON activities(habit_id);
 	`)
+	return err
+}
+
+func createGroupsTable(ctx context.Context, db *sql.DB) error {
+	_, err := db.ExecContext(ctx, `
+        CREATE TABLE IF NOT EXISTS "public"."groups" (
+            id      UUID NOT NULL DEFAULT uuid_generate_v4(),
+            name    VARCHAR NOT NULL,
+			user_id UUID NOT NULL,
+            PRIMARY KEY (id, user_id)
+        );
+    `)
+	return err
+}
+
+func createGroupsHabitsJoinTable(ctx context.Context, db *sql.DB) error {
+	_, err := db.ExecContext(ctx, `
+        CREATE TABLE IF NOT EXISTS groups_habits (
+            group_id UUID NOT NULL,
+            habit_id UUID NOT NULL,
+            user_id  UUID NOT NULL,
+            CONSTRAINT "groups_habits_habit_id_fkey" FOREIGN KEY (habit_id, user_id) REFERENCES habits (id, user_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+            CONSTRAINT "groups_habits_group_id_fkey" FOREIGN KEY (group_id, user_id) REFERENCES groups (id, user_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+            PRIMARY KEY (group_id, habit_id)
+        );
+    `)
 	return err
 }
 

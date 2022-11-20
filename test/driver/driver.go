@@ -145,6 +145,74 @@ func (d *Driver) DeleteActivity(habitID, activityID string) error {
 	return nil
 }
 
+func (d *Driver) CreateGroup(name string) (habit.Group, error) {
+	data := habit.Group{}
+
+	res, err := d.api.CreateGroup(d.Token, name)
+	if err != nil {
+		return data, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusCreated {
+		return data, fmt.Errorf("failed to create group (code %d != %d)", res.StatusCode, http.StatusCreated)
+	}
+
+	str, err := io.ReadAll(res.Body)
+	if err != nil {
+		return data, err
+	}
+
+	return data, json.Unmarshal(str, &data)
+}
+
+func (d *Driver) AddToGroup(habit habit.Habit, group habit.Group) error {
+	res, err := d.api.AddToGroup(d.Token, habit.ID, group.ID)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != http.StatusCreated {
+		return fmt.Errorf("failed to create group (code %d != %d)", res.StatusCode, http.StatusCreated)
+	}
+
+	return nil
+}
+
+func (d *Driver) RemoveFromGroup(habit habit.Habit, group habit.Group) error {
+	res, err := d.api.RemoveFromGroup(d.Token, habit.ID, group.ID)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to remove from group (code %d != %d)", res.StatusCode, http.StatusOK)
+	}
+
+	return nil
+}
+
+func (d *Driver) GroupsAndHabits() ([]habit.Group, []habit.Habit, error) {
+	res, err := d.api.GroupsAndHabits(d.Token)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, nil, fmt.Errorf("failed to create group (code %d != %d)", res.StatusCode, http.StatusOK)
+	}
+
+	str, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	data := habit.GroupsAndHabitsPayload{}
+
+	return data.Groups, data.Habits, json.Unmarshal(str, &data)
+}
+
 func (d *Driver) CreateToken() (string, error) {
 	res, err := d.api.CreateToken()
 	if err != nil {

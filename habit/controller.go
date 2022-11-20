@@ -29,6 +29,16 @@ type Controller struct {
 }
 
 func (c Controller) Register(app *fiber.App) {
+	groups := app.Group("/groups", c.middlewareDecodeToken)
+	groups.Get("/", c.listGroupsAndHabits)
+	groups.Post("/", c.createGroup)
+
+	group := groups.Group("/:groupID", c.middlewareFindGroup)
+
+	groupHabits := group.Group("/:habitID", c.middlewareFindHabit)
+	groupHabits.Post("/", c.addToGroup)
+	groupHabits.Delete("/", c.removeHabitFromGroup)
+
 	habits := app.Group("/habits", c.middlewareDecodeToken)
 	habits.Get("/", c.list)
 	habits.Post("/", c.create)
@@ -71,8 +81,7 @@ func (c Controller) update(ctx *fiber.Ctx) error {
 	}
 
 	dto := UpdateHabitDTO{Name: body.Name, HabitID: h.ID}
-	err := c.habitService.Update(ctx.Context(), dto)
-	if err != nil {
+	if err := c.habitService.Update(ctx.Context(), dto); err != nil {
 		c.logger.Error("failed to update", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
@@ -154,6 +163,58 @@ func (c Controller) create(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusCreated).JSON(h)
 }
 
+func (c Controller) listGroupsAndHabits(ctx *fiber.Ctx) error {
+	userID := ctx.Locals("userID").(string)
+	groups, habits, err := c.habitService.GroupsAndHabits(ctx.Context(), userID)
+	if err != nil {
+		c.logger.Error("failed to list groups and habits", zap.Error(err))
+	}
+
+	return ctx.Status(http.StatusOK).JSON(GroupsAndHabitsPayload{Groups: groups, Habits: habits})
+}
+
+func (c Controller) createGroup(ctx *fiber.Ctx) error {
+	body := new(NamePayload)
+
+	if err := ctx.BodyParser(body); err != nil {
+		return ctx.Status(http.StatusBadRequest).SendString(err.Error())
+	}
+
+	userID := ctx.Locals("userID").(string)
+	dto := CreateGroupDTO{UserID: userID, Name: body.Name}
+	group, err := c.habitService.CreateGroup(ctx.Context(), dto)
+	if err != nil {
+		c.logger.Error("failed to update activity", zap.Error(err))
+		return ctx.SendStatus(http.StatusInternalServerError)
+	}
+
+	return ctx.Status(http.StatusCreated).JSON(group)
+}
+
+func (c Controller) addToGroup(ctx *fiber.Ctx) error {
+	group := ctx.Locals("group").(Group)
+	hab := ctx.Locals("habit").(Habit)
+
+	if err := c.habitService.AddToGroup(ctx.Context(), hab, group); err != nil {
+		c.logger.Error("failed to add habit to group", zap.Error(err))
+		return ctx.SendStatus(http.StatusInternalServerError)
+	}
+
+	return ctx.SendStatus(http.StatusCreated)
+}
+
+func (c Controller) removeHabitFromGroup(ctx *fiber.Ctx) error {
+	group := ctx.Locals("group").(Group)
+	hab := ctx.Locals("habit").(Habit)
+
+	if err := c.habitService.RemoveFromGroup(ctx.Context(), hab, group); err != nil {
+		c.logger.Error("failed to remove habit from group", zap.Error(err))
+		return ctx.SendStatus(http.StatusInternalServerError)
+	}
+
+	return ctx.SendStatus(http.StatusOK)
+}
+
 func (c Controller) middlewareFindHabit(ctx *fiber.Ctx) error {
 	id := ctx.Params("habitID")
 	if !IsUUID(id) {
@@ -173,6 +234,28 @@ func (c Controller) middlewareFindHabit(ctx *fiber.Ctx) error {
 	}
 
 	ctx.Locals("habit", h)
+
+	return ctx.Next()
+}
+
+func (c Controller) middlewareFindGroup(ctx *fiber.Ctx) error {
+	userID := ctx.Locals("userID").(string)
+	groupID := ctx.Params("groupID")
+	if !IsUUID(groupID) {
+		return ctx.SendStatus(http.StatusNotFound)
+	}
+
+	group, err := c.habitService.FindGroup(ctx.Context(), FindGroupDTO{UserID: userID, GroupID: groupID})
+	if err != nil {
+		if errors.Is(err, ErrNotFound) {
+			return ctx.SendStatus(http.StatusNotFound)
+		}
+
+		c.logger.Error("failed to get group", zap.Error(err))
+		return ctx.SendStatus(http.StatusInternalServerError)
+	}
+
+	ctx.Locals("group", group)
 
 	return ctx.Next()
 }
@@ -201,12 +284,12 @@ func (c Controller) middlewareFindActivity(ctx *fiber.Ctx) error {
 }
 
 func (c Controller) middlewareDecodeToken(ctx *fiber.Ctx) error {
-	token, ok := ctx.GetReqHeaders()["Authorization"]
+	tok, ok := ctx.GetReqHeaders()["Authorization"]
 	if !ok {
 		return ctx.Status(http.StatusUnauthorized).SendString("missing Authorization token")
 	}
 
-	id, err := c.tokenService.IDFromToken([]byte(token))
+	id, err := c.tokenService.IDFromToken([]byte(tok))
 	if err != nil {
 		return ctx.SendStatus(http.StatusUnauthorized)
 	}
@@ -221,4 +304,13 @@ type DescriptionPayload struct {
 
 type NamePayload struct {
 	Name string `json:"name"`
+}
+
+type GroupsAndHabitsPayload struct {
+	Groups []Group `json:"groups"`
+	Habits []Habit `json:"habits"`
+}
+
+type HabitIDPayload struct {
+	HabitID string `json:"habitID"`
 }

@@ -32,3 +32,13 @@ type UpdateActivityDTO struct {
 	ActivityID string
 	Desc       string
 }
+
+type CreateGroupDTO struct {
+	Name   string
+	UserID string
+}
+
+type FindGroupDTO struct {
+	GroupID string
+	UserID  string
+}

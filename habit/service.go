@@ -66,14 +66,33 @@ func (service *Service) DeleteAll(ctx context.Context) error {
 	return service.repo.DeleteAll(ctx)
 }
 
+func (service *Service) CreateGroup(ctx context.Context, dto CreateGroupDTO) (Group, error) {
+	return service.repo.CreateGroup(ctx, dto)
+}
+
+func (service *Service) AddToGroup(ctx context.Context, habit Habit, group Group) error {
+	return service.repo.AddToGroup(ctx, habit, group)
+}
+
+func (service *Service) RemoveFromGroup(ctx context.Context, habit Habit, group Group) error {
+	return service.repo.RemoveFromGroup(ctx, habit, group)
+}
+
+func (service *Service) GroupsAndHabits(ctx context.Context, userID string) ([]Group, []Habit, error) {
+	return service.repo.GroupsAndHabits(ctx, userID)
+}
+
+func (service *Service) FindGroup(ctx context.Context, dto FindGroupDTO) (Group, error) {
+	return service.repo.FindGroup(ctx, dto)
+}
+
 func (service *Service) switchErr(err error) error {
-	if err == nil {
+	switch {
+	case err == nil:
 		return nil
-	}
-
-	if errors.Is(err, ErrNotFound) {
+	case errors.Is(err, ErrNotFound):
 		return err
+	default:
+		return ErrRepository
 	}
-
-	return ErrRepository
 }

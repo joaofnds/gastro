@@ -76,6 +76,36 @@ func (a API) DeleteActivity(token, habitID, activityID string) (*http.Response, 
 	)
 }
 
+func (a API) CreateGroup(token, name string) (*http.Response, error) {
+	return req.Post(
+		a.baseURL+"/groups",
+		map[string]string{"Authorization": token, "Content-Type": "application/json"},
+		strings.NewReader(fmt.Sprintf(`{"name":%q}`, name)),
+	)
+}
+
+func (a API) AddToGroup(token, habitID, groupID string) (*http.Response, error) {
+	return req.Post(
+		a.baseURL+"/groups/"+groupID+"/"+habitID,
+		map[string]string{"Authorization": token},
+		new(bytes.Buffer),
+	)
+}
+
+func (a API) RemoveFromGroup(token, habitID, groupID string) (*http.Response, error) {
+	return req.Delete(
+		a.baseURL+"/groups/"+groupID+"/"+habitID,
+		map[string]string{"Authorization": token},
+	)
+}
+
+func (a API) GroupsAndHabits(token string) (*http.Response, error) {
+	return req.Get(
+		a.baseURL+"/groups",
+		map[string]string{"Authorization": token},
+	)
+}
+
 func (a API) CreateToken() (*http.Response, error) {
 	return req.Post(
 		a.baseURL+"/token",

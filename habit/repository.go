@@ -15,4 +15,11 @@ type Repository interface {
 	UpdateActivity(ctx context.Context, dto UpdateActivityDTO) (Activity, error)
 	FindActivity(ctx context.Context, find FindActivityDTO) (Activity, error)
 	DeleteActivity(ctx context.Context, activity Activity) error
+
+	CreateGroup(ctx context.Context, dto CreateGroupDTO) (Group, error)
+	FindGroup(ctx context.Context, dto FindGroupDTO) (Group, error)
+	AddToGroup(ctx context.Context, habit Habit, group Group) error
+	RemoveFromGroup(ctx context.Context, habit Habit, group Group) error
+
+	GroupsAndHabits(ctx context.Context, userID string) ([]Group, []Habit, error)
 }

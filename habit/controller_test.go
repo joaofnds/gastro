@@ -353,4 +353,82 @@ var _ = Describe("/habits", func() {
 			})
 		})
 	})
+
+	Describe("groups", func() {
+		Describe("create", func() {
+			It("creates a group", func() {
+				Must2(app.CreateGroup("health"))
+			})
+
+			It("is listed", func() {
+				health := Must2(app.CreateGroup("health"))
+				groups, _ := Must3(app.GroupsAndHabits())
+
+				Expect(groups).To(ContainElement(health))
+			})
+		})
+
+		Describe("habits", func() {
+			When("in the group", func() {
+				It("is listed in groups", func() {
+					health := Must2(app.CreateGroup("health"))
+					run := Must2(app.Create("run"))
+
+					Must(app.AddToGroup(run, health))
+
+					groups, _ := Must3(app.GroupsAndHabits())
+					Expect(groups).To(HaveLen(1))
+					Expect(groups[0].Habits).To(ContainElement(run))
+				})
+
+				It("is not listed in habits", func() {
+					health := Must2(app.CreateGroup("health"))
+					run := Must2(app.Create("run"))
+
+					Must(app.AddToGroup(run, health))
+
+					_, habits := Must3(app.GroupsAndHabits())
+					Expect(habits).To(BeEmpty())
+				})
+			})
+
+			When("out of the group", func() {
+				It("is not listed in groups", func() {
+					Must2(app.CreateGroup("health"))
+					Must2(app.Create("run"))
+
+					groups, _ := Must3(app.GroupsAndHabits())
+					Expect(groups).To(HaveLen(1))
+					Expect(groups[0].Habits).To(BeEmpty())
+				})
+
+				It("is listed in habits", func() {
+					Must2(app.CreateGroup("health"))
+					run := Must2(app.Create("run"))
+
+					_, habits := Must3(app.GroupsAndHabits())
+					Expect(habits).To(ContainElement(run))
+				})
+			})
+
+			When("removing a habit from the group", func() {
+				It("changes it from 'groups' to 'habits'", func() {
+					health := Must2(app.CreateGroup("health"))
+					run := Must2(app.Create("run"))
+
+					Must(app.AddToGroup(run, health))
+				
+					groups, habits := Must3(app.GroupsAndHabits())
+					Expect(groups[0].Habits).To(ContainElement(run))
+					Expect(habits).To(BeEmpty())
+
+					Must(app.RemoveFromGroup(run, health))
+
+					groups, habits = Must3(app.GroupsAndHabits())
+					Expect(groups[0].Habits).To(BeEmpty())
+					Expect(habits).To(ContainElement(run))
+				})
+			})
+		})
+	})
 })

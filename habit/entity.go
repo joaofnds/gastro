@@ -2,6 +2,12 @@ package habit
 
 import "time"
 
+type Group struct {
+	ID     string  `json:"id"`
+	Name   string  `json:"name"`
+	Habits []Habit `json:"habits"`
+}
+
 type Habit struct {
 	ID         string     `json:"id"`
 	UserID     string     `json:"user_id"`
