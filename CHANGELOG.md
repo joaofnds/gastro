@@ -1,3 +1,10 @@
+# [1.50.0](https://github.com/joaofnds/gastro/compare/v1.49.0...v1.50.0) (2022-11-20)
+
+
+### Features
+
+* add groups ([e4dd4c3](https://github.com/joaofnds/gastro/commit/e4dd4c3088386f2b023a7443a8e1c7b61111cde0))
+
 # [1.49.0](https://github.com/joaofnds/gastro/compare/v1.48.1...v1.49.0) (2022-11-05)
 
 
