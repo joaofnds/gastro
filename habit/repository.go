@@ -20,6 +20,7 @@ type Repository interface {
 	FindGroup(ctx context.Context, dto FindGroupDTO) (Group, error)
 	AddToGroup(ctx context.Context, habit Habit, group Group) error
 	RemoveFromGroup(ctx context.Context, habit Habit, group Group) error
+	DeleteGroup(ctx context.Context, group Group) error
 
 	GroupsAndHabits(ctx context.Context, userID string) ([]Group, []Habit, error)
 }

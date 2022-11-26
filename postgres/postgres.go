@@ -116,8 +116,8 @@ func createGroupsHabitsJoinTable(ctx context.Context, db *sql.DB) error {
             group_id UUID NOT NULL,
             habit_id UUID NOT NULL,
             user_id  UUID NOT NULL,
-            CONSTRAINT "groups_habits_habit_id_fkey" FOREIGN KEY (habit_id, user_id) REFERENCES habits (id, user_id) ON DELETE RESTRICT ON UPDATE CASCADE,
-            CONSTRAINT "groups_habits_group_id_fkey" FOREIGN KEY (group_id, user_id) REFERENCES groups (id, user_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+            CONSTRAINT "groups_habits_habit_id_fkey" FOREIGN KEY (habit_id, user_id) REFERENCES habits (id, user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+            CONSTRAINT "groups_habits_group_id_fkey" FOREIGN KEY (group_id, user_id) REFERENCES groups (id, user_id) ON DELETE CASCADE ON UPDATE CASCADE,
             PRIMARY KEY (group_id, habit_id)
         );
     `)

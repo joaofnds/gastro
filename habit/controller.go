@@ -34,6 +34,7 @@ func (c Controller) Register(app *fiber.App) {
 	groups.Post("/", c.createGroup)
 
 	group := groups.Group("/:groupID", c.middlewareFindGroup)
+	group.Delete("/", c.deleteGroup)
 
 	groupHabits := group.Group("/:habitID", c.middlewareFindHabit)
 	groupHabits.Post("/", c.addToGroup)
@@ -201,6 +202,15 @@ func (c Controller) addToGroup(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.SendStatus(http.StatusCreated)
+}
+
+func (c Controller) deleteGroup(ctx *fiber.Ctx) error {
+	group := ctx.Locals("group").(Group)
+	if err := c.habitService.DeleteGroup(ctx.Context(), group); err != nil {
+		return ctx.SendStatus(http.StatusInternalServerError)
+	}
+
+	return ctx.SendStatus(http.StatusOK)
 }
 
 func (c Controller) removeHabitFromGroup(ctx *fiber.Ctx) error {

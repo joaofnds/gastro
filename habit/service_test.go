@@ -316,23 +316,42 @@ var _ = Describe("habit service", func() {
 					Expect(habits).To(ContainElements(run))
 				})
 			})
+
+			When("group is deleted", func() {
+				It("keeps habits", func() {
+					health := Must2(habitService.CreateGroup(ctx, habit.CreateGroupDTO{UserID: userID, Name: "health"}))
+					run := Must2(habitService.Create(ctx, habit.CreateHabitDTO{UserID: userID, Name: "run"}))
+					gym := Must2(habitService.Create(ctx, habit.CreateHabitDTO{UserID: userID, Name: "gym"}))
+					read := Must2(habitService.Create(ctx, habit.CreateHabitDTO{UserID: userID, Name: "read"}))
+
+					Must(habitService.AddToGroup(ctx, run, health))
+					Must(habitService.AddToGroup(ctx, gym, health))
+
+					Must(habitService.DeleteGroup(ctx, health))
+
+					groups, habits := Must3(habitService.GroupsAndHabits(ctx, userID))
+
+					Expect(groups).To(BeEmpty())
+					Expect(habits).To(ContainElements(read, run, gym))
+				})
+			})
 		})
 
 		It("groups and habits live happy together", func() {
 			health := Must2(habitService.CreateGroup(ctx, habit.CreateGroupDTO{UserID: userID, Name: "health"}))
 			run := Must2(habitService.Create(ctx, habit.CreateHabitDTO{UserID: userID, Name: "run"}))
-			cycle := Must2(habitService.Create(ctx, habit.CreateHabitDTO{UserID: userID, Name: "cycle"}))
+			gym := Must2(habitService.Create(ctx, habit.CreateHabitDTO{UserID: userID, Name: "gym"}))
 			read := Must2(habitService.Create(ctx, habit.CreateHabitDTO{UserID: userID, Name: "read"}))
 
 			Must(habitService.AddToGroup(ctx, run, health))
-			Must(habitService.AddToGroup(ctx, cycle, health))
+			Must(habitService.AddToGroup(ctx, gym, health))
 
 			groups, habits := Must3(habitService.GroupsAndHabits(ctx, userID))
 
 			Expect(habits).To(Equal([]habit.Habit{read}))
 
 			Expect(groups).To(HaveLen(1))
-			Expect(groups[0].Habits).To(ContainElements(run, cycle))
+			Expect(groups[0].Habits).To(ContainElements(run, gym))
 		})
 	})
 })

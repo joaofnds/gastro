@@ -78,12 +78,16 @@ func (service *Service) RemoveFromGroup(ctx context.Context, habit Habit, group 
 	return service.repo.RemoveFromGroup(ctx, habit, group)
 }
 
-func (service *Service) GroupsAndHabits(ctx context.Context, userID string) ([]Group, []Habit, error) {
-	return service.repo.GroupsAndHabits(ctx, userID)
-}
-
 func (service *Service) FindGroup(ctx context.Context, dto FindGroupDTO) (Group, error) {
 	return service.repo.FindGroup(ctx, dto)
+}
+
+func (service *Service) DeleteGroup(ctx context.Context, group Group) error {
+	return service.repo.DeleteGroup(ctx, group)
+}
+
+func (service *Service) GroupsAndHabits(ctx context.Context, userID string) ([]Group, []Habit, error) {
+	return service.repo.GroupsAndHabits(ctx, userID)
 }
 
 func (service *Service) switchErr(err error) error {

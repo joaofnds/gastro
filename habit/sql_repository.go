@@ -216,6 +216,11 @@ func (repo *SQLRepository) RemoveFromGroup(ctx context.Context, habit Habit, gro
 	return err
 }
 
+func (repo *SQLRepository) DeleteGroup(ctx context.Context, group Group) error {
+	_, err := repo.DB.ExecContext(ctx, "DELETE FROM groups WHERE id = $1", group.ID)
+	return err
+}
+
 func (repo *SQLRepository) GroupsAndHabits(ctx context.Context, userID string) ([]Group, []Habit, error) {
 	habits, err := repo.userHabits(ctx, userID)
 	if err != nil {

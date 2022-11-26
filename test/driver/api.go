@@ -99,6 +99,13 @@ func (a API) RemoveFromGroup(token, habitID, groupID string) (*http.Response, er
 	)
 }
 
+func (a API) DeleteGroup(token, groupID string) (*http.Response, error) {
+	return req.Delete(
+		a.baseURL+"/groups/"+groupID,
+		map[string]string{"Authorization": token},
+	)
+}
+
 func (a API) GroupsAndHabits(token string) (*http.Response, error) {
 	return req.Get(
 		a.baseURL+"/groups",

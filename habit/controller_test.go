@@ -417,7 +417,7 @@ var _ = Describe("/habits", func() {
 					run := Must2(app.Create("run"))
 
 					Must(app.AddToGroup(run, health))
-				
+
 					groups, habits := Must3(app.GroupsAndHabits())
 					Expect(groups[0].Habits).To(ContainElement(run))
 					Expect(habits).To(BeEmpty())
@@ -426,6 +426,25 @@ var _ = Describe("/habits", func() {
 
 					groups, habits = Must3(app.GroupsAndHabits())
 					Expect(groups[0].Habits).To(BeEmpty())
+					Expect(habits).To(ContainElement(run))
+				})
+			})
+
+			When("removing deleting a group", func() {
+				It("changes it from 'groups' to 'habits'", func() {
+					health := Must2(app.CreateGroup("health"))
+					run := Must2(app.Create("run"))
+
+					Must(app.AddToGroup(run, health))
+
+					groups, habits := Must3(app.GroupsAndHabits())
+					Expect(groups[0].Habits).To(ContainElement(run))
+					Expect(habits).To(BeEmpty())
+
+					Must(app.DeleteGroup(health))
+
+					groups, habits = Must3(app.GroupsAndHabits())
+					Expect(groups).To(BeEmpty())
 					Expect(habits).To(ContainElement(run))
 				})
 			})

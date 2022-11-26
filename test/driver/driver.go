@@ -192,6 +192,19 @@ func (d *Driver) RemoveFromGroup(habit habit.Habit, group habit.Group) error {
 	return nil
 }
 
+func (d *Driver) DeleteGroup(group habit.Group) error {
+	res, err := d.api.DeleteGroup(d.Token, group.ID)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to delete group (code %d != %d)", res.StatusCode, http.StatusOK)
+	}
+
+	return nil
+}
+
 func (d *Driver) GroupsAndHabits() ([]habit.Group, []habit.Habit, error) {
 	res, err := d.api.GroupsAndHabits(d.Token)
 	if err != nil {
