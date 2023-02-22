@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 type Driver struct {
@@ -93,8 +94,8 @@ func (d *Driver) Get(id string) (habit.Habit, error) {
 	return data, err
 }
 
-func (d *Driver) AddActivity(id string) error {
-	res, err := d.api.AddActivity(d.Token, id, "")
+func (d *Driver) AddActivity(id string, date time.Time) error {
+	res, err := d.api.AddActivity(d.Token, id, "", date)
 	if err != nil {
 		return err
 	}
@@ -106,8 +107,8 @@ func (d *Driver) AddActivity(id string) error {
 	return nil
 }
 
-func (d *Driver) AddActivityWithDesc(id, desc string) error {
-	res, err := d.api.AddActivity(d.Token, id, desc)
+func (d *Driver) AddActivityWithDesc(id, desc string, date time.Time) error {
+	res, err := d.api.AddActivity(d.Token, id, desc, date)
 	if err != nil {
 		return err
 	}

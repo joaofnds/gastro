@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	. "github.com/onsi/ginkgo/v2"
@@ -201,16 +202,16 @@ var _ = Describe("/habits", func() {
 		Describe("activities", func() {
 			It("requires token", func() {
 				h := Must2(app.Create("read"))
-				res := Must2(api.AddActivity("token", h.ID, "desc"))
+				res := Must2(api.AddActivity("token", h.ID, "desc", time.Now()))
 				Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
 			})
 
 			Describe("create", func() {
 				It("returns created activites on get", func() {
 					h := Must2(app.Create("read"))
-					Must(app.AddActivity(h.ID))
-					Must(app.AddActivity(h.ID))
-					Must(app.AddActivity(h.ID))
+					Must(app.AddActivity(h.ID, time.Now()))
+					Must(app.AddActivity(h.ID, time.Now()))
+					Must(app.AddActivity(h.ID, time.Now()))
 
 					habit := Must2(app.Get(h.ID))
 					Expect(habit.Activities).To(HaveLen(3))
@@ -220,14 +221,14 @@ var _ = Describe("/habits", func() {
 					otherUser := Must2(app.CreateToken())
 					defaultUserHabit := Must2(app.Create("read"))
 
-					res := Must2(api.AddActivity(otherUser, defaultUserHabit.ID, "desc"))
+					res := Must2(api.AddActivity(otherUser, defaultUserHabit.ID, "desc", time.Now()))
 
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 
 				It("contains a description", func() {
 					h := Must2(app.Create("read"))
-					Must(app.AddActivityWithDesc(h.ID, "my description"))
+					Must(app.AddActivityWithDesc(h.ID, "my description", time.Now()))
 
 					habit := Must2(app.Get(h.ID))
 
@@ -238,7 +239,7 @@ var _ = Describe("/habits", func() {
 			Describe("update", func() {
 				It("updates the description", func() {
 					hab := Must2(app.Create("read"))
-					Must(app.AddActivityWithDesc(hab.ID, "old"))
+					Must(app.AddActivityWithDesc(hab.ID, "old", time.Now()))
 
 					activity := Must2(app.Get(hab.ID)).Activities[0]
 					Must(app.UpdateActivityDesc(hab.ID, activity.ID, "new"))
@@ -249,7 +250,7 @@ var _ = Describe("/habits", func() {
 
 				It("requires token", func() {
 					hab := Must2(app.Create("read"))
-					Must(app.AddActivityWithDesc(hab.ID, "old"))
+					Must(app.AddActivityWithDesc(hab.ID, "old", time.Now()))
 					activity := Must2(app.Get(hab.ID)).Activities[0]
 
 					res := Must2(api.UpdateActivity("bad token", hab.ID, activity.ID, "new"))
@@ -259,7 +260,7 @@ var _ = Describe("/habits", func() {
 				It("cannot update activities for other user's activities", func() {
 					otherUser := Must2(app.CreateToken())
 					defaultUserHabit := Must2(app.Create("read"))
-					Must(app.AddActivityWithDesc(defaultUserHabit.ID, "old"))
+					Must(app.AddActivityWithDesc(defaultUserHabit.ID, "old", time.Now()))
 					defaultUserActivity := Must2(app.Get(defaultUserHabit.ID)).Activities[0]
 
 					res := Must2(api.UpdateActivity(otherUser, defaultUserHabit.ID, defaultUserActivity.ID, "new"))
@@ -292,7 +293,7 @@ var _ = Describe("/habits", func() {
 
 				It("is not returned", func() {
 					habit := Must2(app.Create("read"))
-					Must(app.AddActivity(habit.ID))
+					Must(app.AddActivity(habit.ID, time.Now()))
 					habit = Must2(app.Get(habit.ID))
 					Expect(habit.Activities).To(HaveLen(1))
 
@@ -304,7 +305,7 @@ var _ = Describe("/habits", func() {
 
 				It("returns 404 when habit not found", func() {
 					habit := Must2(app.Create("read"))
-					Must(app.AddActivity(habit.ID))
+					Must(app.AddActivity(habit.ID, time.Now()))
 					habit = Must2(app.Get(habit.ID))
 					Expect(habit.Activities).To(HaveLen(1))
 

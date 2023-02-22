@@ -106,12 +106,12 @@ func (c Controller) delete(ctx *fiber.Ctx) error {
 func (c Controller) addActivity(ctx *fiber.Ctx) error {
 	h := ctx.Locals("habit").(Habit)
 
-	body := new(DescriptionPayload)
+	body := new(CheckInPayload)
 	if err := ctx.BodyParser(body); err != nil {
 		return ctx.Status(http.StatusBadRequest).SendString(err.Error())
 	}
 
-	dto := AddActivityDTO{Desc: body.Description, Time: time.Now().UTC()}
+	dto := AddActivityDTO{Desc: body.Description, Time: body.Date}
 	if _, err := c.habitService.AddActivity(ctx.Context(), h, dto); err != nil {
 		c.logger.Error("failed to add activity", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
@@ -123,7 +123,7 @@ func (c Controller) addActivity(ctx *fiber.Ctx) error {
 func (c Controller) updateActivity(ctx *fiber.Ctx) error {
 	act := ctx.Locals("activity").(Activity)
 
-	body := new(DescriptionPayload)
+	body := new(CheckInPayload)
 	if err := ctx.BodyParser(body); err != nil {
 		return ctx.Status(http.StatusBadRequest).SendString(err.Error())
 	}
@@ -308,8 +308,9 @@ func (c Controller) middlewareDecodeToken(ctx *fiber.Ctx) error {
 	return ctx.Next()
 }
 
-type DescriptionPayload struct {
-	Description string `json:"description"`
+type CheckInPayload struct {
+	Description string    `json:"description"`
+	Date        time.Time `json:"date"`
 }
 
 type NamePayload struct {

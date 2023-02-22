@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type API struct {
@@ -53,11 +54,11 @@ func (a API) Delete(token, id string) (*http.Response, error) {
 	)
 }
 
-func (a API) AddActivity(token, id, desc string) (*http.Response, error) {
+func (a API) AddActivity(token, id, desc string, date time.Time) (*http.Response, error) {
 	return req.Post(
 		a.baseURL+"/habits/"+id,
 		map[string]string{"Authorization": token, "Content-Type": "application/json"},
-		strings.NewReader(fmt.Sprintf(`{"description":%q}`, desc)),
+		strings.NewReader(fmt.Sprintf(`{"description":%q,"date":%q}`, desc, date.UTC().Format(time.RFC3339))),
 	)
 }
 
