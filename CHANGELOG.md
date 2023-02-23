@@ -1,3 +1,10 @@
+# [1.52.0](https://github.com/joaofnds/gastro/compare/v1.51.0...v1.52.0) (2023-02-23)
+
+
+### Features
+
+* accept date param on check-in ([6df2cc3](https://github.com/joaofnds/gastro/commit/6df2cc386b61210c9ab25420990236d50e6168be))
+
 # [1.51.0](https://github.com/joaofnds/gastro/compare/v1.50.0...v1.51.0) (2022-11-26)
 
 
