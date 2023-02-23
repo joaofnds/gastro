@@ -15,7 +15,8 @@ import (
 
 const path = "CONFIG_PATH"
 
-var Module = fx.Options(
+var Module = fx.Module(
+	"config",
 	fx.Invoke(LoadConfig),
 	fx.Provide(NewAppConfig),
 	fx.Provide(func(app App) http.Config { return app.HTTP }),
