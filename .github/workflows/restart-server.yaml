@@ -10,6 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl --access-token $FLY_API_TOKEN apps restart gastro
+      - run: flyctl apps restart gastro --access-token $FLY_API_TOKEN
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
