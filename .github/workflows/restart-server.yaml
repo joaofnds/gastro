@@ -8,8 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: production
     steps:
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl apps restart gastro
