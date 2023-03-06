@@ -13,4 +13,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: fly apps restart gastro
+      - run: flyctl apps restart gastro
