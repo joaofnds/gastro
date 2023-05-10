@@ -14,7 +14,7 @@ type Encoder interface {
 	Decode([]byte) ([]byte, error)
 }
 
-type Instrumentation interface {
+type Probe interface {
 	TokenCreated()
 	TokenDecrypted()
 	FailedToDecryptToken(err error)
@@ -22,36 +22,36 @@ type Instrumentation interface {
 }
 
 type Service struct {
-	idGen           IDGenerator
-	encrypter       Encrypter
-	encoder         Encoder
-	instrumentation Instrumentation
+	idGen     IDGenerator
+	encrypter Encrypter
+	encoder   Encoder
+	probe     Probe
 }
 
-func NewService(id IDGenerator, encrypter Encrypter, encoder Encoder, instrumentation Instrumentation) *Service {
-	return &Service{id, encrypter, encoder, instrumentation}
+func NewService(id IDGenerator, encrypter Encrypter, encoder Encoder, probe Probe) *Service {
+	return &Service{id, encrypter, encoder, probe}
 }
 
 func (t *Service) NewToken() ([]byte, error) {
 	id, err := t.idGen.NewID()
 	if err != nil {
-		t.instrumentation.FailedToCreateToken(err)
+		t.probe.FailedToCreateToken(err)
 		return nil, err
 	}
 
 	encrypted, err := t.encrypter.Encrypt(id)
 	if err != nil {
-		t.instrumentation.FailedToCreateToken(err)
+		t.probe.FailedToCreateToken(err)
 		return nil, err
 	}
 
 	tok, err := t.encoder.Encode(encrypted)
 	if err != nil {
-		t.instrumentation.FailedToCreateToken(err)
+		t.probe.FailedToCreateToken(err)
 		return nil, err
 	}
 
-	t.instrumentation.TokenCreated()
+	t.probe.TokenCreated()
 
 	return tok, nil
 }
@@ -59,17 +59,17 @@ func (t *Service) NewToken() ([]byte, error) {
 func (t *Service) IDFromToken(token []byte) ([]byte, error) {
 	b, err := t.encoder.Decode(token)
 	if err != nil {
-		t.instrumentation.FailedToDecryptToken(err)
+		t.probe.FailedToDecryptToken(err)
 		return nil, err
 	}
 
 	tok, err := t.encrypter.Decrypt(b)
 	if err != nil {
-		t.instrumentation.FailedToDecryptToken(err)
+		t.probe.FailedToDecryptToken(err)
 		return nil, err
 	}
 
-	t.instrumentation.TokenDecrypted()
+	t.probe.TokenDecrypted()
 
 	return tok, nil
 }

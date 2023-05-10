@@ -4,6 +4,7 @@ import (
 	"astro/config"
 	"astro/health"
 	astrohttp "astro/http"
+	"astro/logger"
 	"astro/postgres"
 	"astro/test"
 	testhealth "astro/test/health"
@@ -34,9 +35,9 @@ var _ = Describe("/health", func() {
 			var httpConfig astrohttp.Config
 			app = fxtest.New(
 				GinkgoT(),
-				test.NopLogger,
+				logger.NopLogger,
 				test.NewPortAppConfig,
-				test.NopHTTPInstrumentation,
+				astrohttp.NopProbeProvider,
 				config.Module,
 				postgres.Module,
 				health.Module,
@@ -69,9 +70,9 @@ var _ = Describe("/health", func() {
 			var httpConfig astrohttp.Config
 			app = fxtest.New(
 				GinkgoT(),
-				test.NopLogger,
+				logger.NopLogger,
 				test.NewPortAppConfig,
-				test.NopHTTPInstrumentation,
+				astrohttp.NopProbeProvider,
 				testhealth.UnhealthyHealthService,
 				config.Module,
 				postgres.Module,

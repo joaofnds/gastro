@@ -4,6 +4,7 @@ import (
 	"astro/config"
 	"astro/habit"
 	astrohttp "astro/http"
+	"astro/logger"
 	"astro/postgres"
 	"astro/test"
 	"astro/test/driver"
@@ -37,11 +38,11 @@ var _ = Describe("/habits", func() {
 		var httpConfig astrohttp.Config
 		fxApp = fxtest.New(
 			GinkgoT(),
-			test.NopLogger,
+			logger.NopLogger,
 			test.NewPortAppConfig,
-			test.NopHabitInstrumentation,
-			test.NopTokenInstrumentation,
-			test.NopHTTPInstrumentation,
+			habit.NopProbeProvider,
+			token.NopProbeProvider,
+			astrohttp.NopProbeProvider,
 			config.Module,
 			astrohttp.FiberModule,
 			postgres.Module,

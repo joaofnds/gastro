@@ -6,31 +6,31 @@ import (
 	"go.uber.org/zap"
 )
 
-type Instrumentation interface {
+type Probe interface {
 	LogFailedToCreateHabit(error)
 	LogHabitCreated()
 }
 
-type PromInstrumentation struct {
+type PromProbe struct {
 	logger             *zap.Logger
 	habitsCreated      prometheus.Counter
 	habitsCreateFailed prometheus.Counter
 }
 
-func NewPromInstrumentation(logger *zap.Logger) *PromInstrumentation {
-	return &PromInstrumentation{
+func NewPromProbe(logger *zap.Logger) *PromProbe {
+	return &PromProbe{
 		logger:             logger,
 		habitsCreated:      promauto.NewCounter(prometheus.CounterOpts{Name: "astro_habits_created"}),
 		habitsCreateFailed: promauto.NewCounter(prometheus.CounterOpts{Name: "astro_habits_create_fail"}),
 	}
 }
 
-func (l *PromInstrumentation) LogFailedToCreateHabit(err error) {
-	l.logger.Info("failed to create habit", zap.Error(err))
-	l.habitsCreateFailed.Inc()
+func (p *PromProbe) LogFailedToCreateHabit(err error) {
+	p.logger.Info("failed to create habit", zap.Error(err))
+	p.habitsCreateFailed.Inc()
 }
 
-func (l *PromInstrumentation) LogHabitCreated() {
-	l.logger.Info("habit created")
-	l.habitsCreated.Inc()
+func (p *PromProbe) LogHabitCreated() {
+	p.logger.Info("habit created")
+	p.habitsCreated.Inc()
 }

@@ -9,9 +9,9 @@ var Module = fx.Module(
 	fx.Provide(NewPostgresIDGenerator),
 	fx.Provide(NewAgeEncrypter),
 	fx.Provide(NewBase64Encoder),
-	fx.Provide(NewPromInstrumentation),
+	fx.Provide(NewPromProbe),
 	fx.Provide(func(idGen *PostgresIDGenerator) IDGenerator { return idGen }),
 	fx.Provide(func(encrypter *AgeEncrypter) Encrypter { return encrypter }),
 	fx.Provide(func(encoder *Base64Encoder) Encoder { return encoder }),
-	fx.Provide(func(instr *PromInstrumentation) Instrumentation { return instr }),
+	fx.Provide(func(probe *PromProbe) Probe { return probe }),
 )

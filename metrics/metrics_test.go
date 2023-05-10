@@ -2,8 +2,8 @@ package metrics_test
 
 import (
 	"astro/config"
+	"astro/logger"
 	"astro/metrics"
-	"astro/test"
 	. "astro/test/matchers"
 	"fmt"
 	"io"
@@ -29,7 +29,7 @@ var _ = Describe("/", Ordered, func() {
 		var metricsConfig metrics.Config
 		fxtest.New(
 			GinkgoT(),
-			test.NopLogger,
+			logger.NopLogger,
 			config.Module,
 			metrics.Module,
 			fx.Populate(&metricsConfig),

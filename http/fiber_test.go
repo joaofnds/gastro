@@ -3,6 +3,7 @@ package http_test
 import (
 	"astro/config"
 	astrohttp "astro/http"
+	"astro/logger"
 	"astro/test"
 	"fmt"
 	"net/http"
@@ -33,9 +34,9 @@ var _ = Describe("fiber middlewares", func() {
 
 		fxApp = fxtest.New(
 			GinkgoT(),
-			test.NopLogger,
+			logger.NopLogger,
 			test.NewPortAppConfig,
-			test.NopHTTPInstrumentation,
+			astrohttp.NopProbeProvider,
 			test.PanicHandler,
 			config.Module,
 			astrohttp.FiberModule,

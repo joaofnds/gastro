@@ -7,7 +7,7 @@ var Module = fx.Module(
 	fx.Provide(NewController),
 	fx.Provide(NewService),
 	fx.Provide(NewSQLRepository),
-	fx.Provide(NewPromInstrumentation),
+	fx.Provide(NewPromProbe),
 	fx.Provide(func(repo *SQLRepository) Repository { return repo }),
-	fx.Provide(func(instr *PromInstrumentation) Instrumentation { return instr }),
+	fx.Provide(func(probe *PromProbe) Probe { return probe }),
 )

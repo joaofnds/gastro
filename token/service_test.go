@@ -2,8 +2,8 @@ package token_test
 
 import (
 	"astro/config"
+	"astro/logger"
 	"astro/postgres"
-	"astro/test"
 	. "astro/test/matchers"
 	"astro/token"
 	"errors"
@@ -17,22 +17,22 @@ import (
 
 var _ = Describe("token service", Ordered, func() {
 	var (
-		service         *token.Service
-		idGen           token.IDGenerator
-		encrypter       token.Encrypter
-		encoder         token.Encoder
-		instrumentation token.Instrumentation
+		service   *token.Service
+		idGen     token.IDGenerator
+		encrypter token.Encrypter
+		encoder   token.Encoder
+		probe     token.Probe
 	)
 
 	BeforeAll(func() {
 		fxtest.New(
 			GinkgoT(),
-			test.NopLogger,
-			test.NopTokenInstrumentation,
+			logger.NopLogger,
+			token.NopProbeProvider,
 			config.Module,
 			postgres.Module,
 			token.Module,
-			fx.Populate(&service, &idGen, &encrypter, &encoder, &instrumentation),
+			fx.Populate(&service, &idGen, &encrypter, &encoder, &probe),
 		)
 	})
 
@@ -55,10 +55,10 @@ var _ = Describe("token service", Ordered, func() {
 			c := gomock.NewController(GinkgoT())
 			defer c.Finish()
 
-			mockInstrumentation := token.NewMockInstrumentation(c)
-			mockInstrumentation.EXPECT().TokenCreated()
+			mockProbe := token.NewMockInstrumentation(c)
+			mockProbe.EXPECT().TokenCreated()
 
-			service = token.NewService(idGen, encrypter, encoder, mockInstrumentation)
+			service = token.NewService(idGen, encrypter, encoder, mockProbe)
 			_, err := service.NewToken()
 			Expect(err).To(BeNil())
 		})
@@ -72,7 +72,7 @@ var _ = Describe("token service", Ordered, func() {
 				mockIdGen := token.NewMockIDGenerator(c)
 				mockIdGen.EXPECT().NewID().Return([]byte{}, idGenErr)
 
-				service = token.NewService(mockIdGen, encrypter, encoder, instrumentation)
+				service = token.NewService(mockIdGen, encrypter, encoder, probe)
 				_, err := service.NewToken()
 
 				Expect(err).To(Equal(err))
@@ -86,10 +86,10 @@ var _ = Describe("token service", Ordered, func() {
 				mockIdGen := token.NewMockIDGenerator(c)
 				mockIdGen.EXPECT().NewID().Return([]byte{}, idGenErr)
 
-				mockInstrumentation := token.NewMockInstrumentation(c)
-				mockInstrumentation.EXPECT().FailedToCreateToken(idGenErr)
+				mockProbe := token.NewMockInstrumentation(c)
+				mockProbe.EXPECT().FailedToCreateToken(idGenErr)
 
-				service = token.NewService(mockIdGen, encrypter, encoder, mockInstrumentation)
+				service = token.NewService(mockIdGen, encrypter, encoder, mockProbe)
 				id, err := service.NewToken()
 				Expect(id).To(BeNil())
 				Expect(err).To(Equal(idGenErr))
@@ -105,7 +105,7 @@ var _ = Describe("token service", Ordered, func() {
 				mockEncrypter := token.NewMockEncrypter(c)
 				mockEncrypter.EXPECT().Encrypt(gomock.Any()).Return([]byte{}, encrypterErr)
 
-				service = token.NewService(idGen, mockEncrypter, encoder, instrumentation)
+				service = token.NewService(idGen, mockEncrypter, encoder, probe)
 				_, err := service.NewToken()
 
 				Expect(err).To(Equal(err))
@@ -119,10 +119,10 @@ var _ = Describe("token service", Ordered, func() {
 				mockEncrypter := token.NewMockEncrypter(c)
 				mockEncrypter.EXPECT().Encrypt(gomock.Any()).Return([]byte{}, encrypterErr)
 
-				mockInstrumentation := token.NewMockInstrumentation(c)
-				mockInstrumentation.EXPECT().FailedToCreateToken(encrypterErr)
+				mockProbe := token.NewMockInstrumentation(c)
+				mockProbe.EXPECT().FailedToCreateToken(encrypterErr)
 
-				service = token.NewService(idGen, mockEncrypter, encoder, mockInstrumentation)
+				service = token.NewService(idGen, mockEncrypter, encoder, mockProbe)
 				id, err := service.NewToken()
 				Expect(id).To(BeNil())
 				Expect(err).To(Equal(encrypterErr))
@@ -138,7 +138,7 @@ var _ = Describe("token service", Ordered, func() {
 				mockEncoder := token.NewMockEncoder(c)
 				mockEncoder.EXPECT().Encode(gomock.Any()).Return([]byte{}, encoderErr)
 
-				service = token.NewService(idGen, encrypter, mockEncoder, instrumentation)
+				service = token.NewService(idGen, encrypter, mockEncoder, probe)
 				_, err := service.NewToken()
 
 				Expect(err).To(Equal(err))
@@ -152,10 +152,10 @@ var _ = Describe("token service", Ordered, func() {
 				mockEncoder := token.NewMockEncoder(c)
 				mockEncoder.EXPECT().Encode(gomock.Any()).Return([]byte{}, encoderErr)
 
-				mockInstrumentation := token.NewMockInstrumentation(c)
-				mockInstrumentation.EXPECT().FailedToCreateToken(encoderErr)
+				mockProbe := token.NewMockInstrumentation(c)
+				mockProbe.EXPECT().FailedToCreateToken(encoderErr)
 
-				service = token.NewService(idGen, encrypter, mockEncoder, mockInstrumentation)
+				service = token.NewService(idGen, encrypter, mockEncoder, mockProbe)
 				id, err := service.NewToken()
 				Expect(id).To(BeNil())
 				Expect(err).To(Equal(encoderErr))
@@ -168,11 +168,11 @@ var _ = Describe("token service", Ordered, func() {
 			c := gomock.NewController(GinkgoT())
 			defer c.Finish()
 
-			mockInstrumentation := token.NewMockInstrumentation(c)
-			mockInstrumentation.EXPECT().TokenCreated()
-			mockInstrumentation.EXPECT().TokenDecrypted()
+			mockProbe := token.NewMockInstrumentation(c)
+			mockProbe.EXPECT().TokenCreated()
+			mockProbe.EXPECT().TokenDecrypted()
 
-			service = token.NewService(idGen, encrypter, encoder, mockInstrumentation)
+			service = token.NewService(idGen, encrypter, encoder, mockProbe)
 			tok, err := service.NewToken()
 			Expect(err).To(BeNil())
 
@@ -191,7 +191,7 @@ var _ = Describe("token service", Ordered, func() {
 				mockEncoder := token.NewMockEncoder(c)
 				mockEncoder.EXPECT().Decode(gomock.Any()).Return([]byte{}, encoderErr)
 
-				service = token.NewService(idGen, encrypter, mockEncoder, instrumentation)
+				service = token.NewService(idGen, encrypter, mockEncoder, probe)
 				b, err := service.IDFromToken([]byte{})
 
 				Expect(b).To(BeNil())
@@ -206,10 +206,10 @@ var _ = Describe("token service", Ordered, func() {
 				mockEncoder := token.NewMockEncoder(c)
 				mockEncoder.EXPECT().Decode(gomock.Any()).Return([]byte{}, encoderErr)
 
-				mockInstrumentation := token.NewMockInstrumentation(c)
-				mockInstrumentation.EXPECT().FailedToDecryptToken(encoderErr)
+				mockProbe := token.NewMockInstrumentation(c)
+				mockProbe.EXPECT().FailedToDecryptToken(encoderErr)
 
-				service = token.NewService(idGen, encrypter, mockEncoder, mockInstrumentation)
+				service = token.NewService(idGen, encrypter, mockEncoder, mockProbe)
 				id, err := service.IDFromToken([]byte{})
 
 				Expect(id).To(BeNil())
@@ -226,7 +226,7 @@ var _ = Describe("token service", Ordered, func() {
 				mockEncrypter := token.NewMockEncrypter(c)
 				mockEncrypter.EXPECT().Decrypt(gomock.Any()).Return([]byte{}, encrypterErr)
 
-				service = token.NewService(idGen, mockEncrypter, encoder, instrumentation)
+				service = token.NewService(idGen, mockEncrypter, encoder, probe)
 				b, err := service.IDFromToken([]byte{})
 
 				Expect(b).To(BeNil())
@@ -241,10 +241,10 @@ var _ = Describe("token service", Ordered, func() {
 				mockEncrypter := token.NewMockEncrypter(c)
 				mockEncrypter.EXPECT().Decrypt(gomock.Any()).Return([]byte{}, encrypterErr)
 
-				mockInstrumentation := token.NewMockInstrumentation(c)
-				mockInstrumentation.EXPECT().FailedToDecryptToken(encrypterErr)
+				mockProbe := token.NewMockInstrumentation(c)
+				mockProbe.EXPECT().FailedToDecryptToken(encrypterErr)
 
-				service = token.NewService(idGen, mockEncrypter, encoder, mockInstrumentation)
+				service = token.NewService(idGen, mockEncrypter, encoder, mockProbe)
 				id, err := service.IDFromToken([]byte{})
 
 				Expect(id).To(BeNil())

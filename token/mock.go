@@ -154,7 +154,7 @@ func (mr *MockEncoderMockRecorder) Encode(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Encode", reflect.TypeOf((*MockEncoder)(nil).Encode), arg0)
 }
 
-// MockInstrumentation is a mock of Instrumentation interface.
+// MockInstrumentation is a mock of Probe interface.
 type MockInstrumentation struct {
 	ctrl     *gomock.Controller
 	recorder *MockInstrumentationMockRecorder

@@ -7,21 +7,21 @@ import (
 )
 
 type Service struct {
-	repo            Repository
-	instrumentation Instrumentation
+	repo  Repository
+	probe Probe
 }
 
-func NewService(sqlRepo Repository, instrumentation Instrumentation) *Service {
-	return &Service{sqlRepo, instrumentation}
+func NewService(sqlRepo Repository, probe Probe) *Service {
+	return &Service{sqlRepo, probe}
 }
 
 func (service *Service) Create(ctx context.Context, create CreateHabitDTO) (Habit, error) {
 	habit, err := service.repo.Create(ctx, create)
 
 	if err != nil {
-		service.instrumentation.LogFailedToCreateHabit(err)
+		service.probe.LogFailedToCreateHabit(err)
 	} else {
-		service.instrumentation.LogHabitCreated()
+		service.probe.LogHabitCreated()
 	}
 
 	return habit, err

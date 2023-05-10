@@ -2,7 +2,7 @@ package token_test
 
 import (
 	"astro/config"
-	"astro/test"
+	"astro/logger"
 	. "astro/test/matchers"
 	"astro/token"
 
@@ -19,8 +19,8 @@ var _ = Describe("age encrypter", Ordered, func() {
 	BeforeAll(func() {
 		fxtest.New(
 			GinkgoT(),
-			test.NopLogger,
-			test.NopTokenInstrumentation,
+			logger.NopLogger,
+			token.NopProbeProvider,
 			config.Module,
 			token.Module,
 			fx.Populate(&tokenConfig, &service),

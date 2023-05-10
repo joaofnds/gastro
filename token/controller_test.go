@@ -2,7 +2,9 @@ package token_test
 
 import (
 	"astro/config"
+	"astro/habit"
 	astrohttp "astro/http"
+	"astro/logger"
 	"astro/postgres"
 	"astro/test"
 	"astro/test/driver"
@@ -27,10 +29,10 @@ var _ = Describe("/token", Ordered, func() {
 		var httpConfig astrohttp.Config
 		app = fxtest.New(
 			GinkgoT(),
-			test.NopLogger,
-			test.NopHabitInstrumentation,
+			logger.NopLogger,
+			habit.NopProbeProvider,
 			test.NewPortAppConfig,
-			test.NopHTTPInstrumentation,
+			astrohttp.NopProbeProvider,
 			config.Module,
 			astrohttp.FiberModule,
 			postgres.Module,
