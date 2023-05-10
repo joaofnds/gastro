@@ -8,7 +8,7 @@ var NopProbeProvider = fx.Decorate(func() Probe { return NopProbe{} })
 
 type NopProbe struct{}
 
-func (i NopProbe) TokenCreated()              {}
-func (i NopProbe) FailedToCreateToken(error)  {}
-func (i NopProbe) TokenDecrypted()            {}
-func (i NopProbe) FailedToDecryptToken(error) {}
+func (p NopProbe) TokenCreated()              {}
+func (p NopProbe) FailedToCreateToken(error)  {}
+func (p NopProbe) TokenDecrypted()            {}
+func (p NopProbe) FailedToDecryptToken(error) {}

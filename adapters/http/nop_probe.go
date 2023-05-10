@@ -5,12 +5,10 @@ import (
 	"go.uber.org/fx"
 )
 
-var NopProbeProvider = fx.Decorate(func() Probe {
-	return NopProbe{}
-})
+var NopProbeProvider = fx.Decorate(func() Probe { return NopProbe{} })
 
 type NopProbe struct{}
 
-func (i NopProbe) Middleware(ctx *fiber.Ctx) error {
+func (p NopProbe) Middleware(ctx *fiber.Ctx) error {
 	return ctx.Next()
 }

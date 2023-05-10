@@ -22,21 +22,21 @@ func NewPromProbe(logger *zap.Logger) *PromProbe {
 	}
 }
 
-func (i *PromProbe) TokenCreated() {
-	i.logger.Info("token created")
-	i.tokensCreated.Inc()
+func (p *PromProbe) TokenCreated() {
+	p.logger.Info("token created")
+	p.tokensCreated.Inc()
 }
 
-func (i *PromProbe) FailedToCreateToken(err error) {
-	i.logger.Error("failed to decrypt token", zap.Error(err))
+func (p *PromProbe) FailedToCreateToken(err error) {
+	p.logger.Error("failed to decrypt token", zap.Error(err))
 }
 
-func (i *PromProbe) TokenDecrypted() {
-	i.logger.Info("token decrypted")
-	i.decrypts.Inc()
+func (p *PromProbe) TokenDecrypted() {
+	p.logger.Info("token decrypted")
+	p.decrypts.Inc()
 }
 
-func (i *PromProbe) FailedToDecryptToken(err error) {
-	i.logger.Error("failed to decrypt token", zap.Error(err))
-	i.decryptsFailed.Inc()
+func (p *PromProbe) FailedToDecryptToken(err error) {
+	p.logger.Error("failed to decrypt token", zap.Error(err))
+	p.decryptsFailed.Inc()
 }
