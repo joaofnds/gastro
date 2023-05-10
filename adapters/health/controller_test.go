@@ -1,13 +1,12 @@
 package health_test
 
 import (
+	health2 "astro/adapters/health"
+	http2 "astro/adapters/http"
+	"astro/adapters/logger"
+	"astro/adapters/postgres"
 	"astro/config"
-	"astro/health"
-	astrohttp "astro/http"
-	"astro/logger"
-	"astro/postgres"
 	"astro/test"
-	testhealth "astro/test/health"
 	. "astro/test/matchers"
 	"fmt"
 	"io"
@@ -21,6 +20,18 @@ import (
 	"go.uber.org/fx/fxtest"
 )
 
+var UnhealthyHealthService = fx.Decorate(func() health2.Checker {
+	return &unhealthyHealthService{}
+})
+
+type unhealthyHealthService struct{}
+
+func (c *unhealthyHealthService) CheckHealth() health2.Check {
+	return health2.Check{
+		DB: health2.Status{Status: health2.StatusDown},
+	}
+}
+
 func TestHealth(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "/health suite")
@@ -32,18 +43,18 @@ var _ = Describe("/health", func() {
 
 	Context("healty", func() {
 		BeforeEach(func() {
-			var httpConfig astrohttp.Config
+			var httpConfig http2.Config
 			app = fxtest.New(
 				GinkgoT(),
 				logger.NopLogger,
 				test.NewPortAppConfig,
-				astrohttp.NopProbeProvider,
+				http2.NopProbeProvider,
 				config.Module,
 				postgres.Module,
-				health.Module,
-				astrohttp.FiberModule,
+				health2.Module,
+				http2.FiberModule,
 				fx.Populate(&httpConfig),
-				fx.Invoke(func(app *fiber.App, healthController *health.Controller) {
+				fx.Invoke(func(app *fiber.App, healthController *health2.Controller) {
 					healthController.Register(app)
 				}),
 			)
@@ -67,19 +78,19 @@ var _ = Describe("/health", func() {
 
 	Context("unhealty", func() {
 		BeforeEach(func() {
-			var httpConfig astrohttp.Config
+			var httpConfig http2.Config
 			app = fxtest.New(
 				GinkgoT(),
 				logger.NopLogger,
 				test.NewPortAppConfig,
-				astrohttp.NopProbeProvider,
-				testhealth.UnhealthyHealthService,
+				http2.NopProbeProvider,
+				UnhealthyHealthService,
 				config.Module,
 				postgres.Module,
-				health.Module,
-				astrohttp.FiberModule,
+				health2.Module,
+				http2.FiberModule,
 				fx.Populate(&httpConfig),
-				fx.Invoke(func(app *fiber.App, controller *health.Controller) {
+				fx.Invoke(func(app *fiber.App, controller *health2.Controller) {
 					controller.Register(app)
 				}),
 			)

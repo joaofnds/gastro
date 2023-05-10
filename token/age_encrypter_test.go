@@ -1,8 +1,8 @@
 package token_test
 
 import (
+	"astro/adapters/logger"
 	"astro/config"
-	"astro/logger"
 	. "astro/test/matchers"
 	"astro/token"
 

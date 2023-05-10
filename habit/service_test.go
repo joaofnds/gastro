@@ -1,10 +1,10 @@
 package habit_test
 
 import (
+	"astro/adapters/logger"
+	"astro/adapters/postgres"
 	"astro/config"
 	"astro/habit"
-	"astro/logger"
-	"astro/postgres"
 	"astro/test"
 	. "astro/test/matchers"
 	"astro/test/transaction"

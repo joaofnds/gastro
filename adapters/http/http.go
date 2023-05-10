@@ -1,8 +1,8 @@
 package http
 
 import (
+	"astro/adapters/health"
 	"astro/habit"
-	"astro/health"
 	"astro/token"
 
 	"github.com/gofiber/fiber/v2"

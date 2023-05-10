@@ -1,11 +1,11 @@
 package habit_test
 
 import (
+	http2 "astro/adapters/http"
+	"astro/adapters/logger"
+	"astro/adapters/postgres"
 	"astro/config"
 	"astro/habit"
-	astrohttp "astro/http"
-	"astro/logger"
-	"astro/postgres"
 	"astro/test"
 	"astro/test/driver"
 	. "astro/test/matchers"
@@ -35,16 +35,16 @@ var _ = Describe("/habits", func() {
 	)
 
 	BeforeEach(func() {
-		var httpConfig astrohttp.Config
+		var httpConfig http2.Config
 		fxApp = fxtest.New(
 			GinkgoT(),
 			logger.NopLogger,
 			test.NewPortAppConfig,
 			habit.NopProbeProvider,
 			token.NopProbeProvider,
-			astrohttp.NopProbeProvider,
+			http2.NopProbeProvider,
 			config.Module,
-			astrohttp.FiberModule,
+			http2.FiberModule,
 			postgres.Module,
 			habit.Module,
 			transaction.Module,

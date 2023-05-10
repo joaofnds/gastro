@@ -1,11 +1,12 @@
 package http_test
 
 import (
+	http2 "astro/adapters/http"
+	"astro/adapters/logger"
 	"astro/config"
-	astrohttp "astro/http"
-	"astro/logger"
 	"astro/test"
 	"fmt"
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 	"testing"
 
@@ -17,6 +18,12 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+var PanicHandler = fx.Invoke(func(app *fiber.App) {
+	app.All("panic", func(c *fiber.Ctx) error {
+		panic("panic handler")
+	})
+})
 
 func TestFiber(t *testing.T) {
 	RegisterFailHandler(Fail)
@@ -30,16 +37,16 @@ var _ = Describe("fiber middlewares", func() {
 	)
 
 	BeforeEach(func() {
-		var httpConfig astrohttp.Config
+		var httpConfig http2.Config
 
 		fxApp = fxtest.New(
 			GinkgoT(),
 			logger.NopLogger,
 			test.NewPortAppConfig,
-			astrohttp.NopProbeProvider,
-			test.PanicHandler,
+			http2.NopProbeProvider,
+			PanicHandler,
 			config.Module,
-			astrohttp.FiberModule,
+			http2.FiberModule,
 			fx.Populate(&httpConfig),
 		).RequireStart()
 

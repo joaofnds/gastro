@@ -1,8 +1,7 @@
 package test
 
 import (
-	"astro/http"
-
+	"astro/adapters/http"
 	"go.uber.org/fx"
 )
 

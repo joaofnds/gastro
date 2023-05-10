@@ -1,11 +1,11 @@
 package token_test
 
 import (
+	http2 "astro/adapters/http"
+	"astro/adapters/logger"
+	"astro/adapters/postgres"
 	"astro/config"
 	"astro/habit"
-	astrohttp "astro/http"
-	"astro/logger"
-	"astro/postgres"
 	"astro/test"
 	"astro/test/driver"
 	. "astro/test/matchers"
@@ -26,15 +26,15 @@ var _ = Describe("/token", Ordered, func() {
 	var api *driver.API
 
 	BeforeAll(func() {
-		var httpConfig astrohttp.Config
+		var httpConfig http2.Config
 		app = fxtest.New(
 			GinkgoT(),
 			logger.NopLogger,
 			habit.NopProbeProvider,
 			test.NewPortAppConfig,
-			astrohttp.NopProbeProvider,
+			http2.NopProbeProvider,
 			config.Module,
-			astrohttp.FiberModule,
+			http2.FiberModule,
 			postgres.Module,
 			token.Module,
 			fx.Invoke(func(app *fiber.App, controller *token.Controller) {

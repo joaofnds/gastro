@@ -1,11 +1,11 @@
 package config
 
 import (
+	"astro/adapters/http"
+	"astro/adapters/metrics"
+	"astro/adapters/postgres"
 	"os"
 
-	"astro/http"
-	"astro/metrics"
-	"astro/postgres"
 	"astro/token"
 
 	"github.com/spf13/viper"

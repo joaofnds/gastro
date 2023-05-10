@@ -1,13 +1,13 @@
 package main
 
 import (
+	"astro/adapters/health"
+	"astro/adapters/http"
+	"astro/adapters/logger"
+	"astro/adapters/metrics"
+	"astro/adapters/postgres"
 	"astro/config"
 	"astro/habit"
-	"astro/health"
-	"astro/http"
-	"astro/logger"
-	"astro/metrics"
-	"astro/postgres"
 	"astro/token"
 
 	"go.uber.org/fx"

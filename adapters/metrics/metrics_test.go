@@ -1,9 +1,9 @@
 package metrics_test
 
 import (
+	"astro/adapters/logger"
+	metrics2 "astro/adapters/metrics"
 	"astro/config"
-	"astro/logger"
-	"astro/metrics"
 	. "astro/test/matchers"
 	"fmt"
 	"io"
@@ -26,12 +26,12 @@ var _ = Describe("/", Ordered, func() {
 	var url string
 
 	BeforeAll(func() {
-		var metricsConfig metrics.Config
+		var metricsConfig metrics2.Config
 		fxtest.New(
 			GinkgoT(),
 			logger.NopLogger,
 			config.Module,
-			metrics.Module,
+			metrics2.Module,
 			fx.Populate(&metricsConfig),
 		).RequireStart()
 		url = fmt.Sprintf("http://%s/metrics", metricsConfig.Address)
