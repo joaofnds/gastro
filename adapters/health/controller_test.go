@@ -8,6 +8,7 @@ import (
 	"astro/config"
 	"astro/test"
 	. "astro/test/matchers"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -26,9 +27,9 @@ var UnhealthyHealthService = fx.Decorate(func() health2.Checker {
 
 type unhealthyHealthService struct{}
 
-func (c *unhealthyHealthService) CheckHealth() health2.Check {
+func (c *unhealthyHealthService) CheckHealth(context.Context) health2.Check {
 	return health2.Check{
-		DB: health2.Status{Status: health2.StatusDown},
+		"db": health2.Status{Status: health2.StatusDown},
 	}
 }
 

@@ -1,24 +1,20 @@
 package health
 
 import (
-	"database/sql"
+	"astro/adapters/postgres"
+	"context"
 )
 
 type Service struct {
-	db *sql.DB
+	postgres *postgres.HealthChecker
 }
 
-func NewService(db *sql.DB) *Service {
-	return &Service{db}
+func NewService(postgres *postgres.HealthChecker) *Service {
+	return &Service{postgres}
 }
 
-func (c *Service) CheckHealth() Check {
-	return Check{DB: c.DBHealth()}
-}
-
-func (c *Service) DBHealth() Status {
-	if err := c.db.Ping(); err != nil {
-		return Status{Status: StatusDown}
+func (s *Service) CheckHealth(ctx context.Context) Check {
+	return Check{
+		"db": NewStatus(s.postgres.CheckHealth(ctx)),
 	}
-	return Status{Status: StatusUp}
 }
