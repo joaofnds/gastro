@@ -6,26 +6,19 @@ import (
 	"database/sql"
 
 	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 var Module = fx.Module("transaction", fx.Invoke(HookTransaction))
 
-func HookTransaction(lc fx.Lifecycle, db *sql.DB, repo *habit.SQLRepository) {
-	var transaction *sql.Tx
-
+func HookTransaction(lc fx.Lifecycle, db *sql.DB, orm *gorm.DB, repo *habit.SQLRepository) {
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
-			var err error
-			transaction, err = db.BeginTx(context.Background(), nil)
-			if err != nil {
-				return err
-			}
-
-			repo.DB = transaction
+			repo.ORM = orm.Begin()
 			return nil
 		},
 		OnStop: func(context.Context) error {
-			return transaction.Rollback()
+			return repo.ORM.Rollback().Error
 		},
 	})
 }
