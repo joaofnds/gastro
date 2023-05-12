@@ -3,7 +3,6 @@ package transaction
 import (
 	"astro/habit"
 	"context"
-	"database/sql"
 
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -11,14 +10,24 @@ import (
 
 var Module = fx.Module("transaction", fx.Invoke(HookTransaction))
 
-func HookTransaction(lc fx.Lifecycle, db *sql.DB, orm *gorm.DB, repo *habit.SQLRepository) {
+func HookTransaction(
+	lc fx.Lifecycle,
+	db *gorm.DB,
+	habitRepo *habit.SQLHabitRepository,
+	activityRepo *habit.SQLActivityRepository,
+	groupRepo *habit.SQLGroupRepository,
+) {
+	var tx *gorm.DB
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
-			repo.ORM = orm.Begin()
+			tx = db.Begin()
+			habitRepo.ORM = tx
+			activityRepo.ORM = tx
+			groupRepo.ORM = tx
 			return nil
 		},
 		OnStop: func(context.Context) error {
-			return repo.ORM.Rollback().Error
+			return tx.Rollback().Error
 		},
 	})
 }
