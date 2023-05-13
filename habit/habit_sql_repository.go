@@ -24,7 +24,11 @@ func (repo *SQLHabitRepository) Create(ctx context.Context, create CreateHabitDT
 
 func (repo *SQLHabitRepository) List(ctx context.Context, userID string) ([]Habit, error) {
 	var habits []Habit
-	return habits, translateError(repo.ORM.WithContext(ctx).Preload("Activities").Find(&habits).Error)
+	result := repo.ORM.
+		WithContext(ctx).
+		Preload("Activities").
+		Find(&habits, "user_id = ?", userID)
+	return habits, translateError(result.Error)
 }
 
 func (repo *SQLHabitRepository) Find(ctx context.Context, find FindHabitDTO) (Habit, error) {

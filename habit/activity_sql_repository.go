@@ -31,5 +31,5 @@ func (repo *SQLActivityRepository) Update(ctx context.Context, dto UpdateActivit
 }
 
 func (repo *SQLActivityRepository) Delete(ctx context.Context, activity Activity) error {
-	return resultErr(repo.ORM.Delete(&activity))
+	return resultErr(repo.ORM.WithContext(ctx).Delete(&activity))
 }
