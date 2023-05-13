@@ -20,9 +20,9 @@ func (service *HabitService) Create(ctx context.Context, create CreateHabitDTO) 
 	habit, err := service.repo.Create(ctx, create)
 
 	if err != nil {
-		service.probe.LogFailedToCreateHabit(err)
+		service.probe.FailedToCreateHabit(err)
 	} else {
-		service.probe.LogHabitCreated()
+		service.probe.HabitCreated()
 	}
 
 	return habit, err

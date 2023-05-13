@@ -8,5 +8,5 @@ var NopProbeProvider = fx.Decorate(func() Probe { return NopProbe{} })
 
 type NopProbe struct{}
 
-func (p NopProbe) LogHabitCreated()             {}
-func (p NopProbe) LogFailedToCreateHabit(error) {}
+func (p NopProbe) HabitCreated()             {}
+func (p NopProbe) FailedToCreateHabit(error) {}

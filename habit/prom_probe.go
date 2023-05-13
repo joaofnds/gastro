@@ -20,12 +20,12 @@ func NewPromProbe(logger *zap.Logger) *PromProbe {
 	}
 }
 
-func (p *PromProbe) LogFailedToCreateHabit(err error) {
+func (p *PromProbe) FailedToCreateHabit(err error) {
 	p.logger.Info("failed to create habit", zap.Error(err))
 	p.habitsCreateFailed.Inc()
 }
 
-func (p *PromProbe) LogHabitCreated() {
+func (p *PromProbe) HabitCreated() {
 	p.logger.Info("habit created")
 	p.habitsCreated.Inc()
 }
