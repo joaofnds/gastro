@@ -11,21 +11,27 @@ import (
 )
 
 func NewController(
-	habitService *Service,
+	habitService *HabitService,
+	activityService *ActivityService,
+	groupService *GroupService,
 	tokenService *token.Service,
 	logger *zap.Logger,
 ) *Controller {
 	return &Controller{
-		habitService: habitService,
-		tokenService: tokenService,
-		logger:       logger,
+		habitService:    habitService,
+		activityService: activityService,
+		groupService:    groupService,
+		tokenService:    tokenService,
+		logger:          logger,
 	}
 }
 
 type Controller struct {
-	habitService *Service
-	tokenService *token.Service
-	logger       *zap.Logger
+	habitService    *HabitService
+	activityService *ActivityService
+	groupService    *GroupService
+	tokenService    *token.Service
+	logger          *zap.Logger
 }
 
 func (c Controller) Register(app *fiber.App) {
@@ -112,7 +118,7 @@ func (c Controller) addActivity(ctx *fiber.Ctx) error {
 	}
 
 	dto := AddActivityDTO{Desc: body.Description, Time: body.Date}
-	if _, err := c.habitService.AddActivity(ctx.Context(), h, dto); err != nil {
+	if _, err := c.activityService.Add(ctx.Context(), h, dto); err != nil {
 		c.logger.Error("failed to add activity", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
@@ -129,7 +135,7 @@ func (c Controller) updateActivity(ctx *fiber.Ctx) error {
 	}
 
 	dto := UpdateActivityDTO{ActivityID: act.ID, Desc: body.Description}
-	if _, err := c.habitService.UpdateActivity(ctx.Context(), dto); err != nil {
+	if _, err := c.activityService.Update(ctx.Context(), dto); err != nil {
 		c.logger.Error("failed to update activity", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
@@ -140,7 +146,7 @@ func (c Controller) updateActivity(ctx *fiber.Ctx) error {
 func (c Controller) deleteActivity(ctx *fiber.Ctx) error {
 	activity := ctx.Locals("activity").(Activity)
 
-	if err := c.habitService.DeleteActivity(ctx.Context(), activity); err != nil {
+	if err := c.activityService.Delete(ctx.Context(), activity); err != nil {
 		c.logger.Error("failed to delete activity", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
@@ -166,7 +172,7 @@ func (c Controller) create(ctx *fiber.Ctx) error {
 
 func (c Controller) listGroupsAndHabits(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("userID").(string)
-	groups, habits, err := c.habitService.GroupsAndHabits(ctx.Context(), userID)
+	groups, habits, err := c.groupService.GroupsAndHabits(ctx.Context(), userID)
 	if err != nil {
 		c.logger.Error("failed to list groups and habits", zap.Error(err))
 	}
@@ -183,7 +189,7 @@ func (c Controller) createGroup(ctx *fiber.Ctx) error {
 
 	userID := ctx.Locals("userID").(string)
 	dto := CreateGroupDTO{UserID: userID, Name: body.Name}
-	group, err := c.habitService.CreateGroup(ctx.Context(), dto)
+	group, err := c.groupService.Create(ctx.Context(), dto)
 	if err != nil {
 		c.logger.Error("failed to update activity", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
@@ -196,7 +202,7 @@ func (c Controller) addToGroup(ctx *fiber.Ctx) error {
 	group := ctx.Locals("group").(Group)
 	hab := ctx.Locals("habit").(Habit)
 
-	if err := c.habitService.AddToGroup(ctx.Context(), hab, group); err != nil {
+	if err := c.groupService.Join(ctx.Context(), hab, group); err != nil {
 		c.logger.Error("failed to add habit to group", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
@@ -206,7 +212,7 @@ func (c Controller) addToGroup(ctx *fiber.Ctx) error {
 
 func (c Controller) deleteGroup(ctx *fiber.Ctx) error {
 	group := ctx.Locals("group").(Group)
-	if err := c.habitService.DeleteGroup(ctx.Context(), group); err != nil {
+	if err := c.groupService.Delete(ctx.Context(), group); err != nil {
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
 
@@ -217,7 +223,7 @@ func (c Controller) removeHabitFromGroup(ctx *fiber.Ctx) error {
 	group := ctx.Locals("group").(Group)
 	hab := ctx.Locals("habit").(Habit)
 
-	if err := c.habitService.RemoveFromGroup(ctx.Context(), hab, group); err != nil {
+	if err := c.groupService.Leave(ctx.Context(), hab, group); err != nil {
 		c.logger.Error("failed to remove habit from group", zap.Error(err))
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
@@ -255,7 +261,7 @@ func (c Controller) middlewareFindGroup(ctx *fiber.Ctx) error {
 		return ctx.SendStatus(http.StatusNotFound)
 	}
 
-	group, err := c.habitService.FindGroup(ctx.Context(), FindGroupDTO{UserID: userID, GroupID: groupID})
+	group, err := c.groupService.Find(ctx.Context(), FindGroupDTO{UserID: userID, GroupID: groupID})
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
 			return ctx.SendStatus(http.StatusNotFound)
@@ -280,7 +286,7 @@ func (c Controller) middlewareFindActivity(ctx *fiber.Ctx) error {
 	}
 
 	find := FindActivityDTO{HabitID: habitID, ActivityID: activityID, UserID: userID}
-	activity, err := c.habitService.FindActivity(ctx.Context(), find)
+	activity, err := c.activityService.Find(ctx.Context(), find)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
 			return ctx.SendStatus(http.StatusNotFound)

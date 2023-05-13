@@ -21,6 +21,10 @@ func HookTransaction(
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
 			tx = db.Begin()
+			if tx.Error != nil {
+				return tx.Error
+			}
+
 			habitRepo.ORM = tx
 			activityRepo.ORM = tx
 			groupRepo.ORM = tx

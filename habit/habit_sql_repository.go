@@ -34,7 +34,7 @@ func (repo *SQLHabitRepository) Find(ctx context.Context, find FindHabitDTO) (Ha
 		Preload("Activities").
 		First(&habit, "id = ? and user_id = ?", find.HabitID, find.UserID)
 
-	return habit, resultErr(result)
+	return habit, translateError(result.Error)
 }
 
 func (repo *SQLHabitRepository) Update(ctx context.Context, dto UpdateHabitDTO) error {

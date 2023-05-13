@@ -161,7 +161,7 @@ var _ = Describe("/habits", func() {
 				})
 			})
 
-			Describe("with habit id that does nto exist", func() {
+			Describe("with habit id that does not exist", func() {
 				It("returns not found", func() {
 					res := Must2(api.Update(app.Token, badHabitID, "name"))
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
@@ -208,14 +208,14 @@ var _ = Describe("/habits", func() {
 			})
 
 			Describe("create", func() {
-				It("returns created activites on get", func() {
+				It("returns created activities on get", func() {
 					h := Must2(app.Create("read"))
 					Must(app.AddActivity(h.ID, time.Now()))
 					Must(app.AddActivity(h.ID, time.Now()))
 					Must(app.AddActivity(h.ID, time.Now()))
 
-					habit := Must2(app.Get(h.ID))
-					Expect(habit.Activities).To(HaveLen(3))
+					h = Must2(app.Get(h.ID))
+					Expect(h.Activities).To(HaveLen(3))
 				})
 
 				It("cannot create activities for other user's habits", func() {

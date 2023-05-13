@@ -19,7 +19,7 @@ import (
 
 func TestHealth(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "/health suite")
+	RunSpecs(t, "/metrics suite")
 }
 
 var _ = Describe("/", Ordered, func() {

@@ -6,9 +6,10 @@ import (
 	"astro/config"
 	"astro/test"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
 	"net/http"
 	"testing"
+
+	"github.com/gofiber/fiber/v2"
 
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
