@@ -175,6 +175,7 @@ func (c Controller) listGroupsAndHabits(ctx *fiber.Ctx) error {
 	groups, habits, err := c.groupService.GroupsAndHabits(ctx.Context(), userID)
 	if err != nil {
 		c.logger.Error("failed to list groups and habits", zap.Error(err))
+		return ctx.SendStatus(http.StatusInternalServerError)
 	}
 
 	return ctx.Status(http.StatusOK).JSON(GroupsAndHabitsPayload{Groups: groups, Habits: habits})
