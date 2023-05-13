@@ -1,3 +1,10 @@
+## [1.52.9](https://github.com/joaofnds/gastro/compare/v1.52.8...v1.52.9) (2023-05-13)
+
+
+### Bug Fixes
+
+* return 500 on err ([74e87f1](https://github.com/joaofnds/gastro/commit/74e87f1a61e1f60863a799036d59b31ca44ec23e))
+
 ## [1.52.8](https://github.com/joaofnds/gastro/compare/v1.52.7...v1.52.8) (2023-05-13)
 
 ## [1.52.7](https://github.com/joaofnds/gastro/compare/v1.52.6...v1.52.7) (2023-05-13)
