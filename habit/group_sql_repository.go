@@ -6,20 +6,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type SQLGroupRepository struct {
+type GroupSQLRepository struct {
 	ORM *gorm.DB
 }
 
-func NewSQLGroupRepository(orm *gorm.DB) *SQLGroupRepository {
-	return &SQLGroupRepository{orm}
+func NewGroupSQLRepository(orm *gorm.DB) *GroupSQLRepository {
+	return &GroupSQLRepository{orm}
 }
 
-func (repo *SQLGroupRepository) Create(ctx context.Context, dto CreateGroupDTO) (Group, error) {
+func (repo *GroupSQLRepository) Create(ctx context.Context, dto CreateGroupDTO) (Group, error) {
 	group := Group{Name: dto.Name, UserID: dto.UserID, Habits: []Habit{}}
 	return group, resultErr(repo.ORM.WithContext(ctx).Create(&group))
 }
 
-func (repo *SQLGroupRepository) Find(ctx context.Context, dto FindGroupDTO) (Group, error) {
+func (repo *GroupSQLRepository) Find(ctx context.Context, dto FindGroupDTO) (Group, error) {
 	var group Group
 	result := repo.ORM.
 		WithContext(ctx).
@@ -29,19 +29,19 @@ func (repo *SQLGroupRepository) Find(ctx context.Context, dto FindGroupDTO) (Gro
 	return group, resultErr(result)
 }
 
-func (repo *SQLGroupRepository) Delete(ctx context.Context, group Group) error {
+func (repo *GroupSQLRepository) Delete(ctx context.Context, group Group) error {
 	return resultErr(repo.ORM.WithContext(ctx).Delete(&group))
 }
 
-func (repo *SQLGroupRepository) Join(ctx context.Context, habit Habit, group Group) error {
+func (repo *GroupSQLRepository) Join(ctx context.Context, habit Habit, group Group) error {
 	return translateError(repo.ORM.WithContext(ctx).Model(&group).Association("Habits").Append(&habit))
 }
 
-func (repo *SQLGroupRepository) Leave(ctx context.Context, habit Habit, group Group) error {
+func (repo *GroupSQLRepository) Leave(ctx context.Context, habit Habit, group Group) error {
 	return translateError(repo.ORM.WithContext(ctx).Model(&group).Association("Habits").Delete(habit))
 }
 
-func (repo *SQLGroupRepository) GroupsAndHabits(ctx context.Context, userID string) ([]Group, []Habit, error) {
+func (repo *GroupSQLRepository) GroupsAndHabits(ctx context.Context, userID string) ([]Group, []Habit, error) {
 	var groups []Group
 	var habits []Habit
 

@@ -13,9 +13,9 @@ var Module = fx.Module("transaction", fx.Invoke(HookTransaction))
 func HookTransaction(
 	lc fx.Lifecycle,
 	db *gorm.DB,
-	habitRepo *habit.SQLHabitRepository,
-	activityRepo *habit.SQLActivityRepository,
-	groupRepo *habit.SQLGroupRepository,
+	habitRepo *habit.HabitSQLRepository,
+	activityRepo *habit.ActivitySQLRepository,
+	groupRepo *habit.GroupSQLRepository,
 ) {
 	var tx *gorm.DB
 	lc.Append(fx.Hook{

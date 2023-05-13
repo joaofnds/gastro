@@ -1,23 +1,40 @@
 package habit
 
-import "go.uber.org/fx"
+import "context"
 
-var Module = fx.Module(
-	"habit",
-	fx.Provide(NewController),
+type Habit struct {
+	ID         string     `json:"id" gorm:"default:uuid_generate_v4()"`
+	UserID     string     `json:"user_id"`
+	Name       string     `json:"name"`
+	Activities []Activity `json:"activities" gorm:"foreignKey:HabitID"`
+}
 
-	fx.Provide(NewPromProbe),
-	fx.Provide(func(probe *PromProbe) Probe { return probe }),
+type FindHabitDTO struct {
+	HabitID string
+	UserID  string
+}
 
-	fx.Provide(NewHabitService),
-	fx.Provide(NewSQLHabitRepository),
-	fx.Provide(func(repo *SQLHabitRepository) HabitRepository { return repo }),
+type CreateHabitDTO struct {
+	Name   string
+	UserID string
+}
 
-	fx.Provide(NewActivityService),
-	fx.Provide(NewSQLActivityRepository),
-	fx.Provide(func(repo *SQLActivityRepository) ActivityRepository { return repo }),
+type UpdateHabitDTO struct {
+	Name    string
+	HabitID string
+}
 
-	fx.Provide(NewGroupService),
-	fx.Provide(NewSQLGroupRepository),
-	fx.Provide(func(repo *SQLGroupRepository) GroupRepository { return repo }),
-)
+type FindActivityDTO struct {
+	HabitID    string
+	ActivityID string
+	UserID     string
+}
+
+type HabitRepository interface {
+	Create(ctx context.Context, create CreateHabitDTO) (Habit, error)
+	List(ctx context.Context, userID string) ([]Habit, error)
+	Find(ctx context.Context, find FindHabitDTO) (Habit, error)
+	Update(ctx context.Context, dto UpdateHabitDTO) error
+	Delete(ctx context.Context, find FindHabitDTO) error
+	DeleteAll(ctx context.Context) error
+}
