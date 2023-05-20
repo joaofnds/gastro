@@ -5,11 +5,7 @@ http:
     requests: 120
     expiration: 60s
 postgres:
-  host: localhost
-  port: 5432
-  user: postgres
-  password: postgres
-  dbname: astro
+  address: postgres://postgres:postgres@localhost:5432/astro
 token:
   public_key: age1gr623h7ea9220efad7g6vjdp0vt25edsraqjn4j0ten7yzgf84rsnw55yg
   private_key: AGE-SECRET-KEY-1WRTAN4RLC3PVGTFWNNQEA2SCX37XL9WDSK4UH58M52S2AU8WFUUQHS0C3L

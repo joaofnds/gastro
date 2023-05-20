@@ -26,7 +26,7 @@ var schema string
 
 func NewGormDB(postgresConfig Config, logger *zap.Logger) (*gorm.DB, error) {
 	return gorm.Open(
-		postgres.Open(postgresConfig.ConnectionString()),
+		postgres.Open(postgresConfig.Addr),
 		&gorm.Config{Logger: nil},
 	)
 }

@@ -58,9 +58,5 @@ func bindEnv() {
 	viper.MustBindEnv("http.limiter.expiration", "HTTP_LIMITER_EXPIRATION")
 	viper.MustBindEnv("token.public_key", "TOKEN_PUBLIC_KEY")
 	viper.MustBindEnv("token.private_key", "TOKEN_PRIVATE_KEY")
-	viper.MustBindEnv("postgres.host", "POSTGRES_HOST")
-	viper.MustBindEnv("postgres.port", "POSTGRES_PORT")
-	viper.MustBindEnv("postgres.user", "POSTGRES_USER")
-	viper.MustBindEnv("postgres.password", "POSTGRES_PASSWORD")
-	viper.MustBindEnv("postgres.dbname", "POSTGRES_DBNAME")
+	viper.MustBindEnv("postgres.address", "DATABASE_URL")
 }
