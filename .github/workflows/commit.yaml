@@ -44,16 +44,20 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
 
+    env:
+      CONFIG_PATH: "${{ github.workspace }}/config/config.yaml"
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
           go-version: "^1.20"
 
-      - name: tests
+      - name: migrate
+        run: go run cmd/migrate/migrate.go up
+
+      - name: test
         run: go test -coverprofile=coverage.txt -v ./...
-        env:
-          CONFIG_PATH: "${{ github.workspace }}/config/config.yaml"
 
       - uses: actions/upload-artifact@v3
         with:
