@@ -6,12 +6,16 @@ import (
 	"astro/config"
 	"context"
 	"database/sql"
+	"embed"
 	"fmt"
 	"os"
 
 	"github.com/pressly/goose/v3"
 	"go.uber.org/fx"
 )
+
+//go:embed migrations/*.sql
+var migrations embed.FS
 
 func main() {
 	if len(os.Args) < 2 {
@@ -30,7 +34,8 @@ func main() {
 		config.Module,
 		postgres.Module,
 		fx.Invoke(func(db *sql.DB, config postgres.Config) error {
-			return goose.Run(os.Args[1], db, "cmd/migrate/migrations", os.Args[2:]...)
+			goose.SetBaseFS(migrations)
+			return goose.Run(os.Args[1], db, "migrations", os.Args[2:]...)
 		}),
 	)
 	defer func() { must(app.Stop(context.Background())) }()
