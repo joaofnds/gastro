@@ -56,3 +56,7 @@ jobs:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           VERSION: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+
+      - name: rollback
+        if: failure()
+        run: fly deploy --app gastro --image `fly releases --app gastro -j | jq ".[1].ImageRef" -r`
