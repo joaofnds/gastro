@@ -1,3 +1,10 @@
+# [1.54.0](https://github.com/joaofnds/gastro/compare/v1.53.0...v1.54.0) (2023-05-21)
+
+
+### Features
+
+* embed migrations ([7705097](https://github.com/joaofnds/gastro/commit/7705097aa0a4dfbf422a1fa7c4ad6ac6207753c1))
+
 # [1.53.0](https://github.com/joaofnds/gastro/compare/v1.52.11...v1.53.0) (2023-05-21)
 
 
