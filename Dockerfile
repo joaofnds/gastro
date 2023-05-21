@@ -4,9 +4,8 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . /app
-RUN go build -o /go/bin/app main.go
+RUN go build -o /go/bin/app cmd/astro/astro.go
 
 FROM gcr.io/distroless/static:nonroot
-ENV CONFIG_PATH=/config.yaml
 COPY --from=build /go/bin/app /
 CMD ["/app"]
