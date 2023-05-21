@@ -1,3 +1,10 @@
+# [1.53.0](https://github.com/joaofnds/gastro/compare/v1.52.11...v1.53.0) (2023-05-21)
+
+
+### Features
+
+* use goose for migrations ([4fb6c61](https://github.com/joaofnds/gastro/commit/4fb6c614c10bd9d0dda476685a7348bac36f1d83))
+
 ## [1.52.11](https://github.com/joaofnds/gastro/compare/v1.52.10...v1.52.11) (2023-05-20)
 
 ## [1.52.10](https://github.com/joaofnds/gastro/compare/v1.52.9...v1.52.10) (2023-05-19)
