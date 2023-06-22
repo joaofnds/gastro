@@ -1,3 +1,21 @@
+## [1.54.1](https://github.com/joaofnds/gastro/compare/v1.54.0...v1.54.1) (2023-06-22)
+
+
+### Refactor
+
+* reformat sql files ([deb6251](https://github.com/joaofnds/gastro/commit/deb6251fb7d5eeb588bf0605c63c214aa897e3f6))
+
+
+### Test
+
+* add json request helper ([09c05fe](https://github.com/joaofnds/gastro/commit/09c05fe693b1e446422478b250d9cf527bd7dd7b))
+
+
+### CI
+
+* **restart:** clone repo ([394a67f](https://github.com/joaofnds/gastro/commit/394a67fc18fbb898d61285a93f903663e90bcd79))
+* update release-notes-generator plugin config ([7629f92](https://github.com/joaofnds/gastro/commit/7629f929d768cb1d727e74e06576b262494013ee))
+
 # [1.54.0](https://github.com/joaofnds/gastro/compare/v1.53.0...v1.54.0) (2023-05-21)
 
 
