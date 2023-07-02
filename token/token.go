@@ -7,8 +7,8 @@ var Module = fx.Module(
 	fx.Provide(NewController),
 	fx.Provide(NewService),
 
-	fx.Provide(NewPostgresIDGenerator),
-	fx.Provide(func(idGen *PostgresIDGenerator) IDGenerator { return idGen }),
+	fx.Provide(NewUUIDGenerator),
+	fx.Provide(func(gen *UUIDGenerator) IDGenerator { return gen }),
 
 	fx.Provide(NewAgeEncrypter),
 	fx.Provide(func(encrypter *AgeEncrypter) Encrypter { return encrypter }),
