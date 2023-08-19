@@ -19,7 +19,7 @@ func Build() error {
 
 	dir := client.Host().Workdir()
 	golang := client.Container().
-		From("golang:1.20").
+		From("golang:1.21").
 		WithEnvVariable("CGO_ENABLED", "0").
 		WithExec([]string{"mkdir", "/app"}).
 		WithWorkdir("/app").
