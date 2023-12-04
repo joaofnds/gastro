@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -23,6 +24,8 @@ var FiberModule = fx.Module(
 func NewFiber(config Config, probe Probe) *fiber.App {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
+		JSONEncoder:           sonic.Marshal,
+		JSONDecoder:           sonic.Unmarshal,
 	})
 	app.Use(recover.New())
 	app.Use(compress.New(compress.Config{
