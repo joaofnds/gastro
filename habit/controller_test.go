@@ -68,28 +68,28 @@ var _ = Describe("/habits", func() {
 
 	Describe("GET", func() {
 		It("returns a list of habits", func() {
-			Must2(app.Create("read"))
+			app.MustCreate("read")
 
-			data := Must2(app.List())
+			data := app.MustList()
 
 			Expect(data).To(HaveLen(1))
 			Expect(data[0].Name).To(Equal("read"))
 		})
 
 		It("requires token", func() {
-			res := Must2(api.List(""))
+			res := api.MustList("")
 			Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
 		})
 	})
 
 	Describe("POST", func() {
 		It("returns status created", func() {
-			res, _ := api.Create(app.Token, "read")
+			res := api.MustCreate(app.Token, "read")
 			Expect(res.StatusCode).To(Equal(http.StatusCreated))
 		})
 
 		It("returns the created habit", func() {
-			res, _ := api.Create(app.Token, "read")
+			res := api.MustCreate(app.Token, "read")
 			body := Must2(io.ReadAll(res.Body))
 			defer res.Body.Close()
 
@@ -99,13 +99,13 @@ var _ = Describe("/habits", func() {
 		})
 
 		It("requires token", func() {
-			res := Must2(api.Create("", "read"))
+			res := api.MustCreate("", "read")
 			Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
 		})
 
 		Describe("without name", func() {
 			It("return bad request", func() {
-				res, _ := api.Create(app.Token, "")
+				res := api.MustCreate(app.Token, "")
 				Expect(res.StatusCode).To(Equal(http.StatusBadRequest))
 			})
 		})
@@ -113,24 +113,24 @@ var _ = Describe("/habits", func() {
 
 	Describe("/:id", func() {
 		It("requires token", func() {
-			habit := Must2(app.Create("read"))
+			habit := app.MustCreate("read")
 
-			res := Must2(api.Get("", habit.ID))
+			res := api.MustGet("", habit.ID)
 			Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
 		})
 
 		Describe("when habit is found", func() {
 			It("has status 200", func() {
-				habit := Must2(app.Create("read"))
+				habit := app.MustCreate("read")
 
-				res := Must2(api.Get(app.Token, habit.ID))
+				res := api.MustGet(app.Token, habit.ID)
 				Expect(res.StatusCode).To(Equal(http.StatusOK))
 			})
 
 			It("returns the habit", func() {
-				h := Must2(app.Create("read"))
+				h := app.MustCreate("read")
 
-				habit := Must2(app.Get(h.ID))
+				habit := app.MustGet(h.ID)
 				Expect(habit.ID).To(HaveLen(uuidLen))
 				Expect(habit.Name).To(Equal("read"))
 				Expect(habit.Activities).To(HaveLen(0))
@@ -139,31 +139,31 @@ var _ = Describe("/habits", func() {
 
 		Describe("update", func() {
 			It("return OK", func() {
-				hab := Must2(app.Create("read"))
-				Must(app.Update(hab.ID, "read"))
+				hab := app.MustCreate("read")
+				app.MustUpdate(hab.ID, "read")
 
-				res := Must2(api.Get(app.Token, hab.ID))
+				res := api.MustGet(app.Token, hab.ID)
 				Expect(res.StatusCode).To(Equal(http.StatusOK))
 			})
 
 			It("changes the name", func() {
-				hab := Must2(app.Create("old"))
-				Must(app.Update(hab.ID, "new"))
-				found := Must2(app.Get(hab.ID))
+				hab := app.MustCreate("old")
+				app.MustUpdate(hab.ID, "new")
+				found := app.MustGet(hab.ID)
 
 				Expect(found.Name).To(Equal("new"))
 			})
 
 			Describe("with invalid id", func() {
 				It("returns not found", func() {
-					res := Must2(api.Update(app.Token, "invalid uuid", "name"))
+					res := api.MustUpdate(app.Token, "invalid uuid", "name")
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 			})
 
 			Describe("with habit id that does not exist", func() {
 				It("returns not found", func() {
-					res := Must2(api.Update(app.Token, badHabitID, "name"))
+					res := api.MustUpdate(app.Token, badHabitID, "name")
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 			})
@@ -171,67 +171,67 @@ var _ = Describe("/habits", func() {
 
 		Describe("after deleting the habit", func() {
 			It("has status 404", func() {
-				h := Must2(app.Create("read"))
+				h := app.MustCreate("read")
 
-				res := Must2(api.Get(app.Token, h.ID))
+				res := api.MustGet(app.Token, h.ID)
 				Expect(res.StatusCode).To(Equal(http.StatusOK))
 
-				res = Must2(api.Delete(app.Token, h.ID))
+				res = api.MustDelete(app.Token, h.ID)
 				Expect(res.StatusCode).To(Equal(http.StatusOK))
 
-				res = Must2(api.Get(app.Token, h.ID))
+				res = api.MustGet(app.Token, h.ID)
 				Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 			})
 		})
 
 		Describe("when habit is not found", func() {
 			It("has status 404", func() {
-				res := Must2(api.Get(app.Token, "this will not be found"))
+				res := api.MustGet(app.Token, "this will not be found")
 				Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 			})
 		})
 
 		It("cannot read habits from other users", func() {
-			otherUser := Must2(app.CreateToken())
-			defaultUserHabit := Must2(app.Create("read"))
+			otherUser := app.MustCreateToken()
+			defaultUserHabit := app.MustCreate("read")
 
-			res := Must2(api.Get(otherUser, defaultUserHabit.ID))
+			res := api.MustGet(otherUser, defaultUserHabit.ID)
 
 			Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 		})
 
 		Describe("activities", func() {
 			It("requires token", func() {
-				h := Must2(app.Create("read"))
-				res := Must2(api.AddActivity("token", h.ID, "desc", time.Now()))
+				h := app.MustCreate("read")
+				res := api.MustAddActivity("token", h.ID, "desc", time.Now())
 				Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
 			})
 
 			Describe("create", func() {
 				It("returns created activities on get", func() {
-					h := Must2(app.Create("read"))
-					Must(app.AddActivity(h.ID, time.Now()))
-					Must(app.AddActivity(h.ID, time.Now()))
-					Must(app.AddActivity(h.ID, time.Now()))
+					h := app.MustCreate("read")
+					app.MustAddActivity(h.ID, time.Now())
+					app.MustAddActivity(h.ID, time.Now())
+					app.MustAddActivity(h.ID, time.Now())
 
-					h = Must2(app.Get(h.ID))
+					h = app.MustGet(h.ID)
 					Expect(h.Activities).To(HaveLen(3))
 				})
 
 				It("cannot create activities for other user's habits", func() {
-					otherUser := Must2(app.CreateToken())
-					defaultUserHabit := Must2(app.Create("read"))
+					otherUser := app.MustCreateToken()
+					defaultUserHabit := app.MustCreate("read")
 
-					res := Must2(api.AddActivity(otherUser, defaultUserHabit.ID, "desc", time.Now()))
+					res := api.MustAddActivity(otherUser, defaultUserHabit.ID, "desc", time.Now())
 
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 
 				It("contains a description", func() {
-					h := Must2(app.Create("read"))
-					Must(app.AddActivityWithDesc(h.ID, "my description", time.Now()))
+					h := app.MustCreate("read")
+					app.MustAddActivityWithDesc(h.ID, "my description", time.Now())
 
-					habit := Must2(app.Get(h.ID))
+					habit := app.MustGet(h.ID)
 
 					Expect(habit.Activities[0].Desc).To(Equal("my description"))
 				})
@@ -239,94 +239,94 @@ var _ = Describe("/habits", func() {
 
 			Describe("update", func() {
 				It("updates the description", func() {
-					hab := Must2(app.Create("read"))
-					Must(app.AddActivityWithDesc(hab.ID, "old", time.Now()))
+					hab := app.MustCreate("read")
+					app.MustAddActivityWithDesc(hab.ID, "old", time.Now())
 
-					activity := Must2(app.Get(hab.ID)).Activities[0]
-					Must(app.UpdateActivityDesc(hab.ID, activity.ID, "new"))
+					activity := app.MustGet(hab.ID).Activities[0]
+					app.MustUpdateActivityDesc(hab.ID, activity.ID, "new")
 
-					habit := Must2(app.Get(hab.ID))
+					habit := app.MustGet(hab.ID)
 					Expect(habit.Activities[0].Desc).To(Equal("new"))
 				})
 
 				It("requires token", func() {
-					hab := Must2(app.Create("read"))
-					Must(app.AddActivityWithDesc(hab.ID, "old", time.Now()))
-					activity := Must2(app.Get(hab.ID)).Activities[0]
+					hab := app.MustCreate("read")
+					app.MustAddActivityWithDesc(hab.ID, "old", time.Now())
+					activity := app.MustGet(hab.ID).Activities[0]
 
-					res := Must2(api.UpdateActivity("bad token", hab.ID, activity.ID, "new"))
+					res := api.MustUpdateActivity("bad token", hab.ID, activity.ID, "new")
 					Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
 				})
 
 				It("cannot update activities for other user's activities", func() {
-					otherUser := Must2(app.CreateToken())
-					defaultUserHabit := Must2(app.Create("read"))
-					Must(app.AddActivityWithDesc(defaultUserHabit.ID, "old", time.Now()))
-					defaultUserActivity := Must2(app.Get(defaultUserHabit.ID)).Activities[0]
+					otherUser := app.MustCreateToken()
+					defaultUserHabit := app.MustCreate("read")
+					app.MustAddActivityWithDesc(defaultUserHabit.ID, "old", time.Now())
+					defaultUserActivity := app.MustGet(defaultUserHabit.ID).Activities[0]
 
-					res := Must2(api.UpdateActivity(otherUser, defaultUserHabit.ID, defaultUserActivity.ID, "new"))
+					res := api.MustUpdateActivity(otherUser, defaultUserHabit.ID, defaultUserActivity.ID, "new")
 
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 
 				It("returns 404 when activity not found", func() {
-					h := Must2(app.Create("read"))
-					res := Must2(api.UpdateActivity(app.Token, h.ID, badActivityID, "desc"))
+					h := app.MustCreate("read")
+					res := api.MustUpdateActivity(app.Token, h.ID, badActivityID, "desc")
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 
 				It("returns 404 when given a bad habit id", func() {
-					res := Must2(api.UpdateActivity(app.Token, "not an uuid", "cc4f532a-4076-4dba-ac73-f003ee59ea07", "desc"))
+					res := api.MustUpdateActivity(app.Token, "not an uuid", "cc4f532a-4076-4dba-ac73-f003ee59ea07", "desc")
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 
 				It("returns 404 when given a bad activity id", func() {
-					res := Must2(api.UpdateActivity(app.Token, "cc4f532a-4076-4dba-ac73-f003ee59ea07", "not an uuid", "desc"))
+					res := api.MustUpdateActivity(app.Token, "cc4f532a-4076-4dba-ac73-f003ee59ea07", "not an uuid", "desc")
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 			})
 
 			Describe("activity delete", func() {
 				It("requires token", func() {
-					res := Must2(api.DeleteActivity("bad token", "habit id", "activity id"))
+					res := api.MustDeleteActivity("bad token", "habit id", "activity id")
 					Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
 				})
 
 				It("is not returned", func() {
-					habit := Must2(app.Create("read"))
-					Must(app.AddActivity(habit.ID, time.Now()))
-					habit = Must2(app.Get(habit.ID))
+					habit := app.MustCreate("read")
+					app.MustAddActivity(habit.ID, time.Now())
+					habit = app.MustGet(habit.ID)
 					Expect(habit.Activities).To(HaveLen(1))
 
-					Must(app.DeleteActivity(habit.ID, habit.Activities[0].ID))
+					app.MustDeleteActivity(habit.ID, habit.Activities[0].ID)
 
-					habit = Must2(app.Get(habit.ID))
+					habit = app.MustGet(habit.ID)
 					Expect(habit.Activities).To(HaveLen(0))
 				})
 
 				It("returns 404 when habit not found", func() {
-					habit := Must2(app.Create("read"))
-					Must(app.AddActivity(habit.ID, time.Now()))
-					habit = Must2(app.Get(habit.ID))
+					habit := app.MustCreate("read")
+					app.MustAddActivity(habit.ID, time.Now())
+					habit = app.MustGet(habit.ID)
 					Expect(habit.Activities).To(HaveLen(1))
 
-					res := Must2(api.DeleteActivity(app.Token, badHabitID, habit.Activities[0].ID))
+					res := api.MustDeleteActivity(app.Token, badHabitID, habit.Activities[0].ID)
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 
 				It("returns 404 when activity not found", func() {
-					h := Must2(app.Create("read"))
-					res := Must2(api.DeleteActivity(app.Token, h.ID, badActivityID))
+					h := app.MustCreate("read")
+					res := api.MustDeleteActivity(app.Token, h.ID, badActivityID)
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 
 				It("returns 404 when given a bad habit id", func() {
-					res := Must2(api.DeleteActivity(app.Token, "not an uuid", "cc4f532a-4076-4dba-ac73-f003ee59ea07"))
+					res := api.MustDeleteActivity(app.Token, "not an uuid", "cc4f532a-4076-4dba-ac73-f003ee59ea07")
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 
 				It("returns 404 when given a bad activity id", func() {
-					res := Must2(api.DeleteActivity(app.Token, "cc4f532a-4076-4dba-ac73-f003ee59ea07", "not an uuid"))
+					res := api.MustDeleteActivity(app.Token, "cc4f532a-4076-4dba-ac73-f003ee59ea07", "not an uuid")
 					Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 				})
 			})
@@ -334,22 +334,22 @@ var _ = Describe("/habits", func() {
 
 		Describe("delete", func() {
 			It("requires token", func() {
-				h := Must2(app.Create("read"))
-				res := Must2(api.Delete("", h.ID))
+				h := app.MustCreate("read")
+				res := api.MustDelete("", h.ID)
 				Expect(res.StatusCode).To(Equal(http.StatusUnauthorized))
 			})
 
 			It("return status ok", func() {
-				h := Must2(app.Create("read"))
-				res := Must2(api.Delete(app.Token, h.ID))
+				h := app.MustCreate("read")
+				res := api.MustDelete(app.Token, h.ID)
 				Expect(res.StatusCode).To(Equal(http.StatusOK))
 			})
 
 			It("cannot delete other user's habits", func() {
-				otherUser := Must2(app.CreateToken())
-				defaultUserHabit := Must2(app.Create("read"))
+				otherUser := app.MustCreateToken()
+				defaultUserHabit := app.MustCreate("read")
 
-				res := Must2(api.Delete(otherUser, defaultUserHabit.ID))
+				res := api.MustDelete(otherUser, defaultUserHabit.ID)
 
 				Expect(res.StatusCode).To(Equal(http.StatusNotFound))
 			})
@@ -359,12 +359,12 @@ var _ = Describe("/habits", func() {
 	Describe("groups", func() {
 		Describe("create", func() {
 			It("creates a group", func() {
-				Must2(app.CreateGroup("health"))
+				app.MustCreateGroup("health")
 			})
 
 			It("is listed", func() {
-				health := Must2(app.CreateGroup("health"))
-				groups, _ := Must3(app.GroupsAndHabits())
+				health := app.MustCreateGroup("health")
+				groups, _ := app.MustGroupsAndHabits()
 
 				Expect(groups).To(ContainElement(health))
 			})
@@ -373,60 +373,60 @@ var _ = Describe("/habits", func() {
 		Describe("habits", func() {
 			When("in the group", func() {
 				It("is listed in groups", func() {
-					health := Must2(app.CreateGroup("health"))
-					run := Must2(app.Create("run"))
+					health := app.MustCreateGroup("health")
+					run := app.MustCreate("run")
 
-					Must(app.AddToGroup(run, health))
+					app.MustAddToGroup(run, health)
 
-					groups, _ := Must3(app.GroupsAndHabits())
+					groups, _ := app.MustGroupsAndHabits()
 					Expect(groups).To(HaveLen(1))
 					Expect(groups[0].Habits).To(ContainElement(run))
 				})
 
 				It("is not listed in habits", func() {
-					health := Must2(app.CreateGroup("health"))
-					run := Must2(app.Create("run"))
+					health := app.MustCreateGroup("health")
+					run := app.MustCreate("run")
 
-					Must(app.AddToGroup(run, health))
+					app.MustAddToGroup(run, health)
 
-					_, habits := Must3(app.GroupsAndHabits())
+					_, habits := app.MustGroupsAndHabits()
 					Expect(habits).To(BeEmpty())
 				})
 			})
 
 			When("out of the group", func() {
 				It("is not listed in groups", func() {
-					Must2(app.CreateGroup("health"))
-					Must2(app.Create("run"))
+					app.MustCreateGroup("health")
+					app.MustCreate("run")
 
-					groups, _ := Must3(app.GroupsAndHabits())
+					groups, _ := app.MustGroupsAndHabits()
 					Expect(groups).To(HaveLen(1))
 					Expect(groups[0].Habits).To(BeEmpty())
 				})
 
 				It("is listed in habits", func() {
-					Must2(app.CreateGroup("health"))
-					run := Must2(app.Create("run"))
+					app.MustCreateGroup("health")
+					run := app.MustCreate("run")
 
-					_, habits := Must3(app.GroupsAndHabits())
+					_, habits := app.MustGroupsAndHabits()
 					Expect(habits).To(ContainElement(run))
 				})
 			})
 
 			When("removing a habit from the group", func() {
 				It("changes it from 'groups' to 'habits'", func() {
-					health := Must2(app.CreateGroup("health"))
-					run := Must2(app.Create("run"))
+					health := app.MustCreateGroup("health")
+					run := app.MustCreate("run")
 
-					Must(app.AddToGroup(run, health))
+					app.MustAddToGroup(run, health)
 
-					groups, habits := Must3(app.GroupsAndHabits())
+					groups, habits := app.MustGroupsAndHabits()
 					Expect(groups[0].Habits).To(ContainElement(run))
 					Expect(habits).To(BeEmpty())
 
-					Must(app.RemoveFromGroup(run, health))
+					app.MustRemoveFromGroup(run, health)
 
-					groups, habits = Must3(app.GroupsAndHabits())
+					groups, habits = app.MustGroupsAndHabits()
 					Expect(groups[0].Habits).To(BeEmpty())
 					Expect(habits).To(ContainElement(run))
 				})
@@ -434,18 +434,18 @@ var _ = Describe("/habits", func() {
 
 			When("removing deleting a group", func() {
 				It("changes it from 'groups' to 'habits'", func() {
-					health := Must2(app.CreateGroup("health"))
-					run := Must2(app.Create("run"))
+					health := app.MustCreateGroup("health")
+					run := app.MustCreate("run")
 
-					Must(app.AddToGroup(run, health))
+					app.MustAddToGroup(run, health)
 
-					groups, habits := Must3(app.GroupsAndHabits())
+					groups, habits := app.MustGroupsAndHabits()
 					Expect(groups[0].Habits).To(ContainElement(run))
 					Expect(habits).To(BeEmpty())
 
-					Must(app.DeleteGroup(health))
+					app.MustDeleteGroup(health)
 
-					groups, habits = Must3(app.GroupsAndHabits())
+					groups, habits = app.MustGroupsAndHabits()
 					Expect(groups).To(BeEmpty())
 					Expect(habits).To(ContainElement(run))
 				})

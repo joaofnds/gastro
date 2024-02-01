@@ -50,12 +50,12 @@ var _ = Describe("/token", Ordered, func() {
 	AfterAll(func() { app.RequireStop() })
 
 	It("returns status created", func() {
-		res := Must2(api.CreateToken())
+		res := api.MustCreateToken()
 		Expect(res.StatusCode).To(Equal(http.StatusCreated))
 	})
 
 	It("returns the token", func() {
-		res := Must2(api.CreateToken())
+		res := api.MustCreateToken()
 		body := Must2(io.ReadAll(res.Body))
 		defer res.Body.Close()
 
@@ -64,16 +64,16 @@ var _ = Describe("/token", Ordered, func() {
 
 	Describe("token check", func() {
 		It("returns ok for tokens emitted by us", func() {
-			res := Must2(api.CreateToken())
+			res := api.MustCreateToken()
 			token := Must2(io.ReadAll(res.Body))
 			defer res.Body.Close()
 
-			res = Must2(api.TestToken(string(token)))
+			res = api.MustTestToken(string(token))
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
 		})
 
 		It("returns bad request for invalid tokens", func() {
-			res := Must2(api.TestToken("invalid token"))
+			res := api.MustTestToken("invalid token")
 			Expect(res.StatusCode).To(Equal(http.StatusBadRequest))
 		})
 	})
