@@ -35,7 +35,7 @@ func main() {
 		postgres.Module,
 		fx.Invoke(func(db *sql.DB, config postgres.Config) error {
 			goose.SetBaseFS(migrations)
-			return goose.Run(os.Args[1], db, "migrations", os.Args[2:]...)
+			return goose.RunContext(context.Background(), os.Args[1], db, "migrations", os.Args[2:]...)
 		}),
 	)
 	defer func() { must(app.Stop(context.Background())) }()
