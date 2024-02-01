@@ -6,6 +6,8 @@ import (
 	"go.uber.org/zap"
 )
 
+var _ Probe = (*PromProbe)(nil)
+
 type PromProbe struct {
 	logger         *zap.Logger
 	tokensCreated  prometheus.Counter

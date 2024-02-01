@@ -8,6 +8,8 @@ import (
 	"filippo.io/age"
 )
 
+var _ Encrypter = (*AgeEncrypter)(nil)
+
 type AgeEncrypter struct {
 	recipient age.Recipient
 	identity  age.Identity

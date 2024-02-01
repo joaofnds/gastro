@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 )
 
+var _ Encoder = (*Base64Encoder)(nil)
+
 type Base64Encoder struct{}
 
 func NewBase64Encoder() *Base64Encoder {

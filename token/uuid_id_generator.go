@@ -2,6 +2,8 @@ package token
 
 import "github.com/google/uuid"
 
+var _ IDGenerator = (*UUIDGenerator)(nil)
+
 type UUIDGenerator struct{}
 
 func NewUUIDGenerator() *UUIDGenerator {
