@@ -34,7 +34,7 @@ func TestDagger() error {
 		WithEnvVariable("CONFIG_PATH", "/app/config/config.yaml").
 		WithEnvVariable("POSTGRES_HOST", "postgres").
 		WithExec([]string{"go", "test", "-v", "./..."}).
-		ExitCode(ctx)
+		Sync(ctx)
 
 	return err
 }

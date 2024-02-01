@@ -17,7 +17,7 @@ func Build() error {
 	}
 	defer client.Close()
 
-	dir := client.Host().Workdir()
+	dir := client.Host().Directory(".")
 	golang := client.Container().
 		From("golang:1.21").
 		WithEnvVariable("CGO_ENABLED", "0").
@@ -35,7 +35,7 @@ func Build() error {
 		WithMountedFile("/", golang.File("/go/bin/app")).
 		WithEntrypoint([]string{"/app"})
 
-	_, err = distroless.ExitCode(ctx)
+	_, err = distroless.Sync(ctx)
 
 	return err
 }

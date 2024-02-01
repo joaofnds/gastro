@@ -7,14 +7,15 @@ import (
 	"dagger.io/dagger"
 )
 
-func Postgres(client *dagger.Client) *dagger.Container {
+func Postgres(client *dagger.Client) *dagger.Service {
 	return client.Container().
 		From("postgres:alpine").
 		WithEnvVariable("POSTGRES_DB", "astro").
 		WithEnvVariable("POSTGRES_USER", "postgres").
 		WithEnvVariable("POSTGRES_PASSWORD", "postgres").
 		WithExposedPort(5432).
-		WithExec(nil)
+		WithExec(nil).
+		AsService()
 }
 
 func BuildProd() error {
@@ -34,7 +35,7 @@ func BuildProd() error {
 }
 
 func BaseContainer(ctx context.Context, client *dagger.Client) (*dagger.Container, error) {
-	dir := client.Host().Workdir()
+	dir := client.Host().Directory(".")
 	golang := client.Container().
 		From("golang:latest").
 		WithEnvVariable("CGO_ENABLED", "0").
@@ -63,7 +64,7 @@ func prodContainer(ctx context.Context, client *dagger.Client) (*dagger.Containe
 		WithMountedFile("/", golang.File("/go/bin/app")).
 		WithEntrypoint([]string{"/app"})
 
-	if _, err = distroless.ExitCode(ctx); err != nil {
+	if _, err = distroless.Sync(ctx); err != nil {
 		return nil, err
 	}
 
