@@ -1,0 +1,2 @@
+[env]
+CONFIG_PATH = "{{config_root}}/config/config.yaml"
