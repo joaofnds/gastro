@@ -29,9 +29,8 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 }
 
 func (c *Controller) TestToken(ctx *fiber.Ctx) error {
-	headers := ctx.GetReqHeaders()
-	tok, ok := headers["Authorization"]
-	if !ok {
+	tok := ctx.Get("Authorization")
+	if tok == "" {
 		return ctx.Status(http.StatusBadRequest).SendString("missing Authorization header")
 	}
 

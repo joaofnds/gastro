@@ -301,8 +301,8 @@ func (c Controller) middlewareFindActivity(ctx *fiber.Ctx) error {
 }
 
 func (c Controller) middlewareDecodeToken(ctx *fiber.Ctx) error {
-	tok, ok := ctx.GetReqHeaders()["Authorization"]
-	if !ok {
+	tok := ctx.Get("Authorization")
+	if tok == "" {
 		return ctx.Status(http.StatusUnauthorized).SendString("missing Authorization token")
 	}
 
