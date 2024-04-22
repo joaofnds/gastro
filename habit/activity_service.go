@@ -19,7 +19,13 @@ func NewActivityService(
 
 func (service *ActivityService) Add(ctx context.Context, habit Habit, dto AddActivityDTO) (Activity, error) {
 	dto.Time = dto.Time.UTC().Truncate(time.Second)
-	return service.repo.Add(ctx, habit, dto)
+	activity, err := service.repo.Add(ctx, habit, dto)
+
+	if err == nil {
+		service.probe.ActivityCreated()
+	}
+
+	return activity, err
 }
 
 func (service *ActivityService) Update(ctx context.Context, dto UpdateActivityDTO) (Activity, error) {
