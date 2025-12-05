@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE "groups" (
+CREATE TABLE IF NOT EXISTS "groups" (
     id uuid NOT NULL DEFAULT uuid_generate_v4(),
     name varchar NOT NULL,
     user_id uuid NOT NULL,
@@ -7,4 +7,4 @@ CREATE TABLE "groups" (
 );
 
 -- +goose Down
-DROP TABLE "groups";
+DROP TABLE IF EXISTS "groups";

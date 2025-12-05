@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE groups_habits (
+CREATE TABLE IF NOT EXISTS groups_habits (
     group_id uuid NOT NULL,
     habit_id uuid NOT NULL,
     user_id uuid NOT NULL,
@@ -13,4 +13,4 @@ CREATE TABLE groups_habits (
 );
 
 -- +goose Down
-DROP TABLE groups_habits;
+DROP TABLE IF EXISTS groups_habits;
