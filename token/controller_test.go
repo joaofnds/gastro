@@ -57,7 +57,7 @@ var _ = Describe("/token", Ordered, func() {
 	It("returns the token", func() {
 		res := api.MustCreateToken()
 		body := Must2(io.ReadAll(res.Body))
-		defer res.Body.Close()
+		defer func() { _ = res.Body.Close() }()
 
 		Expect(body).To(HaveLen(316))
 	})
@@ -66,7 +66,7 @@ var _ = Describe("/token", Ordered, func() {
 		It("returns ok for tokens emitted by us", func() {
 			res := api.MustCreateToken()
 			token := Must2(io.ReadAll(res.Body))
-			defer res.Body.Close()
+			defer func() { _ = res.Body.Close() }()
 
 			res = api.MustTestToken(string(token))
 			Expect(res.StatusCode).To(Equal(http.StatusOK))

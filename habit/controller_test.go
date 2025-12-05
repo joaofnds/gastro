@@ -91,7 +91,7 @@ var _ = Describe("/habits", func() {
 		It("returns the created habit", func() {
 			res := api.MustCreate(app.Token, "read")
 			body := Must2(io.ReadAll(res.Body))
-			defer res.Body.Close()
+			defer func() { _ = res.Body.Close() }()
 
 			var habit habit.Habit
 			Must(json.Unmarshal(body, &habit))

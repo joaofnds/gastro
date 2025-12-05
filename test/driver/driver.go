@@ -188,7 +188,7 @@ func (d *Driver) CreateToken() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	b, err := io.ReadAll(res.Body)
 	return string(b), err
