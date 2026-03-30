@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
@@ -26,6 +27,9 @@ func NewFiber(config Config, probe Probe) *fiber.App {
 		DisableStartupMessage: true,
 		JSONEncoder:           sonic.Marshal,
 		JSONDecoder:           sonic.Unmarshal,
+		ReadTimeout:           30 * time.Second,
+		WriteTimeout:          30 * time.Second,
+		IdleTimeout:           120 * time.Second,
 	})
 	app.Use(recover.New())
 	app.Use(compress.New(compress.Config{

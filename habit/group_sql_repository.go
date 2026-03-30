@@ -51,6 +51,7 @@ func (repo *GroupSQLRepository) GroupsAndHabits(ctx context.Context, userID stri
 	}
 
 	result = repo.orm.
+		WithContext(ctx).
 		Preload("Activities").
 		Joins("LEFT JOIN groups_habits ON groups_habits.habit_id = habits.id").
 		Where("groups_habits IS NULL").

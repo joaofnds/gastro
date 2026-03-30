@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	_ "github.com/lib/pq"
 	"go.uber.org/fx"
@@ -26,7 +27,17 @@ func NewGormDB(postgresConfig Config) (*gorm.DB, error) {
 }
 
 func NewSQLDB(db *gorm.DB) (*sql.DB, error) {
-	return db.DB()
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+
+	sqlDB.SetMaxOpenConns(25)
+	sqlDB.SetMaxIdleConns(5)
+	sqlDB.SetConnMaxLifetime(5 * time.Minute)
+	sqlDB.SetConnMaxIdleTime(10 * time.Minute)
+
+	return sqlDB, nil
 }
 
 func HookConnection(lifecycle fx.Lifecycle, db *sql.DB) {
