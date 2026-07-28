@@ -32,6 +32,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"testing"
 
 	"go.uber.org/fx"
@@ -182,20 +183,28 @@ func diffEntry(want, got entry) []string {
 
 	var differences []string
 	report := func(field, w, g string) {
-		if w != g {
-			differences = append(differences, fmt.Sprintf("%s: %s: golden %s, capture %s", want.Name, field, w, g))
+		if w == g || accepted(want.Name, field, w, g) {
+			return
 		}
+
+		differences = append(differences, fmt.Sprintf("%s: %s: golden %q, capture %q", want.Name, field, w, g))
 	}
 
 	report("status", fmt.Sprint(want.Status), fmt.Sprint(got.Status))
 	report("body_encoding", want.BodyEncoding, got.BodyEncoding)
-	report("body", fmt.Sprintf("%q", want.Body), fmt.Sprintf("%q", got.Body))
+	report("body", want.Body, got.Body)
 
 	for _, name := range headerNames(want.Headers, got.Headers) {
-		report("header "+name, fmt.Sprint(want.Headers[name]), fmt.Sprint(got.Headers[name]))
+		report(name, headerValue(want.Headers, name), headerValue(got.Headers, name))
 	}
 
 	return differences
+}
+
+// headerValue renders a header for comparison. Absent and empty are both "", which is what
+// an acceptedDelta's From or To means when it is blank.
+func headerValue(headers map[string][]string, name string) string {
+	return strings.Join(headers[name], ", ")
 }
 
 func headerNames(maps ...map[string][]string) []string {

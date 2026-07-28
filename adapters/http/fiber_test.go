@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
@@ -21,7 +21,7 @@ import (
 )
 
 var PanicHandler = fx.Invoke(func(app *fiber.App) {
-	app.All("panic", func(c *fiber.Ctx) error {
+	app.All("panic", func(c fiber.Ctx) error {
 		panic("panic handler")
 	})
 })

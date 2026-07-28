@@ -3,7 +3,7 @@ package http
 import (
 	"strconv"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -16,7 +16,7 @@ const (
 )
 
 type Probe interface {
-	Middleware(*fiber.Ctx) error
+	Middleware(fiber.Ctx) error
 }
 
 type PromProbe struct {
@@ -32,12 +32,12 @@ func NewPromProbe() *PromProbe {
 	}
 }
 
-func (p *PromProbe) Middleware(ctx *fiber.Ctx) error {
+func (p *PromProbe) Middleware(ctx fiber.Ctx) error {
 	defer p.LogReq(ctx)
 	return ctx.Next()
 }
 
-func (p *PromProbe) LogReq(ctx *fiber.Ctx) {
+func (p *PromProbe) LogReq(ctx fiber.Ctx) {
 	labels := prometheus.Labels{}
 	labels[lblIP] = ctx.Get("Fly-Client-IP", ctx.IP())
 	labels[lblMethod] = ctx.Route().Method

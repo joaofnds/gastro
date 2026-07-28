@@ -30,7 +30,7 @@ version is still serving, and a rollback reverts the code but not the schema.
 | Repository file | `postgres_repository.go` in `_adapter` | `<entity>_sql_repository.go` in the domain package |
 | Module visibility | `fx.Private` for anything not consumed outside the module | everything public in the graph |
 | Observability | `PromProbe` subscribes to domain events over Watermill | `Probe` interface called directly by the service |
-| Test bootstrap | `test/harness` | eleven hand-wired `fxtest.New` sites |
+| Test bootstrap | `test/harness` | twelve hand-wired `fxtest.New` sites |
 | Doubles | hand-written real implementations | `token/mock.go`, mockgen output over owned ports |
 | Receiver naming | named for the type — `repository`, `controller`, `driver` | mostly single letters — `a`, `d`, `c`, `p` are 128 of 171 receivers |
 | Build | Task (`Taskfile.yaml`) | Mage (`magefiles/`) |
@@ -57,11 +57,12 @@ shared `resultErr` and `translateError` helpers — astro's equivalent of the te
 The target is the template's Harness: `~/.agents/rules/testing/01-architecture-and-harness.md`
 §5, implemented at `~/code/go/template/test/harness/`.
 
-**astro does not have it.** Eleven hand-wired bootstraps across ten test files
+**astro does not have it.** Twelve hand-wired bootstraps across eleven test files
 (`token/age_encrypter_test.go`, `token/service_test.go`, `token/controller_test.go`,
 `habit/controller_test.go`, `habit/activity_service_test.go`, `habit/group_service_test.go`,
 `habit/habit_service_test.go`, `adapters/metrics/metrics_test.go`,
-`adapters/health/controller_test.go` ×2, `adapters/http/fiber_test.go`) list modules in
+`adapters/health/controller_test.go` ×2, `adapters/http/fiber_test.go`,
+`test/contract/contract_test.go`) list modules in
 `BeforeEach`. Four of those sites also register their own routes with `fx.Invoke` —
 `habit/controller_test.go:52`, `token/controller_test.go:40`,
 `adapters/health/controller_test.go:58` and `:94`. A test that has to register routes is
@@ -90,7 +91,7 @@ suite is rewritten.
 
 ## Boundaries
 
-- **Do not rewrite the eleven bootstraps unasked.** Migrating the suite to a Harness is its
+- **Do not rewrite the twelve bootstraps unasked.** Migrating the suite to a Harness is its
   own piece of work with its own review, not a side effect of a feature task.
 - **Do not regenerate `token/mock.go` naively.** The file declares `package token` while its
   generated header says `mock_token`; it was hand-edited after generation, and a plain

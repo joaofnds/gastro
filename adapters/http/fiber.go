@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/bytedance/sonic"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/compress"
+	"github.com/gofiber/fiber/v3/middleware/cors"
+	"github.com/gofiber/fiber/v3/middleware/limiter"
+	"github.com/gofiber/fiber/v3/middleware/recover"
 	"go.uber.org/fx"
 )
 
@@ -24,12 +24,11 @@ var FiberModule = fx.Module(
 
 func NewFiber(config Config, probe Probe) *fiber.App {
 	app := fiber.New(fiber.Config{
-		DisableStartupMessage: true,
-		JSONEncoder:           sonic.Marshal,
-		JSONDecoder:           sonic.Unmarshal,
-		ReadTimeout:           30 * time.Second,
-		WriteTimeout:          30 * time.Second,
-		IdleTimeout:           120 * time.Second,
+		JSONEncoder:  sonic.Marshal,
+		JSONDecoder:  sonic.Unmarshal,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		IdleTimeout:  120 * time.Second,
 	})
 	app.Use(recover.New())
 	app.Use(compress.New(compress.Config{
@@ -41,7 +40,18 @@ func NewFiber(config Config, probe Probe) *fiber.App {
 		LimiterMiddleware: limiter.SlidingWindow{},
 	}))
 	app.Use(probe.Middleware)
-	app.Use(cors.New())
+	// v3's default AllowMethods adds QUERY, which the service defines no handler for.
+	// Listing v2's six keeps the advertised set unchanged.
+	app.Use(cors.New(cors.Config{
+		AllowMethods: []string{
+			fiber.MethodGet,
+			fiber.MethodPost,
+			fiber.MethodHead,
+			fiber.MethodPut,
+			fiber.MethodDelete,
+			fiber.MethodPatch,
+		},
+	}))
 	return app
 }
 
@@ -49,7 +59,8 @@ func HookFiber(lc fx.Lifecycle, app *fiber.App, config Config) {
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
 			go func() {
-				if err := app.Listen(fmt.Sprintf(":%d", config.Port)); err != nil {
+				listenConfig := fiber.ListenConfig{DisableStartupMessage: true}
+				if err := app.Listen(fmt.Sprintf(":%d", config.Port), listenConfig); err != nil {
 					panic(err)
 				}
 			}()

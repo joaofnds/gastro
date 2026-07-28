@@ -3,7 +3,7 @@ package health
 import (
 	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"go.uber.org/fx"
 )
 
@@ -23,10 +23,10 @@ func (c *Controller) Register(app *fiber.App) {
 	app.Get("/health", c.CheckHealth)
 }
 
-func (c *Controller) CheckHealth(ctx *fiber.Ctx) error {
+func (c *Controller) CheckHealth(ctx fiber.Ctx) error {
 	status := http.StatusOK
 
-	h := c.service.CheckHealth(ctx.Context())
+	h := c.service.CheckHealth(ctx.RequestCtx())
 	if !h.AllUp() {
 		status = http.StatusServiceUnavailable
 	}

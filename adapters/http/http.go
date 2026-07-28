@@ -5,7 +5,7 @@ import (
 	"astro/habit"
 	"astro/token"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 
 	"go.uber.org/fx"
 )
@@ -19,8 +19,9 @@ var Module = fx.Module(
 		habitController *habit.Controller,
 		tokenController *token.Controller,
 	) {
-		app.Get("/", func(c *fiber.Ctx) error {
-			return c.Redirect("https://github.com/joaofnds/astro")
+		app.Get("/", func(c fiber.Ctx) error {
+			// v3's Redirect defaults to 303; v2 sent 302.
+			return c.Redirect().Status(fiber.StatusFound).To("https://github.com/joaofnds/astro")
 		})
 		healthController.Register(app)
 		habitController.Register(app)

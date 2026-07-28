@@ -3,7 +3,7 @@ package token
 import (
 	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 func NewController(service *Service) *Controller {
@@ -19,7 +19,7 @@ func (c *Controller) Register(app *fiber.App) {
 	app.Get("/tokentest", c.TestToken)
 }
 
-func (c *Controller) Create(ctx *fiber.Ctx) error {
+func (c *Controller) Create(ctx fiber.Ctx) error {
 	tok, err := c.service.NewToken()
 	if err != nil {
 		return ctx.SendStatus(http.StatusInternalServerError)
@@ -28,7 +28,7 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusCreated).Send(tok)
 }
 
-func (c *Controller) TestToken(ctx *fiber.Ctx) error {
+func (c *Controller) TestToken(ctx fiber.Ctx) error {
 	tok := ctx.Get("Authorization")
 	if tok == "" {
 		return ctx.Status(http.StatusBadRequest).SendString("missing Authorization header")

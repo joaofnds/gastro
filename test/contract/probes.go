@@ -12,7 +12,7 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"go.uber.org/fx"
 )
 
@@ -21,7 +21,7 @@ import (
 var largeBody = strings.Repeat("astro contract probe payload.\n", 40)
 
 var LargeRoute = fx.Invoke(func(app *fiber.App) {
-	app.Get("/contract/large", func(c *fiber.Ctx) error {
+	app.Get("/contract/large", func(c fiber.Ctx) error {
 		return c.SendString(largeBody)
 	})
 })
@@ -238,6 +238,126 @@ func newEntry(p probe, resp *http.Response, raw []byte) entry {
 	e.BodyEncoding, e.Body = encodeBody(raw)
 
 	return e
+}
+
+// acceptedDelta records one contract difference that ships, so the comparator can pass it
+// without the golden file being regenerated — regeneration is the failure mode a golden file
+// exists to prevent. Every entry names the C14 reference that authorised it; DELTAS.md carries
+// the reasoning. An entry targets exactly one field of one probe, so it can never degenerate
+// into a blanket ignore.
+type acceptedDelta struct {
+	// Scope is a probe name, or "*" for every probe. "*" is permitted only where C14 records
+	// the delta as affecting every response.
+	Scope string
+	// Field is "status", "body", or a canonical header name.
+	Field string
+	// From is the golden value, To the observed one. "" means the header is absent.
+	From string
+	To   string
+	// Ref is the C14 entry authorising this delta. Required.
+	Ref    string
+	Reason string
+}
+
+const scopeEveryProbe = "*"
+
+var acceptedDeltas = []acceptedDelta{
+	{
+		Scope: scopeEveryProbe, Field: "Vary", From: "", To: "Accept-Encoding", Ref: "C14.1",
+		Reason: "v3's compress middleware sets Vary even when it declines to compress. Not suppressible by config (C14a); affects cache keys only and nothing caches here.",
+	},
+	{
+		Scope: scopeEveryProbe, Field: "Content-Type",
+		From: "application/json", To: "application/json; charset=utf-8", Ref: "C14.4",
+		Reason: "app/api/client.go:86-90 unmarshals without inspecting Content-Type.",
+	},
+	{
+		Scope: "OPTIONS /habits (CORS preflight)", Field: "Vary",
+		From: "Access-Control-Request-Method, Access-Control-Request-Headers, Origin",
+		To:   "Access-Control-Request-Method, Access-Control-Request-Headers, Origin, Accept-Encoding",
+		Ref:  "C14.1",
+		Reason: "The same delta as the Vary entry above, observed on the preflight. The cors " +
+			"middleware sets the same 3 values on both majors; the 4th is compress's.",
+	},
+	{
+		Scope: "OPTIONS /habits (CORS preflight)", Field: "Access-Control-Allow-Methods",
+		From: "GET,POST,HEAD,PUT,DELETE,PATCH", To: "GET, POST, HEAD, PUT, DELETE, PATCH", Ref: "C14.2",
+		Reason: "strings.Join(cfg.AllowMethods, \", \") is hard-coded at middleware/cors/cors.go:192. RFC 7230 treats the two as equivalent; there is no browser client.",
+	},
+	{
+		Scope: "HEAD /contract/large (gzip)", Field: "Content-Encoding", From: "gzip", To: "", Ref: "C14.8",
+		Reason: "v3's shouldSkip returns early for HEAD. A HEAD response carries no body, so no client can act on the header.",
+	},
+	{
+		Scope: "PROPFIND /health", Field: "status", From: "400", To: "501", Ref: "C14.7",
+		Reason: "v3 short-circuits unknown methods before the middleware chain. 501 is correct for an unimplemented method; 400 was not.",
+	},
+	{
+		Scope: "PROPFIND /health", Field: "body", From: "Invalid http method", To: "Not Implemented", Ref: "C14.7",
+		Reason: "Reason phrase for the corrected status.",
+	},
+	{
+		Scope: "QUERY /health", Field: "status", From: "400", To: "405", Ref: "C14.7",
+		Reason: "v3 adds MethodQuery to DefaultMethods, so QUERY is routed rather than rejected and the router answers 405.",
+	},
+	{
+		Scope: "QUERY /health", Field: "body", From: "Invalid http method", To: "Method Not Allowed", Ref: "C14.7",
+		Reason: "Reason phrase for the corrected status.",
+	},
+	{
+		Scope: "QUERY /health", Field: "Allow", From: "", To: "GET, HEAD", Ref: "C14.7",
+		Reason: "405 requires Allow. v2 never reached the router for this method.",
+	},
+	{
+		Scope: "QUERY /health", Field: "X-Ratelimit-Limit", From: "", To: "120", Ref: "C14.7",
+		Reason: "QUERY now reaches the limiter on v3. C14.7 states both unknown methods lose X-RateLimit-*; the capture shows QUERY gains them. See DELTAS.md.",
+	},
+	{
+		Scope: "QUERY /health", Field: "X-Ratelimit-Remaining", From: "", To: "90", Ref: "C14.7",
+		Reason: "As above. Exact because QUERY runs last, so no probe follows it to inherit an offset.",
+	},
+	{
+		Scope: "QUERY /health", Field: "X-Ratelimit-Reset", From: "", To: resetValue, Ref: "C14.7",
+		Reason: "As above.",
+	},
+	{
+		Scope: "GET /nope (404)", Field: "body", From: "Cannot GET /nope", To: "Not Found", Ref: "C14.5",
+		Reason: "api.Error.Body is written and never read, and the TUI builds every path from a fixed set. Not Found is also the standard reason phrase.",
+	},
+	{
+		Scope: "GET /habitsfoo (unauthenticated)", Field: "status", From: "401", To: "404", Ref: "C14.6",
+		Reason: "v3 requires a prefix match to end at a segment boundary (path.go:554-562), so /habitsfoo no longer falls into the /habits group. Owner-accepted 2026-07-29.",
+	},
+	{
+		Scope: "GET /habitsfoo (unauthenticated)", Field: "body",
+		From: "missing Authorization token", To: "Not Found", Ref: "C14.6",
+		Reason: "As above. v2 advertised that a /habits prefix existed; 404 leaks less.",
+	},
+	{
+		Scope: "GET /groupsxyz (unauthenticated)", Field: "status", From: "401", To: "404", Ref: "C14.6",
+		Reason: "As above, for the /groups group.",
+	},
+	{
+		Scope: "GET /groupsxyz (unauthenticated)", Field: "body",
+		From: "missing Authorization token", To: "Not Found", Ref: "C14.6",
+		Reason: "As above, for the /groups group.",
+	},
+}
+
+// accepted reports whether some entry authorises this exact golden-to-capture transition on
+// this exact probe and field.
+func accepted(probeName, field, golden, captured string) bool {
+	for _, d := range acceptedDeltas {
+		if d.Scope != scopeEveryProbe && d.Scope != probeName {
+			continue
+		}
+
+		if d.Field == field && d.From == golden && d.To == captured {
+			return true
+		}
+	}
+
+	return false
 }
 
 // resetValue stands in for X-RateLimit-Reset, a wall clock that counts down within the
