@@ -1,6 +1,6 @@
 # AGENTS.md
 
-The HTTP API behind [astro](https://github.com/joaofnds/astro). Go module `astro`, go 1.24,
+The HTTP API behind [astro](https://github.com/joaofnds/astro). Go module `astro`, go 1.25,
 deployed to Fly as `gastro`.
 
 **This service is a downstream of the Go service template and has fallen behind it.** The
