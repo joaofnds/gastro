@@ -395,6 +395,33 @@ func normalizeHeaders(h http.Header) map[string][]string {
 	return out
 }
 
+// parseErrorPattern matches sonic's rendering of a decode failure, which the controllers put
+// straight into the response body.
+//
+// That rendering is architecture-dependent: sonic has an amd64 JIT path and a fallback for
+// everything else, and they disagree on both the message and the ParsingError code. For the
+// input `{`, sonic v1.15.2 returns "expect a json key" on arm64 and "eof" on amd64; for an
+// empty body, Code:0x0 Msg:"invalid chars" versus Code:0x1 Msg:"". Same version, same input —
+// verified by calling sonic.Unmarshal directly under both GOARCH values, with no Fiber
+// involved. So this substring cannot be golden under any probe design that has to pass on a
+// developer's machine and in CI both.
+//
+// It is normalized at comparison time rather than at capture, so the committed golden file
+// keeps the bytes it recorded from the v2 tree.
+//
+// What survives normalization is what the migration actually changed: v3 wraps decode failures
+// in *BindError, whose Error() prepends "bind from body: ". That prefix sits before the match
+// and is still compared exactly, so the unwrap at habit/controller.go stays under test.
+var parseErrorPattern = regexp.MustCompile(`(?s)"?(Syntax error|Mismatch type).*`)
+
+const parseErrorPlaceholder = "<parse-error>"
+
+// comparableBody removes the parts of a body that no capture can hold stable. Applied to the
+// golden entry and the observed one alike.
+func comparableBody(body string) string {
+	return parseErrorPattern.ReplaceAllString(body, parseErrorPlaceholder)
+}
+
 // encodeBody keeps the golden file reviewable: valid UTF-8 is stored verbatim so a human can
 // read the T11 diff, and only genuinely binary bodies fall back to base64.
 func encodeBody(raw []byte) (string, string) {

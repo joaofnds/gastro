@@ -192,7 +192,7 @@ func diffEntry(want, got entry) []string {
 
 	report("status", fmt.Sprint(want.Status), fmt.Sprint(got.Status))
 	report("body_encoding", want.BodyEncoding, got.BodyEncoding)
-	report("body", want.Body, got.Body)
+	report("body", comparableBody(want.Body), comparableBody(got.Body))
 
 	for _, name := range headerNames(want.Headers, got.Headers) {
 		report(name, headerValue(want.Headers, name), headerValue(got.Headers, name))
