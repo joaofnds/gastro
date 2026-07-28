@@ -1,3 +1,9 @@
 06032a4c1f25a67559ddccb2e532924fbcdeeede:config/config.yaml:generic-api-key:10
-06032a4c1f25a67559ddccb2e532924fbcdeeede:config/config.yaml:age secret key:11
+06032a4c1f25a67559ddccb2e532924fbcdeeede:config/config.yaml:age-secret-key:11
 ebe823e4a183db1d9803d9c4d4b0abf2f9f4fadd:config/config.yaml:private-key:158
+
+# test fixture UUID passed as an activity id — not a credential
+fd998389a9536daab05f7dfb670afe661e2c3b1d:habit/controller_test.go:generic-api-key:284
+fd998389a9536daab05f7dfb670afe661e2c3b1d:habit/controller_test.go:generic-api-key:329
+d9a363a101a0bcdbefe1e30af3a55f86ba61ef22:habit/controller_test.go:generic-api-key:250
+3121b56c8fab71120bfd8111b1c754477d572851:habit/controller_test.go:generic-api-key:235
