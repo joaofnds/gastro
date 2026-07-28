@@ -2,5 +2,5 @@
 CONFIG_PATH = "{{config_root}}/config/config.yaml"
 
 [tools]
-go = "1.25"
-golangci-lint = "2.7.1"
+go = "1.26.5"
+golangci-lint = "2.12.2"
