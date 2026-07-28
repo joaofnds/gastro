@@ -171,9 +171,10 @@ func run(t *testing.T, baseURL string) []entry {
 	t.Helper()
 
 	s := &state{}
-	entries := make([]entry, 0, len(probes()))
+	sequence := probes()
+	entries := make([]entry, 0, len(sequence))
 
-	for _, p := range probes() {
+	for _, p := range sequence {
 		entries = append(entries, runProbe(t, baseURL, p, s))
 	}
 
