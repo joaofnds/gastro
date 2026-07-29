@@ -53,6 +53,18 @@ func (a API) MustUpdate(token, habitID, name string) *http.Response {
 	return matchers.Must2(a.Update(token, habitID, name))
 }
 
+func (a API) UpdateWithContentType(token, habitID, contentType, body string) (*http.Response, error) {
+	return req.Patch(
+		a.baseURL+"/habits/"+habitID,
+		map[string]string{"Content-Type": contentType, "Authorization": token},
+		strings.NewReader(body),
+	)
+}
+
+func (a API) MustUpdateWithContentType(token, habitID, contentType, body string) *http.Response {
+	return matchers.Must2(a.UpdateWithContentType(token, habitID, contentType, body))
+}
+
 func (a API) Get(token, id string) (*http.Response, error) {
 	return req.Get(
 		a.baseURL+"/habits/"+id,

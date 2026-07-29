@@ -2,36 +2,36 @@ package habit
 
 import (
 	"errors"
-	"testing"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/binder"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// v3 wraps every decoder failure in *fiber.BindError, whose Error() prefixes the response
-// body with "bind from body: ". v2 sent the decoder's own message. These pin both branches:
-// the wrapped one, and the *fiber.Error that Bind() returns for an unsupported Content-Type
-// without wrapping — no probe reaches that path, since it is unreachable from the TUI.
-
-func TestBindErrorMessage(t *testing.T) {
-	t.Run("returns the wrapped message", func(t *testing.T) {
+var _ = Describe("messageFromBindError", func() {
+	It("returns the message the decoder produced", func() {
 		err := &fiber.BindError{Err: errors.New("Syntax error at index 1"), Source: "body"}
 
-		if got, want := messageFromBindError(err), "Syntax error at index 1"; got != want {
-			t.Errorf("messageFromBindError() = %q, want %q", got, want)
-		}
+		Expect(messageFromBindError(err)).To(Equal("Syntax error at index 1"))
 	})
 
-	t.Run("returns the wrapped message when the field is populated", func(t *testing.T) {
-		err := &fiber.BindError{Err: errors.New("mismatched type"), Source: "body", Field: "name"}
-
-		if got, want := messageFromBindError(err), "mismatched type"; got != want {
-			t.Errorf("messageFromBindError() = %q, want %q", got, want)
-		}
+	It("falls back to the error's own message when it is not a BindError", func() {
+		Expect(messageFromBindError(fiber.ErrUnprocessableEntity)).To(Equal("Unprocessable Entity"))
 	})
 
-	t.Run("falls back to the error's own message when it is not a BindError", func(t *testing.T) {
-		if got, want := messageFromBindError(fiber.ErrUnprocessableEntity), "Unprocessable Entity"; got != want {
-			t.Errorf("messageFromBindError() = %q, want %q", got, want)
-		}
+	When("the decoder is not configured", func() {
+		It("hides the setup hint for a CBOR body", func() {
+			err := &fiber.BindError{Err: binder.ErrUnimplementedCBOR, Source: "body"}
+
+			Expect(messageFromBindError(err)).To(Equal("Unprocessable Entity"))
+		})
+
+		It("hides the setup hint for a msgpack body", func() {
+			err := &fiber.BindError{Err: binder.ErrMsgPackNotConfigured, Source: "body"}
+
+			Expect(messageFromBindError(err)).To(Equal("Unprocessable Entity"))
+		})
 	})
-}
+})

@@ -161,6 +161,17 @@ var _ = Describe("/habits", func() {
 				})
 			})
 
+			When("the body is in a format the service does not decode", func() {
+				It("returns bad request without naming the decoder", func() {
+					hab := app.MustCreate("read")
+
+					res := api.MustUpdateWithContentType(app.Token, hab.ID, "application/cbor", "")
+
+					Expect(res.StatusCode).To(Equal(http.StatusBadRequest))
+					Expect(string(Must2(io.ReadAll(res.Body)))).To(Equal("Unprocessable Entity"))
+				})
+			})
+
 			Describe("with habit id that does not exist", func() {
 				It("returns not found", func() {
 					res := api.MustUpdate(app.Token, badHabitID, "name")
