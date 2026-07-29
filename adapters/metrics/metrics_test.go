@@ -4,6 +4,7 @@ import (
 	"astro/adapters/logger"
 	metrics2 "astro/adapters/metrics"
 	"astro/config"
+	"astro/test"
 	. "astro/test/matchers"
 	"fmt"
 	"io"
@@ -32,6 +33,7 @@ var _ = Describe("/", Ordered, func() {
 			logger.NopLogger,
 			config.Module,
 			metrics2.Module,
+			test.NewPortMetricsConfig,
 			fx.Populate(&metricsConfig),
 		).RequireStart()
 		url = fmt.Sprintf("http://%s/metrics", metricsConfig.Address)

@@ -2,8 +2,10 @@ package test
 
 import (
 	"astro/adapters/http"
+	"astro/adapters/metrics"
 	"errors"
 	"net"
+	"strconv"
 
 	"go.uber.org/fx"
 )
@@ -18,6 +20,31 @@ var NewPortAppConfig = fx.Decorate(func(httpConfig http.Config) (http.Config, er
 
 	return httpConfig, nil
 })
+
+var NewPortMetricsConfig = fx.Decorate(func(metricsConfig metrics.Config) (metrics.Config, error) {
+	address, err := availableAddress(metricsConfig.Address)
+	if err != nil {
+		return metricsConfig, err
+	}
+
+	metricsConfig.Address = address
+
+	return metricsConfig, nil
+})
+
+func availableAddress(address string) (string, error) {
+	host, _, err := net.SplitHostPort(address)
+	if err != nil {
+		return "", err
+	}
+
+	addr, err := findAvailableAddr()
+	if err != nil {
+		return "", err
+	}
+
+	return net.JoinHostPort(host, strconv.Itoa(addr.Port)), nil
+}
 
 func findAvailableAddr() (*net.TCPAddr, error) {
 	listener, listenErr := net.Listen("tcp", ":0")
