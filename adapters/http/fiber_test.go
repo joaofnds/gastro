@@ -7,6 +7,7 @@ import (
 	"astro/test"
 	"fmt"
 	"net/http"
+	"strconv"
 	"testing"
 
 	"github.com/gofiber/fiber/v3"
@@ -33,13 +34,12 @@ func TestFiber(t *testing.T) {
 
 var _ = Describe("fiber middlewares", func() {
 	var (
-		fxApp *fxtest.App
-		url   string
+		fxApp      *fxtest.App
+		httpConfig http2.Config
+		url        string
 	)
 
 	BeforeEach(func() {
-		var httpConfig http2.Config
-
 		fxApp = fxtest.New(
 			GinkgoT(),
 			logger.NopLogger,
@@ -74,5 +74,44 @@ var _ = Describe("fiber middlewares", func() {
 
 		req := Must2(http.Get(url + "/somethingelse"))
 		Expect(req.StatusCode).To(Equal(http.StatusTooManyRequests))
+	})
+
+	It("redirects the root path to the repository", func() {
+		client := http.Client{CheckRedirect: func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
+		}}
+
+		res := Must2(client.Get(url + "/"))
+
+		Expect(res.StatusCode).To(Equal(http.StatusFound))
+		Expect(res.Header.Get("Location")).To(Equal("https://github.com/joaofnds/astro"))
+	})
+
+	It("reports the requests left in the window", func() {
+		res := Must2(http.Get(url + "/somethingelse"))
+
+		Expect(res.Header.Get("X-RateLimit-Limit")).To(Equal(strconv.Itoa(httpConfig.Limiter.Requests)))
+		Expect(res.Header.Get("X-RateLimit-Remaining")).To(Equal(strconv.Itoa(httpConfig.Limiter.Requests - 1)))
+		Expect(res.Header.Get("X-RateLimit-Reset")).ToNot(BeEmpty())
+	})
+
+	It("allows any origin", func() {
+		req := Must2(http.NewRequest(http.MethodGet, url+"/somethingelse", nil))
+		req.Header.Set("Origin", "https://astro.test")
+
+		res := Must2(http.DefaultClient.Do(req))
+
+		Expect(res.Header.Get("Access-Control-Allow-Origin")).To(Equal("*"))
+	})
+
+	It("advertises the methods the service handles", func() {
+		req := Must2(http.NewRequest(http.MethodOptions, url+"/somethingelse", nil))
+		req.Header.Set("Origin", "https://astro.test")
+		req.Header.Set("Access-Control-Request-Method", http.MethodGet)
+
+		res := Must2(http.DefaultClient.Do(req))
+
+		Expect(res.Header.Get("Access-Control-Allow-Methods")).
+			To(Equal("GET, POST, HEAD, PUT, DELETE, PATCH"))
 	})
 })

@@ -14,6 +14,8 @@ import (
 	"go.uber.org/fx"
 )
 
+const repositoryURL = "https://github.com/joaofnds/astro"
+
 var FiberModule = fx.Module(
 	"fiber",
 	fx.Provide(NewFiber),
@@ -52,6 +54,9 @@ func NewFiber(config Config, probe Probe) *fiber.App {
 			fiber.MethodPatch,
 		},
 	}))
+	app.Get("/", func(c fiber.Ctx) error {
+		return c.Redirect().Status(fiber.StatusFound).To(repositoryURL)
+	})
 	return app
 }
 
