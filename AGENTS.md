@@ -3,10 +3,13 @@
 The HTTP API behind [astro](https://github.com/joaofnds/astro). Go module `astro`, go 1.25,
 deployed to Fly as `gastro`.
 
-**This service is a downstream of the Go service template and has fallen behind it.** The
-template's own `AGENTS.md` is the house Go stack — read it first when the template is checked
-out locally (`~/code/go/template/AGENTS.md` on the author's machine). If it isn't available,
-this file plus `~/.agents/rules/coding_style_go.md` cover everything except a Harness rewrite.
+**This service is a downstream of the Go service template and has fallen behind it.** Before
+writing Go here, run `ls ~/code/go/template/AGENTS.md` and read it when it is there — it is the
+house Go stack for anything this file does not contradict, and it defers to `~/.agents/rules/`
+for language and test rules, as do we. When it is absent, work from this file plus the rules the
+phase already requires (`coding_style.md`, `coding_style_go.md`, and `testing/00-index.md` for
+tests). This file covers astro's divergences, not the template's own conventions — when a task
+turns on a template convention you could not read, say so.
 
 This file records only what astro does *differently*, and most of those differences are debt
 rather than choices. Last substantive commit: 2026-03-30; the template moved on after that.
@@ -54,6 +57,16 @@ shared `resultErr` and `translateError` helpers — astro's equivalent of the te
 
 ## Testing — the target and the debt
 
+**Write every new test here as a Ginkgo/Gomega spec** — `Describe` / `When` / `It`, Gomega
+matchers, dot-imported as the existing spec files do. One `RunSpecs` entry point per spec
+directory, covering both the internal and the external package
+(`~/.agents/rules/coding_style_go.md` §8); here those are `habit/module_test.go`,
+`token/token_test.go`, `adapters/http/fiber_test.go`, `adapters/health/controller_test.go` and
+`adapters/metrics/metrics_test.go`. `test/` is the exception: no entry point, and
+`test/available_port_test.go` is the last plain `testing` file. Converting it — a spec plus a
+`RunSpecs` in `package test` — closes that out, as its own task or when a task already changes
+that file.
+
 The target is the template's Harness: `~/.agents/rules/testing/01-architecture-and-harness.md`
 §5, implemented at `~/code/go/template/test/harness/`.
 
@@ -65,8 +78,9 @@ The target is the template's Harness: `~/.agents/rules/testing/01-architecture-a
 inline, in a Ginkgo `BeforeEach` or `BeforeAll`.
 Four of those sites also register their own routes with `fx.Invoke` —
 `habit/controller_test.go:52`, `token/controller_test.go:40`,
-`adapters/health/controller_test.go:58` and `:94`. A test that has to register routes is
-telling you the production module doesn't; fix the module, not the test.
+`adapters/health/controller_test.go:58` and `:94`. The fifth, `adapters/http/fiber_test.go:24`,
+registers a deliberately test-only `panic` route — leave it. A test that has to register a
+*production* route is telling you the production module doesn't; fix the module, not the test.
 
 Those bootstraps predate the rule and are known debt — do not copy the pattern into a new
 test, and do not read them as sanctioning it.
