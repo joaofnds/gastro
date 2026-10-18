@@ -15,7 +15,7 @@ go run ./cmd/migrate init
 go run ./cmd/astro
 ```
 
-`init` refuses an existing path. Normal startup requires a commissioned database,
+`init` refuses an existing path. Normal startup requires an initialized database,
 applies pending migrations, and checks the schema and integrity before listening.
 Deleting the file does not create a fresh database on the next start.
 
@@ -45,7 +45,7 @@ shutdown. It does not establish off-host backup durability or Fly resource sizin
 The optional Mage routes use the same Dockerfile and service-free tests:
 `go -C magefiles run main.go build` and `go -C magefiles run main.go testDagger`.
 
-[Deployment, backup and recovery](ops/README.md) describes the production
-gates and the explicit offline maintenance commands. Automated production deployment remains
-disabled until the repository variable `SQLITE_DEPLOY_READY` is set to `true` after
-those gates pass. Tags build and verify an image even while deployment is disabled.
+[Deployment, backup and recovery](ops/README.md) describes normal releases and
+offline maintenance. Tags and manual runs of the build workflow publish and verify
+an image, then deploy that same image by digest to the existing Fly machine and
+volume. Deployment requires exactly one machine and uses `--ha=false`.

@@ -2,7 +2,7 @@
 set -eu
 umask 077
 
-: "${SQLITE_PATH:?SQLITE_PATH must name the commissioned database}"
+: "${SQLITE_PATH:?SQLITE_PATH must name the database}"
 case "$SQLITE_PATH" in
   /*) ;;
   *) echo 'SQLITE_PATH must be absolute inside the container' >&2; exit 1 ;;

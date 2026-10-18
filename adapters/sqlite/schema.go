@@ -38,12 +38,12 @@ func checkStructure(ctx context.Context, db *sql.DB) error {
 	for _, table := range tables {
 		columns, err := readColumns(ctx, db, table.name)
 		if err != nil || !slices.Equal(columns, table.columns) {
-			return fmt.Errorf("%w: invalid columns or primary key in %s", ErrUncommissioned, table.name)
+			return fmt.Errorf("%w: invalid columns or primary key in %s", ErrInvalidDatabase, table.name)
 		}
 
 		keys, err := readForeignKeys(ctx, db, table.name)
 		if err != nil || !slices.Equal(keys, table.keys) {
-			return fmt.Errorf("%w: invalid foreign keys in %s", ErrUncommissioned, table.name)
+			return fmt.Errorf("%w: invalid foreign keys in %s", ErrInvalidDatabase, table.name)
 		}
 	}
 
@@ -59,12 +59,12 @@ func checkStructure(ctx context.Context, db *sql.DB) error {
 		var unique, partial int
 		err := db.QueryRowContext(ctx, `SELECT "unique", partial FROM pragma_index_list(?) WHERE name=?`, index.table, index.name).Scan(&unique, &partial)
 		if err != nil || unique != index.unique || partial != 0 {
-			return fmt.Errorf("%w: invalid index %s", ErrUncommissioned, index.name)
+			return fmt.Errorf("%w: invalid index %s", ErrInvalidDatabase, index.name)
 		}
 
 		columns, err := readIndexColumns(ctx, db, index.name)
 		if err != nil || !slices.Equal(columns, index.columns) {
-			return fmt.Errorf("%w: invalid index columns in %s", ErrUncommissioned, index.name)
+			return fmt.Errorf("%w: invalid index columns in %s", ErrInvalidDatabase, index.name)
 		}
 	}
 

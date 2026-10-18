@@ -10,8 +10,8 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
-const Baseline int64 = 20261018000001
-const Version int64 = Baseline
+const initialVersion int64 = 20261018000001
+const currentVersion int64 = initialVersion
 
 //go:embed migrations/*.sql
 var migrations embed.FS
@@ -31,14 +31,14 @@ func apply(ctx context.Context, db *sql.DB) error {
 	return err
 }
 
-func checkCommissioned(ctx context.Context, db *sql.DB) error {
+func checkSchema(ctx context.Context, db *sql.DB) error {
 	var version int64
 	if err := db.QueryRowContext(ctx, "SELECT max(version_id) FROM goose_db_version WHERE is_applied=1").Scan(&version); err != nil {
-		return fmt.Errorf("%w: schema version unavailable", ErrUncommissioned)
+		return fmt.Errorf("%w: schema version unavailable", ErrInvalidDatabase)
 	}
 
-	if version < Baseline || version > Version {
-		return fmt.Errorf("%w: unsupported schema version %d", ErrUncommissioned, version)
+	if version < initialVersion || version > currentVersion {
+		return fmt.Errorf("%w: unsupported schema version %d", ErrInvalidDatabase, version)
 	}
 
 	statements := []string{
@@ -50,7 +50,7 @@ func checkCommissioned(ctx context.Context, db *sql.DB) error {
 	for _, statement := range statements {
 		rows, err := db.QueryContext(ctx, statement)
 		if err != nil {
-			return fmt.Errorf("%w: incomplete application schema", ErrUncommissioned)
+			return fmt.Errorf("%w: incomplete application schema", ErrInvalidDatabase)
 		}
 
 		if err = rows.Close(); err != nil {
@@ -61,7 +61,7 @@ func checkCommissioned(ctx context.Context, db *sql.DB) error {
 }
 
 func Check(ctx context.Context, db *sql.DB) error {
-	if err := checkCommissioned(ctx, db); err != nil {
+	if err := checkSchema(ctx, db); err != nil {
 		return err
 	}
 
@@ -75,7 +75,7 @@ func Check(ctx context.Context, db *sql.DB) error {
 	}
 
 	if result != "ok" {
-		return fmt.Errorf("%w: integrity check rejected database", ErrUncommissioned)
+		return fmt.Errorf("%w: integrity check rejected database", ErrInvalidDatabase)
 	}
 
 	rows, err := db.QueryContext(ctx, "PRAGMA foreign_key_check")
@@ -85,7 +85,7 @@ func Check(ctx context.Context, db *sql.DB) error {
 
 	defer func() { _ = rows.Close() }()
 	if rows.Next() {
-		return fmt.Errorf("%w: foreign key violations", ErrUncommissioned)
+		return fmt.Errorf("%w: foreign key violations", ErrInvalidDatabase)
 	}
 
 	return rows.Err()

@@ -49,7 +49,7 @@ var _ = Describe("group service", func() {
 	})
 
 	Describe("created groups", func() {
-		It("deletes only the owning user's group when an imported ID is shared", func() {
+		It("deletes only the owning user's group when users share a group ID", func() {
 			group := habit.Group{ID: "12767d2e-57f8-41c5-b34f-7b845a084d63", UserID: userID, Name: "health", Habits: []habit.Habit{}}
 			other := group
 			other.UserID = "76b67b16-f8e7-4686-8c78-bc7f5a70ed1a"

@@ -46,7 +46,7 @@ var _ = Describe("SQLite storage", func() {
 		Expect(os.IsNotExist(err)).To(BeTrue())
 	})
 
-	DescribeTable("refuses uncommissioned storage", func(contents string) {
+	DescribeTable("refuses invalid storage", func(contents string) {
 		path := filepath.Join(GinkgoT().TempDir(), "astro.db")
 		Expect(os.WriteFile(path, []byte(contents), 0600)).To(Succeed())
 
@@ -247,7 +247,7 @@ var _ = Describe("SQLite repositories", func() {
 		Expect([]int{activityCount, membershipCount}).To(Equal([]int{0, 0}))
 	})
 
-	It("preserves imported identifiers and timestamp precision after reopening", func() {
+	It("preserves identifiers, text and timestamps after reopening", func() {
 		h := habit.Habit{ID: "98f21686-c9ca-4555-bd22-21b138eb6152", UserID: userID, Name: "déjà vu"}
 		a := habit.Activity{ID: "da01d04c-867a-4e6f-949a-ad9dab0adbf3", HabitID: h.ID, Desc: "\"quoted\"\nline", CreatedAt: time.Date(2020, 2, 29, 23, 59, 58, 123456000, time.UTC)}
 		Expect(db.Create(&h).Error).To(Succeed())
@@ -305,24 +305,24 @@ var _ = Describe("SQLite repositories", func() {
 		Expect(err).To(MatchError(habit.ErrRepository))
 	})
 
-	It("rejects a commissioned file with a missing application table", func() {
+	It("rejects a database with a missing application table", func() {
 		_, err := pool.Exec("DROP TABLE activities")
 		Expect(err).NotTo(HaveOccurred())
 
 		err = sqlite.CheckFile(context.Background(), path)
 
-		Expect(err).To(MatchError(sqlite.ErrUncommissioned))
+		Expect(err).To(MatchError(sqlite.ErrInvalidDatabase))
 	})
 
-	DescribeTable("rejects incomplete commissioned constraints", func(statement string) {
+	DescribeTable("rejects incomplete schema constraints", func(statement string) {
 		_, err := pool.Exec(statement)
 		Expect(err).NotTo(HaveOccurred())
 
 		err = sqlite.CheckFile(context.Background(), path)
 
-		Expect(err).To(MatchError(sqlite.ErrUncommissioned))
+		Expect(err).To(MatchError(sqlite.ErrInvalidDatabase))
 		_, err = sqlite.Open(sqlite.Config{Path: path})
-		Expect(err).To(MatchError(sqlite.ErrUncommissioned))
+		Expect(err).To(MatchError(sqlite.ErrInvalidDatabase))
 	},
 		Entry("tenant foreign keys", "DROP TABLE groups_habits; CREATE TABLE groups_habits(group_id TEXT NOT NULL, habit_id TEXT NOT NULL, user_id TEXT NOT NULL, PRIMARY KEY(group_id,habit_id))"),
 		Entry("group tenant foreign key", "DROP TABLE groups_habits; CREATE TABLE groups_habits(group_id TEXT NOT NULL, habit_id TEXT NOT NULL, user_id TEXT NOT NULL, PRIMARY KEY(group_id,habit_id), FOREIGN KEY(habit_id,user_id) REFERENCES habits(id,user_id) ON DELETE CASCADE ON UPDATE CASCADE)"),
@@ -341,7 +341,7 @@ var _ = Describe("SQLite repositories", func() {
 
 		err = sqlite.CheckFile(context.Background(), path)
 
-		Expect(err).To(MatchError(sqlite.ErrUncommissioned))
+		Expect(err).To(MatchError(sqlite.ErrInvalidDatabase))
 	})
 })
 

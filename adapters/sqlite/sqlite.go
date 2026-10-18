@@ -21,7 +21,7 @@ type Config struct {
 	Path string `mapstructure:"path"`
 }
 
-var ErrUncommissioned = errors.New("database is not commissioned")
+var ErrInvalidDatabase = errors.New("invalid SQLite database")
 
 var Module = fx.Module("sqlite",
 	fx.Provide(Open, NewSQLDB, NewHealthChecker),
@@ -35,7 +35,7 @@ func Open(config Config) (*gorm.DB, error) {
 	}
 
 	if !info.Mode().IsRegular() || info.Size() == 0 {
-		return nil, ErrUncommissioned
+		return nil, ErrInvalidDatabase
 	}
 
 	db, err := openFile(config.Path)
@@ -51,7 +51,7 @@ func Open(config Config) (*gorm.DB, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	if err = checkCommissioned(ctx, pool); err == nil {
+	if err = checkSchema(ctx, pool); err == nil {
 		err = apply(ctx, pool)
 	}
 	if err == nil {
@@ -65,7 +65,7 @@ func Open(config Config) (*gorm.DB, error) {
 }
 
 func Initialize(ctx context.Context, path string) (err error) {
-	if err = RequireVacant(path); err != nil {
+	if err = requireVacant(path); err != nil {
 		return err
 	}
 
@@ -112,7 +112,7 @@ func Initialize(ctx context.Context, path string) (err error) {
 	return err
 }
 
-func RequireVacant(path string) error {
+func requireVacant(path string) error {
 	if path == "" {
 		return errors.New("database path is required")
 	}

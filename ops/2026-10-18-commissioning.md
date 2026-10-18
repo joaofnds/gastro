@@ -1,7 +1,9 @@
 # SQLite commissioning, 2026-10-18
 
-The API at https://gastro.fly.dev uses SQLite on one Amsterdam Machine. Backup
-alerts are disabled at the owner's request; `SQLITE_DEPLOY_READY` remains unset.
+This record describes the installation at https://gastro.fly.dev on 2026-10-18,
+using SQLite on one Amsterdam Machine. Backup alerts were disabled at the owner's
+request; `SQLITE_DEPLOY_READY` was unset. See the [operations guide](README.md) for
+current deployment and recovery procedures.
 
 ## Resources
 
@@ -59,12 +61,12 @@ and have no API-to-database network hop.
 
 Alerts were skipped explicitly. Litestream continues asynchronous replication,
 but a future replication failure will not send a backup alert. The one-second
-sync interval does not bound write loss. Automated deployment remains gated.
+sync interval does not bound write loss. Automated deployment was gated at that time.
 Account login and missed-ping delivery were not commissioned.
 
 The restore checks used empty directories on the production volume, not a
 replacement-host drill. Host-loss recovery time and sustained peak memory remain
-unmeasured. The [operations guide](README.md) retains those commissioning checks.
+unmeasured.
 
 At the [Fly rates](https://docs.fly.io/about/pricing), the Amsterdam
 shared-CPU/256 MiB Machine and 1 GB volume were estimated at about $2.43 per
