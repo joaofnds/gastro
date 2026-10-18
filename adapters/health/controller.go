@@ -31,5 +31,5 @@ func (c *Controller) CheckHealth(ctx fiber.Ctx) error {
 		status = http.StatusServiceUnavailable
 	}
 
-	return ctx.Status(status).JSON(h)
+	return ctx.Status(status).JSON(h, fiber.MIMEApplicationJSON)
 }

@@ -70,12 +70,12 @@ func (c Controller) list(ctx fiber.Ctx) error {
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
 
-	return ctx.Status(http.StatusOK).JSON(habits)
+	return ctx.Status(http.StatusOK).JSON(habits, fiber.MIMEApplicationJSON)
 }
 
 func (Controller) get(ctx fiber.Ctx) error {
 	h := ctx.Locals("habit")
-	return ctx.Status(http.StatusOK).JSON(h)
+	return ctx.Status(http.StatusOK).JSON(h, fiber.MIMEApplicationJSON)
 }
 
 func (c Controller) update(ctx fiber.Ctx) error {
@@ -167,7 +167,7 @@ func (c Controller) create(ctx fiber.Ctx) error {
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
 
-	return ctx.Status(http.StatusCreated).JSON(h)
+	return ctx.Status(http.StatusCreated).JSON(h, fiber.MIMEApplicationJSON)
 }
 
 func (c Controller) listGroupsAndHabits(ctx fiber.Ctx) error {
@@ -178,7 +178,7 @@ func (c Controller) listGroupsAndHabits(ctx fiber.Ctx) error {
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
 
-	return ctx.Status(http.StatusOK).JSON(GroupsAndHabitsPayload{Groups: groups, Habits: habits})
+	return ctx.Status(http.StatusOK).JSON(GroupsAndHabitsPayload{Groups: groups, Habits: habits}, fiber.MIMEApplicationJSON)
 }
 
 func (c Controller) createGroup(ctx fiber.Ctx) error {
@@ -196,7 +196,7 @@ func (c Controller) createGroup(ctx fiber.Ctx) error {
 		return ctx.SendStatus(http.StatusInternalServerError)
 	}
 
-	return ctx.Status(http.StatusCreated).JSON(group)
+	return ctx.Status(http.StatusCreated).JSON(group, fiber.MIMEApplicationJSON)
 }
 
 func (c Controller) addToGroup(ctx fiber.Ctx) error {
