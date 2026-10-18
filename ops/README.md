@@ -162,9 +162,6 @@ Litestream's final sync only runs after its database has initialized. The image
 check establishes a confirmed remote sync before writing its shutdown marker.
 Verify that an off-host backup exists before relying on recovery.
 
-The [2026-10-18 commissioning record](2026-10-18-commissioning.md) preserves the
-installation's original resource inventory, data verification and observed limits.
-
 References: [Fly volumes](https://docs.fly.io/volumes/overview),
 [Fly shutdown configuration](https://docs.fly.io/reference/configuration),
 [Litestream configuration](https://litestream.io/reference/config/),
