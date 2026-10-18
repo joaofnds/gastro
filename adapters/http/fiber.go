@@ -2,7 +2,10 @@ package http
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net"
+	"sync"
 	"time"
 
 	"github.com/bytedance/sonic"
@@ -60,19 +63,55 @@ func NewFiber(config Config, probe Probe) *fiber.App {
 	return app
 }
 
-func HookFiber(lc fx.Lifecycle, app *fiber.App, config Config) {
-	lc.Append(fx.Hook{
-		OnStart: func(context.Context) error {
+func HookFiber(lifecycle fx.Lifecycle, app *fiber.App, config Config, shutdowner fx.Shutdowner) {
+	var listener *startupListener
+	stopped := make(chan error, 1)
+	lifecycle.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			network := net.ListenConfig{}
+			bound, err := network.Listen(ctx, "tcp4", fmt.Sprintf(":%d", config.Port))
+			if err != nil {
+				return err
+			}
+			listener = &startupListener{Listener: bound, ready: make(chan struct{})}
+
 			go func() {
-				listenConfig := fiber.ListenConfig{DisableStartupMessage: true}
-				if err := app.Listen(fmt.Sprintf(":%d", config.Port), listenConfig); err != nil {
-					panic(err)
+				err := app.Listener(listener, fiber.ListenConfig{DisableStartupMessage: true})
+				stopped <- err
+				if err != nil {
+					_ = shutdowner.Shutdown(fx.ExitCode(1))
 				}
 			}()
-			return nil
+
+			select {
+			case <-listener.ready:
+				return nil
+			case err := <-stopped:
+				return errors.Join(err, listener.Close())
+			case <-ctx.Done():
+				closeErr := listener.Close()
+				return errors.Join(ctx.Err(), closeErr, <-stopped)
+			}
 		},
-		OnStop: func(context.Context) error {
-			return app.Shutdown()
+		OnStop: func(ctx context.Context) error {
+			err := app.ShutdownWithContext(ctx)
+			select {
+			case serveErr := <-stopped:
+				return errors.Join(err, serveErr)
+			case <-ctx.Done():
+				return errors.Join(err, ctx.Err())
+			}
 		},
 	})
+}
+
+type startupListener struct {
+	net.Listener
+	ready chan struct{}
+	once  sync.Once
+}
+
+func (listener *startupListener) Accept() (net.Conn, error) {
+	listener.once.Do(func() { close(listener.ready) })
+	return listener.Listener.Accept()
 }

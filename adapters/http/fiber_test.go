@@ -5,10 +5,13 @@ import (
 	"astro/adapters/logger"
 	"astro/config"
 	"astro/test"
+	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/gofiber/fiber/v3"
 
@@ -113,5 +116,48 @@ var _ = Describe("fiber middlewares", func() {
 
 		Expect(res.Header.Get("Access-Control-Allow-Methods")).
 			To(Equal("GET, POST, HEAD, PUT, DELETE, PATCH"))
+	})
+})
+
+var _ = Describe("HTTP lifecycle", func() {
+	It("serves requests before startup returns", func() {
+		server := fiber.New()
+		listening := make(chan fiber.ListenData, 1)
+		server.Hooks().OnListen(func(data fiber.ListenData) error { listening <- data; return nil })
+		application := fx.New(fx.NopLogger, fx.Invoke(func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner) {
+			http2.HookFiber(lifecycle, server, http2.Config{Port: 0}, shutdowner)
+		}))
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		Expect(application.Start(ctx)).To(Succeed())
+		DeferCleanup(func() { Expect(application.Stop(context.Background())).To(Succeed()) })
+
+		var data fiber.ListenData
+		Expect(listening).To(Receive(&data))
+		client := http.Client{Timeout: time.Second}
+		response, err := client.Get("http://" + net.JoinHostPort("127.0.0.1", data.Port) + "/missing")
+
+		Expect(err).NotTo(HaveOccurred())
+		defer func() { _ = response.Body.Close() }()
+		Expect(response.StatusCode).To(Equal(http.StatusNotFound))
+	})
+
+	It("returns a startup error when the port is already occupied", func() {
+		listener, err := net.Listen("tcp4", ":0")
+		Expect(err).NotTo(HaveOccurred())
+		defer func() { Expect(listener.Close()).To(Succeed()) }()
+		address, ok := listener.Addr().(*net.TCPAddr)
+		Expect(ok).To(BeTrue())
+		port := address.Port
+		server := fiber.New()
+		application := fx.New(fx.NopLogger, fx.Invoke(func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner) {
+			http2.HookFiber(lifecycle, server, http2.Config{Port: port}, shutdowner)
+		}))
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		err = application.Start(ctx)
+
+		Expect(err).To(HaveOccurred())
 	})
 })
