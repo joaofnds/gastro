@@ -19,6 +19,9 @@ var Module = fx.Module(
 		habitController *habit.Controller,
 		tokenController *token.Controller,
 	) {
+		app.Get("/", func(c fiber.Ctx) error {
+			return c.Redirect().Status(fiber.StatusFound).To("https://github.com/joaofnds/astro")
+		})
 		healthController.Register(app)
 		habitController.Register(app)
 		tokenController.Register(app)

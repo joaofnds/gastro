@@ -1,15 +1,20 @@
 package http_test
 
 import (
+	"astro/adapters/health"
 	http2 "astro/adapters/http"
 	"astro/adapters/logger"
 	"astro/adapters/sqlite"
 	"astro/config"
+	"astro/habit"
 	"astro/test"
+	"astro/test/database"
+	"astro/token"
 	"context"
 	"fmt"
 	"net"
 	"net/http"
+	"net/http/httptest"
 	"path/filepath"
 	"strconv"
 	"testing"
@@ -37,14 +42,19 @@ func TestFiber(t *testing.T) {
 	RunSpecs(t, "fiber suite")
 }
 
-var _ = Describe("fiber middlewares", func() {
+var _ = Describe("HTTP middleware and routes", func() {
 	var (
 		fxApp      *fxtest.App
 		httpConfig http2.Config
+		module     fx.Option
 		url        string
 	)
 
 	BeforeEach(func() {
+		module = http2.FiberModule
+	})
+
+	JustBeforeEach(func() {
 		fxApp = fxtest.New(
 			GinkgoT(),
 			logger.NopLogger,
@@ -52,7 +62,7 @@ var _ = Describe("fiber middlewares", func() {
 			http2.NopProbeProvider,
 			PanicHandler,
 			config.Module,
-			http2.FiberModule,
+			module,
 			fx.Populate(&httpConfig),
 		).RequireStart()
 
@@ -81,17 +91,6 @@ var _ = Describe("fiber middlewares", func() {
 		Expect(req.StatusCode).To(Equal(http.StatusTooManyRequests))
 	})
 
-	It("redirects the root path to the repository", func() {
-		client := http.Client{CheckRedirect: func(*http.Request, []*http.Request) error {
-			return http.ErrUseLastResponse
-		}}
-
-		res := Must2(client.Get(url + "/"))
-
-		Expect(res.StatusCode).To(Equal(http.StatusFound))
-		Expect(res.Header.Get("Location")).To(Equal("https://github.com/joaofnds/astro"))
-	})
-
 	It("reports the requests left in the window", func() {
 		res := Must2(http.Get(url + "/somethingelse"))
 
@@ -118,6 +117,46 @@ var _ = Describe("fiber middlewares", func() {
 
 		Expect(res.Header.Get("Access-Control-Allow-Methods")).
 			To(Equal("GET, POST, HEAD, PUT, DELETE, PATCH"))
+	})
+
+	When("the HTTP module registers application routes", func() {
+		BeforeEach(func() {
+			module = fx.Options(
+				http2.Module,
+				health.Module,
+				habit.Module,
+				token.Module,
+				sqlite.Module,
+				database.Module,
+				habit.NopProbeProvider,
+				token.NopProbeProvider,
+			)
+		})
+
+		It("redirects the root path to the repository", func() {
+			client := http.Client{CheckRedirect: func(*http.Request, []*http.Request) error {
+				return http.ErrUseLastResponse
+			}}
+
+			res := Must2(client.Get(url + "/"))
+			defer func() { _ = res.Body.Close() }()
+
+			Expect(res.StatusCode).To(Equal(http.StatusFound))
+			Expect(res.Header.Get("Location")).To(Equal("https://github.com/joaofnds/astro"))
+		})
+	})
+})
+
+var _ = Describe("NewFiber", func() {
+	It("leaves the root route unregistered", func() {
+		server := http2.NewFiber(http2.Config{Limiter: http2.Limiter{Requests: 120, Expiration: time.Minute}}, http2.NopProbe{})
+		DeferCleanup(func() { Expect(server.Shutdown()).To(Succeed()) })
+
+		response := Must2(server.Test(httptest.NewRequest(http.MethodGet, "/", nil)))
+		defer func() { _ = response.Body.Close() }()
+
+		Expect(response.StatusCode).To(Equal(http.StatusNotFound))
+		Expect(response.Header.Get("Location")).To(BeEmpty())
 	})
 })
 
