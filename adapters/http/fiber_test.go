@@ -181,9 +181,13 @@ var _ = Describe("HTTP lifecycle", func() {
 			operation <- pool.PingContext(c.Context())
 			return c.SendStatus(fiber.StatusServiceUnavailable)
 		})
-		application := fx.New(fx.NopLogger, fx.Invoke(func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner) {
-			http2.HookFiber(lifecycle, server, http2.Config{Port: 0}, shutdowner)
-		}))
+		application := fx.New(
+			fx.NopLogger,
+			http2.FiberModule,
+			http2.NopProbeProvider,
+			fx.Supply(http2.Config{Port: 0}),
+			fx.Replace(server),
+		)
 		DeferCleanup(func() {
 			_ = held.Close()
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -221,9 +225,13 @@ var _ = Describe("HTTP lifecycle", func() {
 		server := fiber.New()
 		listening := make(chan fiber.ListenData, 1)
 		server.Hooks().OnListen(func(data fiber.ListenData) error { listening <- data; return nil })
-		application := fx.New(fx.NopLogger, fx.Invoke(func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner) {
-			http2.HookFiber(lifecycle, server, http2.Config{Port: 0}, shutdowner)
-		}))
+		application := fx.New(
+			fx.NopLogger,
+			http2.FiberModule,
+			http2.NopProbeProvider,
+			fx.Supply(http2.Config{Port: 0}),
+			fx.Replace(server),
+		)
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
 		Expect(application.Start(ctx)).To(Succeed())
@@ -247,9 +255,13 @@ var _ = Describe("HTTP lifecycle", func() {
 		Expect(ok).To(BeTrue())
 		port := address.Port
 		server := fiber.New()
-		application := fx.New(fx.NopLogger, fx.Invoke(func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner) {
-			http2.HookFiber(lifecycle, server, http2.Config{Port: port}, shutdowner)
-		}))
+		application := fx.New(
+			fx.NopLogger,
+			http2.FiberModule,
+			http2.NopProbeProvider,
+			fx.Supply(http2.Config{Port: port}),
+			fx.Replace(server),
+		)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 

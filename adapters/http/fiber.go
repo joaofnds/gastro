@@ -2,10 +2,7 @@ package http
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"net"
-	"sync"
 	"time"
 
 	"github.com/bytedance/sonic"
@@ -20,6 +17,7 @@ import (
 var FiberModule = fx.Module(
 	"fiber",
 	fx.Provide(NewFiber),
+	fx.Provide(newServer, fx.Private),
 	fx.Invoke(HookFiber),
 	fx.Provide(NewPromProbe),
 	fx.Provide(func(probe *PromProbe) Probe { return probe }),
@@ -71,56 +69,20 @@ func NewFiber(config Config, probe Probe) *fiber.App {
 	return app
 }
 
-func HookFiber(lifecycle fx.Lifecycle, app *fiber.App, config Config, shutdowner fx.Shutdowner) {
-	var listener *startupListener
-	stopped := make(chan error, 1)
+func newServer(app *fiber.App, config Config, shutdowner fx.Shutdowner) *server {
+	return &server{
+		app:     app,
+		address: fmt.Sprintf(":%d", config.Port),
+		shutdown: func() {
+			_ = shutdowner.Shutdown(fx.ExitCode(1))
+		},
+		stopped: make(chan error, 1),
+	}
+}
+
+func HookFiber(lifecycle fx.Lifecycle, server *server) {
 	lifecycle.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			network := net.ListenConfig{}
-			bound, err := network.Listen(ctx, "tcp4", fmt.Sprintf(":%d", config.Port))
-			if err != nil {
-				return err
-			}
-
-			listener = &startupListener{Listener: bound, ready: make(chan struct{})}
-
-			go func() {
-				err := app.Listener(listener, fiber.ListenConfig{DisableStartupMessage: true})
-				stopped <- err
-				if err != nil {
-					_ = shutdowner.Shutdown(fx.ExitCode(1))
-				}
-			}()
-
-			select {
-			case <-listener.ready:
-				return nil
-			case err := <-stopped:
-				return errors.Join(err, listener.Close())
-			case <-ctx.Done():
-				closeErr := listener.Close()
-				return errors.Join(ctx.Err(), closeErr, <-stopped)
-			}
-		},
-		OnStop: func(ctx context.Context) error {
-			err := app.ShutdownWithContext(ctx)
-			select {
-			case serveErr := <-stopped:
-				return errors.Join(err, serveErr)
-			case <-ctx.Done():
-				return errors.Join(err, ctx.Err())
-			}
-		},
+		OnStart: server.Start,
+		OnStop:  server.Stop,
 	})
-}
-
-type startupListener struct {
-	net.Listener
-	ready chan struct{}
-	once  sync.Once
-}
-
-func (listener *startupListener) Accept() (net.Conn, error) {
-	listener.once.Do(func() { close(listener.ready) })
-	return listener.Listener.Accept()
 }
