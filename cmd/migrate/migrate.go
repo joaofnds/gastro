@@ -1,49 +1,52 @@
 package main
 
 import (
-	"astro/adapters/logger"
-	"astro/adapters/postgres"
-	"astro/config"
+	"astro/adapters/sqlite"
 	"context"
-	"database/sql"
-	"embed"
+	"errors"
 	"fmt"
 	"os"
-
-	"github.com/pressly/goose/v3"
-	"go.uber.org/fx"
+	"time"
 )
 
-//go:embed migrations/*.sql
-var migrations embed.FS
-
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println(`usage:
-  go run cmd/migrate/migrate.go up
-  go run cmd/migrate/migrate.go down
-  go run cmd/migrate/migrate.go down-to 20170506082527
-  go run cmd/migrate/migrate.go status
-  go run cmd/migrate/migrate.go redo
-	`)
+	if err := run(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-
-	app := fx.New(
-		logger.NopLogger,
-		config.Module,
-		postgres.Module,
-		fx.Invoke(func(db *sql.DB, config postgres.Config) error {
-			goose.SetBaseFS(migrations)
-			return goose.RunContext(context.Background(), os.Args[1], db, "migrations", os.Args[2:]...)
-		}),
-	)
-	defer func() { must(app.Stop(context.Background())) }()
-	must(app.Start(context.Background()))
 }
 
-func must(err error) {
-	if err != nil {
-		panic(err)
+func run() (err error) {
+	if len(os.Args) != 2 {
+		return fmt.Errorf("usage: migrate init|up|check (database path from SQLITE_PATH)")
+	}
+
+	path := os.Getenv("SQLITE_PATH")
+	if path == "" {
+		path = "./data/astro.db"
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	switch os.Args[1] {
+	case "init":
+		return sqlite.Initialize(ctx, path)
+	case "check":
+		return sqlite.CheckFile(ctx, path)
+	case "up":
+		db, openErr := sqlite.Open(sqlite.Config{Path: path})
+		if openErr != nil {
+			return openErr
+		}
+
+		pool, poolErr := db.DB()
+		if poolErr != nil {
+			return poolErr
+		}
+
+		defer func() { err = errors.Join(err, pool.Close()) }()
+		return sqlite.Check(ctx, pool)
+	default:
+		return fmt.Errorf("unknown migration operation %q", os.Args[1])
 	}
 }

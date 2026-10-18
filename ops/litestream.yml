@@ -1,0 +1,16 @@
+addr: ":9092"
+shutdown-sync-timeout: 30s
+shutdown-sync-interval: 500ms
+snapshot:
+  interval: 1h
+  retention: 168h
+validation:
+  interval: 5m
+socket:
+  enabled: true
+  path: /tmp/litestream.sock
+dbs:
+  - path: "${SQLITE_PATH}"
+    replica:
+      url: "${LITESTREAM_REPLICA_URL}"
+      sync-interval: 1s

@@ -16,6 +16,10 @@ func NewHabitSQLRepository(orm *gorm.DB) *HabitSQLRepository {
 }
 
 func (repo *HabitSQLRepository) Create(ctx context.Context, create CreateHabitDTO) (Habit, error) {
+	if !normalizeUUIDs(&create.UserID) {
+		return Habit{}, ErrRepository
+	}
+
 	var habit Habit
 	habit.ID = uuid.NewString()
 	habit.UserID = create.UserID
@@ -25,6 +29,10 @@ func (repo *HabitSQLRepository) Create(ctx context.Context, create CreateHabitDT
 }
 
 func (repo *HabitSQLRepository) List(ctx context.Context, userID string) ([]Habit, error) {
+	if !normalizeUUIDs(&userID) {
+		return nil, ErrRepository
+	}
+
 	var habits []Habit
 	result := repo.orm.
 		WithContext(ctx).
@@ -34,6 +42,10 @@ func (repo *HabitSQLRepository) List(ctx context.Context, userID string) ([]Habi
 }
 
 func (repo *HabitSQLRepository) Find(ctx context.Context, find FindHabitDTO) (Habit, error) {
+	if !normalizeUUIDs(&find.HabitID, &find.UserID) {
+		return Habit{}, ErrRepository
+	}
+
 	var habit Habit
 	result := repo.orm.
 		WithContext(ctx).
@@ -44,10 +56,18 @@ func (repo *HabitSQLRepository) Find(ctx context.Context, find FindHabitDTO) (Ha
 }
 
 func (repo *HabitSQLRepository) Update(ctx context.Context, dto UpdateHabitDTO) error {
+	if !normalizeUUIDs(&dto.HabitID) {
+		return ErrRepository
+	}
+
 	return resultErr(repo.orm.WithContext(ctx).Select("Name").Updates(&Habit{ID: dto.HabitID, Name: dto.Name}))
 }
 
 func (repo *HabitSQLRepository) Delete(ctx context.Context, find FindHabitDTO) error {
+	if !normalizeUUIDs(&find.HabitID, &find.UserID) {
+		return ErrRepository
+	}
+
 	return resultErr(repo.orm.WithContext(ctx).Where("user_id = ?", find.UserID).Delete(&Habit{ID: find.HabitID}))
 }
 

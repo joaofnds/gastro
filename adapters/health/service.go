@@ -1,20 +1,20 @@
 package health
 
 import (
-	"astro/adapters/postgres"
+	"astro/adapters/sqlite"
 	"context"
 )
 
 type Service struct {
-	postgres *postgres.HealthChecker
+	storage *sqlite.HealthChecker
 }
 
-func NewService(postgres *postgres.HealthChecker) *Service {
-	return &Service{postgres}
+func NewService(storage *sqlite.HealthChecker) *Service {
+	return &Service{storage}
 }
 
 func (s *Service) CheckHealth(ctx context.Context) Check {
 	return Check{
-		"db": NewStatus(s.postgres.CheckHealth(ctx)),
+		"db": NewStatus(s.storage.CheckHealth(ctx)),
 	}
 }

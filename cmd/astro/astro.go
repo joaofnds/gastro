@@ -1,11 +1,12 @@
 package main
 
 import (
+	"astro/adapters/backuphealth"
 	"astro/adapters/health"
 	"astro/adapters/http"
 	"astro/adapters/logger"
 	"astro/adapters/metrics"
-	"astro/adapters/postgres"
+	"astro/adapters/sqlite"
 
 	"astro/config"
 	"astro/habit"
@@ -19,9 +20,10 @@ func main() {
 		config.Module,
 		logger.Module,
 		metrics.Module,
+		backuphealth.Module,
 		health.Module,
 
-		postgres.Module,
+		sqlite.Module,
 		http.Module,
 
 		habit.Module,

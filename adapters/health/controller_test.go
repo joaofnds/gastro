@@ -4,9 +4,10 @@ import (
 	health2 "astro/adapters/health"
 	http2 "astro/adapters/http"
 	"astro/adapters/logger"
-	"astro/adapters/postgres"
+	"astro/adapters/sqlite"
 	"astro/config"
 	"astro/test"
+	"astro/test/database"
 	. "astro/test/matchers"
 	"context"
 	"fmt"
@@ -51,7 +52,8 @@ var _ = Describe("/health", func() {
 				test.NewPortAppConfig,
 				http2.NopProbeProvider,
 				config.Module,
-				postgres.Module,
+				sqlite.Module,
+				database.Module,
 				health2.Module,
 				http2.FiberModule,
 				fx.Populate(&httpConfig),
@@ -87,7 +89,8 @@ var _ = Describe("/health", func() {
 				http2.NopProbeProvider,
 				UnhealthyHealthService,
 				config.Module,
-				postgres.Module,
+				sqlite.Module,
+				database.Module,
 				health2.Module,
 				http2.FiberModule,
 				fx.Populate(&httpConfig),

@@ -3,7 +3,6 @@ package token_test
 import (
 	http2 "astro/adapters/http"
 	"astro/adapters/logger"
-	"astro/adapters/postgres"
 	"astro/config"
 	"astro/habit"
 	"astro/test"
@@ -35,7 +34,6 @@ var _ = Describe("/token", Ordered, func() {
 			http2.NopProbeProvider,
 			config.Module,
 			http2.FiberModule,
-			postgres.Module,
 			token.Module,
 			fx.Invoke(func(app *fiber.App, controller *token.Controller) {
 				controller.Register(app)

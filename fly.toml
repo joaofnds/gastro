@@ -1,16 +1,30 @@
 app = "gastro"
-primary_region = "gru"
+primary_region = "ams"
 kill_signal = "SIGINT"
-kill_timeout = 5
-
-[experimental]
-  auto_rollback = true
+kill_timeout = 60
 
 [env]
   CONFIG_PATH = ""
+  ENV = "production"
+  HTTP_PORT = "8080"
+  METRICS_ADDRESS = "0.0.0.0:9091"
+  HTTP_LIMITER_REQUESTS = "120"
+  HTTP_LIMITER_EXPIRATION = "60s"
+  SQLITE_PATH = "/data/astro.db"
+  LITESTREAM_REPLICA_URL = "s3://gastro-sqlite-backups/gastro/production?endpoint=t3.storage.dev&region=auto"
 
 [deploy]
-  release_command = "/migrate up"
+  strategy = "rolling"
+  wait_timeout = "5m"
+
+[[mounts]]
+  source = "astro_data"
+  destination = "/data"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory = "256mb"
 
 [[services]]
   protocol = "tcp"
@@ -34,18 +48,18 @@ kill_timeout = 5
   [[services.tcp_checks]]
     interval = "15s"
     timeout = "2s"
-    grace_period = "1s"
+    grace_period = "30s"
     restart_limit = 0
 
   [[services.http_checks]]
     interval = "15s"
     timeout = "2s"
-    grace_period = "1s"
+    grace_period = "30s"
     restart_limit = 0
     method = "get"
     path = "/health"
     protocol = "http"
 
-[metrics]
+[[metrics]]
   port = 9091
   path = "/metrics"

@@ -6,11 +6,23 @@ on:
       - "**"
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: production-image
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.reference.outputs.image }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
 
       - uses: docker/login-action@v4
         with:
@@ -23,40 +35,53 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=sha,prefix=,format=short
+            type=sha,prefix=,format=long
             type=semver,pattern={{version}}
 
       - uses: docker/build-push-action@v7
+        id: image
         with:
+          context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      - name: Record immutable image
+        id: reference
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}@${{ steps.image.outputs.digest }}
+        run: echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+
+      - name: Exercise published image
+        env:
+          IMAGE: ${{ steps.reference.outputs.image }}
+        run: sh scripts/test-image.sh "$IMAGE"
+
+      - name: Record cutover gate
+        if: vars.SQLITE_DEPLOY_READY != 'true'
+        run: echo 'Production deployment is disabled until remote recovery, backup monitoring, and single-writer commissioning are verified.' >> "$GITHUB_STEP_SUMMARY"
+
   deploy:
+    if: vars.SQLITE_DEPLOY_READY == 'true'
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: production
       url: https://gastro.fly.dev/
     steps:
-      - uses: docker/metadata-action@v6
-        id: meta
+      - uses: actions/checkout@v7
         with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=sha,prefix=,format=short
-            type=semver,pattern={{version}}
+          ref: ${{ github.sha }}
 
       - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Require one writer machine
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl machine list --app gastro --json | jq -e 'length == 1' > /dev/null
 
-      - run: flyctl deploy --app gastro --image $IMAGE --image-label $VERSION
+      - name: Deploy tested image with repository configuration
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-          IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-          VERSION: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
-
-      - name: rollback
-        if: failure()
-        run: fly deploy --app gastro --image `fly releases --app gastro -j | jq ".[1].ImageRef" -r`
+          IMAGE: ${{ needs.build.outputs.image }}
+        run: flyctl deploy --app gastro --config fly.toml --image "$IMAGE" --ha=false

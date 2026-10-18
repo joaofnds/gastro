@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -25,4 +26,17 @@ func translateError(err error) error {
 		fmt.Printf("\n%v\n", err)
 		return ErrRepository
 	}
+}
+
+func normalizeUUIDs(ids ...*string) bool {
+	for _, id := range ids {
+		parsed, err := uuid.Parse(*id)
+		if err != nil {
+			return false
+		}
+
+		*id = parsed.String()
+	}
+
+	return true
 }

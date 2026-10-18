@@ -2,7 +2,6 @@ package token_test
 
 import (
 	"astro/adapters/logger"
-	"astro/adapters/postgres"
 	"astro/config"
 	. "astro/test/matchers"
 	"astro/token"
@@ -30,7 +29,6 @@ var _ = Describe("token service", Ordered, func() {
 			logger.NopLogger,
 			token.NopProbeProvider,
 			config.Module,
-			postgres.Module,
 			token.Module,
 			fx.Populate(&service, &idGen, &encrypter, &encoder, &probe),
 		)

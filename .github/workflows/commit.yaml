@@ -1,6 +1,7 @@
 name: commit
 
 on:
+  pull_request:
   push:
     branches: [main]
 
@@ -34,27 +35,15 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:alpine
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_DB: astro
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-
     env:
       CONFIG_PATH: "${{ github.workspace }}/config/config.yaml"
+      CGO_ENABLED: "0"
 
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
         with:
           go-version: ">=1.26.5"
-
-      - name: migrate
-        run: go run cmd/migrate/migrate.go up
 
       - name: test
         run: go test -coverprofile=coverage.txt -v ./...
@@ -79,8 +68,47 @@ jobs:
           fail_ci_if_error: true
           verbose: true
 
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: astro:image-check
+      - run: sh scripts/test-image.sh astro:image-check
+
+  transfer-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14.4
+        ports:
+          - 5432/tcp
+        env:
+          POSTGRES_DB: astro_transfer
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      CGO_ENABLED: "0"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ">=1.26.5"
+      - run: go test -count=1 -tags=transfer_integration ./internal/transfer ./cmd/transfer
+        env:
+          ASTRO_TRANSFER_TEST_POSTGRES_DSN: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/astro_transfer?sslmode=disable
+
   release:
-    needs: [gitleaks, lint-go, lint-dockerfile, test, coverage]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [gitleaks, lint-go, lint-dockerfile, test, coverage, image, transfer-integration]
     runs-on: ubuntu-latest
     steps:
       - uses: joaofnds/semantic-release-action@v1.4.0

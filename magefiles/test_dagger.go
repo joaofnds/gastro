@@ -14,7 +14,7 @@ func TestDagger() error {
 	ctx := context.Background()
 	client, err := dagger.Connect(
 		ctx,
-		dagger.WithWorkdir("."),
+		dagger.WithWorkdir(".."),
 		dagger.WithLogOutput(os.Stdout),
 	)
 	if err != nil {
@@ -27,12 +27,8 @@ func TestDagger() error {
 		return err
 	}
 
-	postgresService := dag.Postgres(client)
-
 	_, err = container.
-		WithServiceBinding("postgres", postgresService).
 		WithEnvVariable("CONFIG_PATH", "/app/config/config.yaml").
-		WithEnvVariable("POSTGRES_HOST", "postgres").
 		WithExec([]string{"go", "test", "-v", "./..."}).
 		Sync(ctx)
 

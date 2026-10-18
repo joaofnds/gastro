@@ -1,2 +1,16 @@
 .git
-Dockerfile
+data
+astro
+migrate
+transfer
+coverage.txt
+.env
+.env.*
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.dump
+*.pgpass
+*.pem
+*.key

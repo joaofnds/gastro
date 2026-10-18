@@ -3,13 +3,13 @@ package habit_test
 import (
 	http2 "astro/adapters/http"
 	"astro/adapters/logger"
-	"astro/adapters/postgres"
+	"astro/adapters/sqlite"
 	"astro/config"
 	"astro/habit"
 	"astro/test"
+	"astro/test/database"
 	"astro/test/driver"
 	. "astro/test/matchers"
-	"astro/test/transaction"
 	"astro/token"
 	"encoding/json"
 	"fmt"
@@ -45,9 +45,9 @@ var _ = Describe("/habits", func() {
 			http2.NopProbeProvider,
 			config.Module,
 			http2.FiberModule,
-			postgres.Module,
+			sqlite.Module,
 			habit.Module,
-			transaction.Module,
+			database.Module,
 			token.Module,
 			fx.Invoke(func(app *fiber.App, habitController *habit.Controller, tokenController *token.Controller) {
 				habitController.Register(app)

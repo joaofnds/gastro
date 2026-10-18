@@ -3,12 +3,14 @@ package http_test
 import (
 	http2 "astro/adapters/http"
 	"astro/adapters/logger"
+	"astro/adapters/sqlite"
 	"astro/config"
 	"astro/test"
 	"context"
 	"fmt"
 	"net"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"testing"
 	"time"
@@ -120,6 +122,62 @@ var _ = Describe("fiber middlewares", func() {
 })
 
 var _ = Describe("HTTP lifecycle", func() {
+	It("cancels a queued database operation before waiting for shutdown", func() {
+		path := filepath.Join(GinkgoT().TempDir(), "astro.db")
+		Expect(sqlite.Initialize(context.Background(), path)).To(Succeed())
+		orm, err := sqlite.Open(sqlite.Config{Path: path})
+		Expect(err).NotTo(HaveOccurred())
+		pool, err := orm.DB()
+		Expect(err).NotTo(HaveOccurred())
+		held, err := pool.Conn(context.Background())
+		Expect(err).NotTo(HaveOccurred())
+		server := http2.NewFiber(http2.Config{Limiter: http2.Limiter{Requests: 120, Expiration: time.Minute}}, http2.NopProbe{})
+		listening := make(chan fiber.ListenData, 1)
+		server.Hooks().OnListen(func(data fiber.ListenData) error { listening <- data; return nil })
+		operation := make(chan error, 1)
+		deadline := make(chan time.Time, 1)
+		server.Get("/queued", func(c fiber.Ctx) error {
+			value, _ := c.Context().Deadline()
+			deadline <- value
+			operation <- pool.PingContext(c.Context())
+			return c.SendStatus(fiber.StatusServiceUnavailable)
+		})
+		application := fx.New(fx.NopLogger, fx.Invoke(func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner) {
+			http2.HookFiber(lifecycle, server, http2.Config{Port: 0}, shutdowner)
+		}))
+		DeferCleanup(func() {
+			_ = held.Close()
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			defer cancel()
+			_ = application.Stop(ctx)
+			Expect(pool.Close()).To(Succeed())
+		})
+		Expect(application.Start(context.Background())).To(Succeed())
+		var data fiber.ListenData
+		Expect(listening).To(Receive(&data))
+		clientResult := make(chan error, 1)
+		go func() {
+			client := http.Client{Timeout: 2 * time.Second}
+			response, err := client.Get("http://" + net.JoinHostPort("127.0.0.1", data.Port) + "/queued")
+			if err == nil {
+				err = response.Body.Close()
+			}
+			clientResult <- err
+		}()
+		Eventually(func() int64 { return pool.Stats().WaitCount }).Should(Equal(int64(1)))
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		err = application.Stop(ctx)
+
+		Expect(err).NotTo(HaveOccurred())
+		Expect(operation).To(Receive(MatchError(context.Canceled)))
+		Eventually(clientResult).Should(Receive(BeNil()))
+		var bound time.Time
+		Expect(deadline).To(Receive(&bound))
+		Expect(bound).To(BeTemporally("~", time.Now().Add(30*time.Second), 2*time.Second))
+	})
+
 	It("serves requests before startup returns", func() {
 		server := fiber.New()
 		listening := make(chan fiber.ListenData, 1)

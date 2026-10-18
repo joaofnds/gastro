@@ -2,12 +2,12 @@ package habit_test
 
 import (
 	"astro/adapters/logger"
-	"astro/adapters/postgres"
+	"astro/adapters/sqlite"
 	"astro/config"
 	"astro/habit"
 	"astro/test"
+	"astro/test/database"
 	. "astro/test/matchers"
-	"astro/test/transaction"
 
 	"context"
 
@@ -35,9 +35,9 @@ var _ = Describe("habit service", func() {
 			habit.NopProbeProvider,
 			test.NewPortAppConfig,
 			config.Module,
-			postgres.Module,
+			sqlite.Module,
 			habit.Module,
-			transaction.Module,
+			database.Module,
 			fx.Populate(&sut),
 		)
 		app.RequireStart()

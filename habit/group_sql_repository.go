@@ -16,11 +16,19 @@ func NewGroupSQLRepository(orm *gorm.DB) *GroupSQLRepository {
 }
 
 func (repo *GroupSQLRepository) Create(ctx context.Context, dto CreateGroupDTO) (Group, error) {
+	if !normalizeUUIDs(&dto.UserID) {
+		return Group{}, ErrRepository
+	}
+
 	group := Group{ID: uuid.NewString(), Name: dto.Name, UserID: dto.UserID, Habits: []Habit{}}
 	return group, resultErr(repo.orm.WithContext(ctx).Create(&group))
 }
 
 func (repo *GroupSQLRepository) Find(ctx context.Context, dto FindGroupDTO) (Group, error) {
+	if !normalizeUUIDs(&dto.GroupID, &dto.UserID) {
+		return Group{}, ErrRepository
+	}
+
 	var group Group
 	result := repo.orm.
 		WithContext(ctx).
@@ -31,18 +39,34 @@ func (repo *GroupSQLRepository) Find(ctx context.Context, dto FindGroupDTO) (Gro
 }
 
 func (repo *GroupSQLRepository) Delete(ctx context.Context, group Group) error {
+	if !normalizeUUIDs(&group.ID, &group.UserID) {
+		return ErrRepository
+	}
+
 	return resultErr(repo.orm.WithContext(ctx).Where("user_id = ?", group.UserID).Delete(&group))
 }
 
 func (repo *GroupSQLRepository) Join(ctx context.Context, habit Habit, group Group) error {
+	if !normalizeUUIDs(&habit.ID, &habit.UserID, &group.ID, &group.UserID) {
+		return ErrRepository
+	}
+
 	return translateError(repo.orm.WithContext(ctx).Model(&group).Association("Habits").Append(&habit))
 }
 
 func (repo *GroupSQLRepository) Leave(ctx context.Context, habit Habit, group Group) error {
+	if !normalizeUUIDs(&habit.ID, &group.ID, &group.UserID) {
+		return ErrRepository
+	}
+
 	return translateError(repo.orm.WithContext(ctx).Model(&group).Association("Habits").Delete(habit))
 }
 
 func (repo *GroupSQLRepository) GroupsAndHabits(ctx context.Context, userID string) ([]Group, []Habit, error) {
+	if !normalizeUUIDs(&userID) {
+		return nil, nil, ErrRepository
+	}
+
 	var groups []Group
 	var habits []Habit
 

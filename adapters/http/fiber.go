@@ -36,6 +36,19 @@ func NewFiber(config Config, probe Probe) *fiber.App {
 		IdleTimeout:  120 * time.Second,
 	})
 	app.Use(recover.New())
+	serverContext, stopRequests := context.WithCancel(context.Background())
+	app.Hooks().OnPreShutdown(func() error {
+		stopRequests()
+		return nil
+	})
+	app.Use(func(c fiber.Ctx) error {
+		ctx, cancel := context.WithTimeout(serverContext, 30*time.Second)
+		defer cancel()
+
+		c.SetContext(ctx)
+
+		return c.Next()
+	})
 	app.Use(compress.New(compress.Config{
 		Level: compress.LevelBestSpeed,
 	}))
@@ -73,6 +86,7 @@ func HookFiber(lifecycle fx.Lifecycle, app *fiber.App, config Config, shutdowner
 			if err != nil {
 				return err
 			}
+
 			listener = &startupListener{Listener: bound, ready: make(chan struct{})}
 
 			go func() {
