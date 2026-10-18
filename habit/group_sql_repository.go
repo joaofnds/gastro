@@ -3,16 +3,16 @@ package habit
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type GroupSQLRepository struct {
-	orm *gorm.DB
+	orm         *gorm.DB
+	idGenerator IDGenerator
 }
 
-func NewGroupSQLRepository(orm *gorm.DB) *GroupSQLRepository {
-	return &GroupSQLRepository{orm}
+func NewGroupSQLRepository(orm *gorm.DB, idGenerator IDGenerator) *GroupSQLRepository {
+	return &GroupSQLRepository{orm, idGenerator}
 }
 
 func (repo *GroupSQLRepository) Create(ctx context.Context, dto CreateGroupDTO) (Group, error) {
@@ -20,7 +20,12 @@ func (repo *GroupSQLRepository) Create(ctx context.Context, dto CreateGroupDTO) 
 		return Group{}, ErrRepository
 	}
 
-	group := Group{ID: uuid.NewString(), Name: dto.Name, UserID: dto.UserID, Habits: []Habit{}}
+	id, err := repo.idGenerator.NewID()
+	if err != nil {
+		return Group{}, ErrRepository
+	}
+
+	group := Group{ID: id, Name: dto.Name, UserID: dto.UserID, Habits: []Habit{}}
 	return group, resultErr(repo.orm.WithContext(ctx).Create(&group))
 }
 

@@ -3,16 +3,16 @@ package habit
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type HabitSQLRepository struct {
-	orm *gorm.DB
+	orm         *gorm.DB
+	idGenerator IDGenerator
 }
 
-func NewHabitSQLRepository(orm *gorm.DB) *HabitSQLRepository {
-	return &HabitSQLRepository{orm}
+func NewHabitSQLRepository(orm *gorm.DB, idGenerator IDGenerator) *HabitSQLRepository {
+	return &HabitSQLRepository{orm, idGenerator}
 }
 
 func (repo *HabitSQLRepository) Create(ctx context.Context, create CreateHabitDTO) (Habit, error) {
@@ -20,8 +20,13 @@ func (repo *HabitSQLRepository) Create(ctx context.Context, create CreateHabitDT
 		return Habit{}, ErrRepository
 	}
 
+	id, err := repo.idGenerator.NewID()
+	if err != nil {
+		return Habit{}, ErrRepository
+	}
+
 	var habit Habit
-	habit.ID = uuid.NewString()
+	habit.ID = id
 	habit.UserID = create.UserID
 	habit.Name = create.Name
 	habit.Activities = []Activity{}

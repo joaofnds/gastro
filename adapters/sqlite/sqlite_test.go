@@ -6,6 +6,7 @@ import (
 	"astro/internal/transfer"
 	"context"
 	"database/sql"
+	"errors"
 	"gorm.io/gorm"
 	"os"
 	"path/filepath"
@@ -86,11 +87,59 @@ var _ = Describe("SQLite repositories", func() {
 		Expect(err).NotTo(HaveOccurred())
 		pool, err = db.DB()
 		Expect(err).NotTo(HaveOccurred())
-		habits = habit.NewHabitSQLRepository(db)
-		groups = habit.NewGroupSQLRepository(db)
-		activities = habit.NewActivitySQLRepository(db)
+		ids := habit.NewUUIDGenerator()
+		habits = habit.NewHabitSQLRepository(db, ids)
+		groups = habit.NewGroupSQLRepository(db, ids)
+		activities = habit.NewActivitySQLRepository(db, ids)
 	})
 	AfterEach(func() { Expect(pool.Close()).To(Succeed()) })
+
+	createHabit := func(ids habit.IDGenerator) error {
+		_, err := habit.NewHabitSQLRepository(db, ids).Create(GinkgoT().Context(), habit.CreateHabitDTO{UserID: userID, Name: "read"})
+		return err
+	}
+	createGroup := func(ids habit.IDGenerator) error {
+		_, err := habit.NewGroupSQLRepository(db, ids).Create(GinkgoT().Context(), habit.CreateGroupDTO{UserID: userID, Name: "learning"})
+		return err
+	}
+	addActivity := func(ids habit.IDGenerator) error {
+		parent, err := habits.Create(GinkgoT().Context(), habit.CreateHabitDTO{UserID: userID, Name: "read"})
+		Expect(err).NotTo(HaveOccurred())
+
+		_, err = habit.NewActivitySQLRepository(db, ids).Add(GinkgoT().Context(), parent, habit.AddActivityDTO{Desc: "chapter"})
+		return err
+	}
+
+	DescribeTable("persists identifiers supplied by the ID provider", func(table string, create func(habit.IDGenerator) error) {
+		const expected = "98f21686-c9ca-4555-bd22-21b138eb6152"
+		ids := fixedIDGenerator{id: expected}
+
+		err := create(ids)
+
+		Expect(err).NotTo(HaveOccurred())
+		var persisted string
+		Expect(pool.QueryRowContext(GinkgoT().Context(), "SELECT id FROM "+table).Scan(&persisted)).To(Succeed())
+		Expect(persisted).To(Equal(expected))
+	},
+		Entry("habit", "habits", createHabit),
+		Entry("group", "groups", createGroup),
+		Entry("activity", "activities", addActivity),
+	)
+
+	DescribeTable("does not insert a row when ID generation fails", func(table string, create func(habit.IDGenerator) error) {
+		ids := fixedIDGenerator{err: errors.New("ID generation failed")}
+
+		err := create(ids)
+
+		Expect(err).To(MatchError(habit.ErrRepository))
+		var count int
+		Expect(pool.QueryRowContext(GinkgoT().Context(), "SELECT count(*) FROM "+table).Scan(&count)).To(Succeed())
+		Expect(count).To(BeZero())
+	},
+		Entry("habit", "habits", createHabit),
+		Entry("group", "groups", createGroup),
+		Entry("activity", "activities", addActivity),
+	)
 
 	DescribeTable("normalizes accepted owner spellings", func(owner string) {
 		created, err := habits.Create(context.Background(), habit.CreateHabitDTO{UserID: owner, Name: "read"})
@@ -312,3 +361,14 @@ var _ = Describe("SQLite initialization", func() {
 		Expect(string(data)).To(Equal("retained"))
 	}, Entry("WAL", "-wal"), Entry("shared memory", "-shm"))
 })
+
+var _ habit.IDGenerator = fixedIDGenerator{}
+
+type fixedIDGenerator struct {
+	id  string
+	err error
+}
+
+func (generator fixedIDGenerator) NewID() (string, error) {
+	return generator.id, generator.err
+}
