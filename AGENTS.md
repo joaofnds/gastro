@@ -1,6 +1,6 @@
 # AGENTS.md
 
-The HTTP API behind [astro](https://github.com/joaofnds/astro). Go module `astro`, go 1.25,
+The HTTP API behind [astro](https://github.com/joaofnds/astro). Go module `astro`,
 deployed to Fly as `gastro`.
 
 **This service is a downstream of the Go service template and has fallen behind it.** Before
@@ -16,13 +16,12 @@ rather than choices. Last substantive commit: 2026-03-30; the template moved on 
 
 ## Stack
 
-Shares the template's stack — fx, Fiber, GORM over Postgres, Viper, Zap, Prometheus,
-Ginkgo/Gomega, Goose — minus everything the template added since: no Watermill, Asynq,
-Casbin/Casdoor, OpenTelemetry, Mongo, Redis, feature flags, or `validator/v10`.
+The service uses fx, Fiber, GORM over SQLite, Viper, Zap, Prometheus, Ginkgo/Gomega
+and Goose. It has no Watermill, Asynq, Casbin/Casdoor, OpenTelemetry, Mongo, Redis,
+feature flags, or `validator/v10`.
 
-Fly runs `release_command = "/migrate up"` before the new machines start, with
-`auto_rollback = true`. A migration therefore runs against production while the previous
-version is still serving, and a rollback reverts the code but not the schema.
+The container runs migrations and integrity checks under the writer lock before starting
+the API.
 
 ## Divergences from the template
 
@@ -30,7 +29,7 @@ version is still serving, and a rollback reverts the code but not the schema.
 | --- | --- | --- |
 | Infrastructure dir | `adapter/` | `adapters/` |
 | Domain layout | package family — `user/` with nested `user_adapter/`, `user_http/`, `user_module/` | flat — `habit/habit_service.go`, `controller.go`, `module.go` in one package |
-| Repository file | `postgres_repository.go` in `_adapter` | `<entity>_sql_repository.go` in the domain package |
+| Repository file | `*_repository.go` in `_adapter` | `<entity>_sql_repository.go` in the domain package |
 | Module visibility | `fx.Private` for anything not consumed outside the module | everything public in the graph |
 | Observability | `PromProbe` subscribes to domain events over Watermill | `Probe` interface called directly by the service |
 | Test bootstrap | `test/harness` | eleven hand-wired `fxtest.New` sites |
@@ -46,8 +45,8 @@ delete it** — a row that no longer describes astro is worse than no row.
 ## Layout as it stands
 
 Domain packages at the root (`habit/`, `token/`), infrastructure under `adapters/`
-(`http`, `postgres`, `logger`, `metrics`, `health`), configuration in `config/`, entry
-points in `cmd/astro` and `cmd/migrate`, shared test utilities in `test/`.
+(`http`, `sqlite`, `logger`, `metrics`, `health`, `backuphealth`), configuration in
+`config/`, entry points in `cmd/astro` and `cmd/migrate`, shared test utilities in `test/`.
 
 Within a domain package: `<entity>.go` for the concept, `<entity>_service.go`,
 `<entity>_sql_repository.go`, `controller.go`, `module.go`, `config.go`, `error.go`,

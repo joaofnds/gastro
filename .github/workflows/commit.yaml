@@ -15,6 +15,7 @@ jobs:
       - uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_VERSION: 8.30.1
 
   lint-go:
     runs-on: ubuntu-latest
@@ -22,16 +23,16 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
         with:
-          go-version: ">=1.26.5"
+          go-version-file: go.mod
       - uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.12.2
+          version: v2.15.0
 
   lint-dockerfile:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: hadolint/hadolint-action@v3.3.0
+      - uses: hadolint/hadolint-action@v3.5.0
 
   test:
     runs-on: ubuntu-latest
@@ -43,10 +44,15 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
         with:
-          go-version: ">=1.26.5"
+          go-version-file: go.mod
 
       - name: test
         run: go test -coverprofile=coverage.txt -v ./...
+
+      - name: Check Mage tooling
+        run: |
+          go -C magefiles test -tags=mage ./...
+          go -C magefiles run main.go -l
 
       - uses: actions/upload-artifact@v7
         with:
@@ -79,40 +85,14 @@ jobs:
           tags: astro:image-check
       - run: sh scripts/test-image.sh astro:image-check
 
-  transfer-integration:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:14.4
-        ports:
-          - 5432/tcp
-        env:
-          POSTGRES_DB: astro_transfer
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-    env:
-      CGO_ENABLED: "0"
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
-        with:
-          go-version: ">=1.26.5"
-      - run: go test -count=1 -tags=transfer_integration ./internal/transfer ./cmd/transfer
-        env:
-          ASTRO_TRANSFER_TEST_POSTGRES_DSN: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/astro_transfer?sslmode=disable
-
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [gitleaks, lint-go, lint-dockerfile, test, coverage, image, transfer-integration]
+    needs: [gitleaks, lint-go, lint-dockerfile, test, coverage, image]
     runs-on: ubuntu-latest
     steps:
-      - uses: joaofnds/semantic-release-action@v1.4.0
+      - uses: joaofnds/semantic-release-action@v1.5.0
         with:
-          plugins: conventional-changelog-conventionalcommits
+          version: 25.0.9
+          plugins: conventional-changelog-conventionalcommits@10.4.1
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}

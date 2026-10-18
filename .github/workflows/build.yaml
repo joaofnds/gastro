@@ -57,7 +57,7 @@ jobs:
           IMAGE: ${{ steps.reference.outputs.image }}
         run: sh scripts/test-image.sh "$IMAGE"
 
-      - name: Record cutover gate
+      - name: Record deployment gate
         if: vars.SQLITE_DEPLOY_READY != 'true'
         run: echo 'Production deployment is disabled until remote recovery, backup monitoring, and single-writer commissioning are verified.' >> "$GITHUB_STEP_SUMMARY"
 
@@ -73,7 +73,9 @@ jobs:
         with:
           ref: ${{ github.sha }}
 
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - uses: superfly/flyctl-actions/setup-flyctl@v1
+        with:
+          version: 0.4.118
 
       - name: Require one writer machine
         env:

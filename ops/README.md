@@ -1,6 +1,6 @@
 # SQLite operations
 
-The [2026-10-18 cutover record](2026-10-18-cutover.md) lists the production
+The [2026-10-18 commissioning record](2026-10-18-commissioning.md) lists the production
 resources, data verification and current operating limits.
 
 ## Runtime contract
@@ -12,9 +12,9 @@ have separate lock files; a local file lock cannot prevent two machines from
 replicating divergent databases to the same destination.
 
 The image runs as UID/GID 65532. During commissioning, make the mounted data
-directory and transferred database files writable by that identity. An offline
-root maintenance command can set ownership before running the transfer; the API
-and normal maintenance commands run without root privileges.
+directory and database files writable by that identity. An offline root maintenance
+command can set ownership before initialization or recovery. The API and normal
+maintenance commands run without root privileges.
 
 The container requires `SQLITE_PATH` and `LITESTREAM_REPLICA_URL`.
 `SQLITE_PATH` defaults to `/data/astro.db`. The optional
@@ -39,7 +39,7 @@ is 30 seconds. Forced stops and hardware loss can interrupt either budget. Norma
 single-machine deploys have a maintenance gap; schema changes must still allow the
 previous SQLite image to reopen the database if an image rollback is needed.
 
-## Production cutover gates
+## Production commissioning gates
 
 Keep `SQLITE_DEPLOY_READY` unset until all of these are recorded for automated deployments:
 
@@ -49,18 +49,16 @@ Keep `SQLITE_DEPLOY_READY` unset until all of these are recorded for automated d
 2. Invalid credentials, missing replicas, corrupt databases and interrupted writes
    have been exercised with the final image on isolated data. Confirm operator
    response, acceptable write loss, and behavior during an extended backup outage.
-3. The volume is commissioned with a verified transfer, the previous API cannot
-   write, and only one SQLite machine/replicator can start. Recheck the 256 MiB memory
-   allocation with the application and backup process running together.
-4. The source-retention plan and a verified off-host archive are recorded. Retire
-   the original Postgres resources when the owner authorizes it. Record the tested
-   image digest, cutover source/target counts and per-table hashes, and the
-   maintenance window before accepting SQLite writes.
+3. The initialized or restored database passes `/migrate check`, and only one
+   SQLite machine/replicator can start. Recheck the 256 MiB
+   memory allocation with the application and backup process running together.
+4. Record the tested image digest, database verification results and maintenance
+   window before accepting writes.
 
-For the single-user deployment, manual activation can restore service after the
-verified transfer, first off-host sync and successful remote restore. Record any
-pending alert delivery as an operating limitation and leave the automated deploy
-gate closed until the checks above are complete.
+For the single-user deployment, manual activation can restore service after
+database verification, first off-host sync and successful remote restore. Record
+any pending alert delivery as an operating limitation and leave the automated
+deploy gate closed until the checks above are complete.
 
 The repository does not provision the bucket, alert destination, Fly volume or
 production machine. The bucket, commissioned volume and remote restore evidence
@@ -71,41 +69,21 @@ CI checks out the triggering revision in both jobs, tests the published image by
 digest, and deploys that digest with the checked-out `fly.toml`. The deploy job also
 requires exactly one existing machine and passes `--ha=false`. Repository variable
 `SQLITE_DEPLOY_READY=true` enables that job; it does not provision or validate the
-external prerequisites. There is no automatic image rollback across the Postgres
-boundary.
+external prerequisites.
 
-## Transfer
+## Initialize an empty installation
 
-Freeze all source writers before forward or return transfer. Supply the Postgres
-connection through `ASTRO_TRANSFER_POSTGRES_DSN`, injected into the maintenance
-process environment. The transfer process prints counts and canonical hashes, not
-row contents or connection credentials.
-
-On the stopped writer's volume, the forward command creates and verifies a new
-SQLite database and refuses an existing output:
+Stop the writer and use the tested image with the mounted data directory writable
+by UID/GID 65532. Set `SQLITE_PATH` to an absent absolute path on that volume:
 
 ```sh
-/transfer --direction postgres-to-sqlite --source-frozen --output /data/astro.db
-/transfer --direction verify --sqlite-path /data/astro.db
-SQLITE_PATH=/data/astro.db /migrate check
+/migrate init
+/migrate check
 ```
 
-An intentional return after SQLite has accepted writes requires a verified return
-transfer. Use an explicitly confirmed target database and a new
-`astro_return_<suffix>` schema; the tool can create it alongside frozen `public`:
-
-```sh
-/transfer --direction sqlite-to-postgres --source-frozen \
-  --sqlite-path /data/astro.db --target-database RETURN_DATABASE \
-  --target-schema astro_return_recovery
-```
-
-Verify with `--direction verify --postgres-schema astro_return_recovery` and the
-same SQLite path. Configure the Postgres-backed image with the verified return
-schema first in its connection's search path, then validate reads before opening
-writes. Deploying the old image against the frozen pre-cutover schema would discard
-subsequent SQLite writes. [The transfer guide](../cmd/transfer/README.md) covers
-field validation, return-schema permissions and interrupted attempts.
+Initialization refuses existing files and orphaned sidecars. Use recovery for an
+existing installation whose database is missing or corrupt. Before opening writes
+on a new installation, complete the first off-host backup and a remote restore.
 
 ## Recovery
 
@@ -190,8 +168,8 @@ supplies the metrics/checker configuration, but it does not create the receiver,
 alert routing, operator coverage or a demonstrated remote recovery time.
 
 Snapshots are hourly with seven-day retention. Fly's independent daily volume
-snapshots are supplementary recovery options. Retain independent archival evidence
-for cutover, and perform recurring restore drills after storage or image changes.
+snapshots are supplementary recovery options. Perform recurring restore drills
+after storage or image changes.
 
 Before the first completed replication, immediate shutdown can leave no replica:
 Litestream's final sync only runs after its database has initialized. The image

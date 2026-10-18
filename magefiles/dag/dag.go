@@ -27,7 +27,7 @@ func BuildProd() error {
 func BaseContainer(ctx context.Context, client *dagger.Client) (*dagger.Container, error) {
 	dir := client.Host().Directory(".")
 	golang := client.Container().
-		From("golang:1.26.5").
+		From("golang:1.27.2").
 		WithEnvVariable("CGO_ENABLED", "0").
 		WithExec([]string{"mkdir", "/app"}).
 		WithWorkdir("/app").

@@ -1,19 +1,29 @@
 module astro/magefiles
 
-go 1.21
+go 1.27.2
 
 require (
-	dagger.io/dagger v0.9.8
-	github.com/magefile/mage v1.15.0
+	dagger.io/dagger v0.21.10
+	github.com/magefile/mage v1.17.2
 )
 
 require (
-	github.com/99designs/gqlgen v0.17.31 // indirect
-	github.com/Khan/genqlient v0.6.0 // indirect
-	github.com/adrg/xdg v0.4.0 // indirect
+	github.com/99designs/gqlgen v0.17.95 // indirect
+	github.com/Khan/genqlient v0.8.1 // indirect
+	github.com/adrg/xdg v0.5.3 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/dagger/querybuilder v0.0.0-20260402040506-574a5e81cb59 // indirect
+	github.com/go-logr/logr v1.4.4 // indirect
+	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/vektah/gqlparser/v2 v2.5.6 // indirect
-	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
-	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.14.0 // indirect
+	github.com/sosodev/duration v1.4.0 // indirect
+	github.com/vektah/gqlparser/v2 v2.5.63 // indirect
+	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
+	go.opentelemetry.io/otel v1.47.0 // indirect
+	go.opentelemetry.io/otel/log v1.47.0 // indirect
+	go.opentelemetry.io/otel/metric v1.47.0 // indirect
+	go.opentelemetry.io/otel/trace v1.47.0 // indirect
+	golang.org/x/sync v0.24.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
 )

@@ -2,7 +2,6 @@
 data
 astro
 migrate
-transfer
 coverage.txt
 .env
 .env.*
@@ -11,6 +10,6 @@ coverage.txt
 *.sqlite
 *.sqlite-*
 *.dump
-*.pgpass
+*pass
 *.pem
 *.key

@@ -3,7 +3,6 @@ package sqlite_test
 import (
 	"astro/adapters/sqlite"
 	"astro/habit"
-	"astro/internal/transfer"
 	"context"
 	"database/sql"
 	"errors"
@@ -150,8 +149,6 @@ var _ = Describe("SQLite repositories", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(created.UserID).To(Equal(userID))
 		Expect(found).To(Equal(created))
-		_, err = transfer.InspectSQLite(context.Background(), path)
-		Expect(err).NotTo(HaveOccurred())
 	}, Entry("uppercase", "26B67B16-F8E7-4686-8C78-BC7F5A70ED1A"), Entry("compact", "26b67b16f8e746868c78bc7f5a70ed1a"))
 
 	It("updates using an alternate UUID spelling", func() {
@@ -349,6 +346,23 @@ var _ = Describe("SQLite repositories", func() {
 })
 
 var _ = Describe("SQLite initialization", func() {
+	It("preserves orphaned replication state without creating a database", func() {
+		path := filepath.Join(GinkgoT().TempDir(), "astro.db")
+		state := filepath.Join(filepath.Dir(path), ".astro.db-litestream")
+		Expect(os.Mkdir(state, 0700)).To(Succeed())
+		marker := filepath.Join(state, "marker")
+		original := []byte("retained replication state")
+		Expect(os.WriteFile(marker, original, 0600)).To(Succeed())
+
+		err := sqlite.Initialize(context.Background(), path)
+
+		Expect(err).To(MatchError(os.ErrExist))
+		contents, err := os.ReadFile(marker)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(contents).To(Equal(original))
+		Expect(path).NotTo(BeAnExistingFile())
+	})
+
 	DescribeTable("refuses orphaned sidecars", func(suffix string) {
 		path := filepath.Join(GinkgoT().TempDir(), "astro.db")
 		Expect(os.WriteFile(path+suffix, []byte("retained"), 0600)).To(Succeed())
