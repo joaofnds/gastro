@@ -3,6 +3,7 @@ package habit
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -16,6 +17,7 @@ func NewHabitSQLRepository(orm *gorm.DB) *HabitSQLRepository {
 
 func (repo *HabitSQLRepository) Create(ctx context.Context, create CreateHabitDTO) (Habit, error) {
 	var habit Habit
+	habit.ID = uuid.NewString()
 	habit.UserID = create.UserID
 	habit.Name = create.Name
 	habit.Activities = []Activity{}

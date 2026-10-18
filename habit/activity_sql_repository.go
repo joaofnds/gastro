@@ -3,6 +3,7 @@ package habit
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -15,8 +16,8 @@ func NewActivitySQLRepository(orm *gorm.DB) *ActivitySQLRepository {
 }
 
 func (repo *ActivitySQLRepository) Add(ctx context.Context, habit Habit, dto AddActivityDTO) (Activity, error) {
-	activity := Activity{Desc: dto.Desc, CreatedAt: dto.Time}
-	return activity, translateError(repo.orm.WithContext(ctx).Model(&habit).Association("Activities").Append(&activity))
+	activity := Activity{ID: uuid.NewString(), HabitID: habit.ID, Desc: dto.Desc, CreatedAt: dto.Time}
+	return activity, translateError(repo.orm.WithContext(ctx).Create(&activity).Error)
 }
 
 func (repo *ActivitySQLRepository) Find(ctx context.Context, find FindActivityDTO) (Activity, error) {

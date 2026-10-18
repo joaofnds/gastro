@@ -6,7 +6,7 @@ import (
 )
 
 type Activity struct {
-	ID        string    `json:"id" gorm:"default:uuid_generate_v4()"`
+	ID        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	Desc      string    `json:"description" gorm:"column:description"`
 	HabitID   string

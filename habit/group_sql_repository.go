@@ -3,6 +3,7 @@ package habit
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -15,7 +16,7 @@ func NewGroupSQLRepository(orm *gorm.DB) *GroupSQLRepository {
 }
 
 func (repo *GroupSQLRepository) Create(ctx context.Context, dto CreateGroupDTO) (Group, error) {
-	group := Group{Name: dto.Name, UserID: dto.UserID, Habits: []Habit{}}
+	group := Group{ID: uuid.NewString(), Name: dto.Name, UserID: dto.UserID, Habits: []Habit{}}
 	return group, resultErr(repo.orm.WithContext(ctx).Create(&group))
 }
 
@@ -54,7 +55,7 @@ func (repo *GroupSQLRepository) GroupsAndHabits(ctx context.Context, userID stri
 		WithContext(ctx).
 		Preload("Activities").
 		Joins("LEFT JOIN groups_habits ON groups_habits.habit_id = habits.id").
-		Where("groups_habits IS NULL").
+		Where("groups_habits.habit_id IS NULL").
 		Find(&habits, "habits.user_id = ?", userID)
 
 	return groups, habits, translateError(result.Error)

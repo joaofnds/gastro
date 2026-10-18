@@ -48,6 +48,18 @@ var _ = Describe("activity service", func() {
 	})
 
 	Describe("add", func() {
+		It("does not recreate activities removed after the habit was loaded", func() {
+			hab := Must2(habitService.Create(ctx, habit.CreateHabitDTO{Name: "read", UserID: userID}))
+			removed := Must2(sut.Add(ctx, hab, habit.AddActivityDTO{Desc: "removed", Time: time.Now()}))
+			stale := Must2(habitService.Find(ctx, habit.FindHabitDTO{HabitID: hab.ID, UserID: userID}))
+			Must(sut.Delete(ctx, removed))
+
+			added := Must2(sut.Add(ctx, stale, habit.AddActivityDTO{Desc: "new", Time: time.Now()}))
+
+			found := Must2(habitService.Find(ctx, habit.FindHabitDTO{HabitID: hab.ID, UserID: userID}))
+			Expect(found.Activities).To(Equal([]habit.Activity{added}))
+		})
+
 		It("creates an uuid", func() {
 			hab := Must2(habitService.Create(ctx, habit.CreateHabitDTO{Name: "read", UserID: userID}))
 			act := Must2(sut.Add(ctx, hab, habit.AddActivityDTO{Time: time.Now()}))

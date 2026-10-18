@@ -3,7 +3,7 @@ package habit
 import "context"
 
 type Habit struct {
-	ID         string     `json:"id" gorm:"default:uuid_generate_v4()"`
+	ID         string     `json:"id"`
 	UserID     string     `json:"user_id"`
 	Name       string     `json:"name"`
 	Activities []Activity `json:"activities" gorm:"foreignKey:HabitID"`
