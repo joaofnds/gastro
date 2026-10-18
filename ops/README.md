@@ -1,5 +1,8 @@
 # SQLite operations
 
+The [2026-10-18 cutover record](2026-10-18-cutover.md) lists the production
+resources, data verification and current operating limits.
+
 ## Runtime contract
 
 `fly.toml` describes one shared-vCPU machine with 256 MiB in `ams`, mounting
@@ -49,9 +52,10 @@ Keep `SQLITE_DEPLOY_READY` unset until all of these are recorded for automated d
 3. The volume is commissioned with a verified transfer, the previous API cannot
    write, and only one SQLite machine/replicator can start. Recheck the 256 MiB memory
    allocation with the application and backup process running together.
-4. The source Postgres data and archived dump are retained for at least the agreed
-   week. Record the tested image digest and the cutover source/target counts and
-   per-table hashes. Confirm the maintenance window before accepting SQLite writes.
+4. The source-retention plan and a verified off-host archive are recorded. Retire
+   the original Postgres resources when the owner authorizes it. Record the tested
+   image digest, cutover source/target counts and per-table hashes, and the
+   maintenance window before accepting SQLite writes.
 
 For the single-user deployment, manual activation can restore service after the
 verified transfer, first off-host sync and successful remote restore. Record any
