@@ -31,7 +31,7 @@ func (repo *GroupSQLRepository) Find(ctx context.Context, dto FindGroupDTO) (Gro
 }
 
 func (repo *GroupSQLRepository) Delete(ctx context.Context, group Group) error {
-	return resultErr(repo.orm.WithContext(ctx).Delete(&group))
+	return resultErr(repo.orm.WithContext(ctx).Where("user_id = ?", group.UserID).Delete(&group))
 }
 
 func (repo *GroupSQLRepository) Join(ctx context.Context, habit Habit, group Group) error {

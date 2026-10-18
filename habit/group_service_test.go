@@ -15,6 +15,7 @@ import (
 	. "github.com/onsi/gomega"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
+	"gorm.io/gorm"
 )
 
 var _ = Describe("group service", func() {
@@ -23,6 +24,7 @@ var _ = Describe("group service", func() {
 		app          *fxtest.App
 		habitService *habit.HabitService
 		sut          *habit.GroupService
+		orm          *gorm.DB
 		userID       = "26b67b16-f8e7-4686-8c78-bc7f5a70ed1a"
 	)
 
@@ -37,7 +39,7 @@ var _ = Describe("group service", func() {
 			postgres.Module,
 			habit.Module,
 			transaction.Module,
-			fx.Populate(&sut, &habitService),
+			fx.Populate(&sut, &habitService, &orm),
 		)
 		app.RequireStart()
 	})
@@ -47,6 +49,22 @@ var _ = Describe("group service", func() {
 	})
 
 	Describe("created groups", func() {
+		It("deletes only the owning user's group when an imported ID is shared", func() {
+			group := habit.Group{ID: "12767d2e-57f8-41c5-b34f-7b845a084d63", UserID: userID, Name: "health", Habits: []habit.Habit{}}
+			other := group
+			other.UserID = "76b67b16-f8e7-4686-8c78-bc7f5a70ed1a"
+			Expect(orm.Create(&group).Error).To(Succeed())
+			Expect(orm.Create(&other).Error).To(Succeed())
+
+			Expect(sut.Delete(ctx, group)).To(Succeed())
+
+			_, err := sut.Find(ctx, habit.FindGroupDTO{GroupID: group.ID, UserID: group.UserID})
+			Expect(err).To(MatchError(habit.ErrNotFound))
+			found, err := sut.Find(ctx, habit.FindGroupDTO{GroupID: other.ID, UserID: other.UserID})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(found).To(Equal(other))
+		})
+
 		It("are listed", func() {
 			health := Must2(sut.Create(ctx, habit.CreateGroupDTO{UserID: userID, Name: "health"}))
 
